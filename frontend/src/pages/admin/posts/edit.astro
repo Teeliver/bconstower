@@ -1,0 +1,299 @@
+---
+// src/pages/admin/posts/edit.astro
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Chỉnh sửa bài viết">
+  <script is:inline src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script is:inline src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js" referrerpolicy="origin"></script>
+
+  <div class="max-w-full mx-auto">
+    <div class="mb-8">
+      <a href="/admin/posts" class="text-slate-400 hover:text-orange-600 flex items-center gap-2 mb-4 transition-all group">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span class="font-bold text-sm">Quay lại danh sách</span>
+      </a>
+      <h1 class="text-3xl font-black text-slate-900 tracking-tight uppercase">Cập nhật bài viết</h1>
+    </div>
+
+    <form id="editPostForm" class="grid grid-cols-1 lg:grid-cols-12 gap-8" enctype="multipart/form-data">
+      <div class="lg:col-span-8 space-y-6">
+        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-500 uppercase ml-1">Tiêu đề bài viết *</label>
+            <input type="text" name="title" id="title" required placeholder="Nhập tiêu đề..." class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl text-lg font-bold focus:bg-white focus:ring-2 focus:ring-orange-500 outline-none transition-all" />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-500 uppercase ml-1 tracking-tighter">Đường dẫn (Slug)</label>
+            <input type="text" name="slug" id="slug" readonly class="w-full px-4 py-2 bg-slate-100 border-none rounded-lg text-sm text-slate-400 font-mono outline-none cursor-not-allowed" />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-500 uppercase ml-1">Tóm tắt ngắn</label>
+            <textarea name="summary" id="summary" rows="3" placeholder="Mô tả ngắn..." class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-orange-500 outline-none transition-all resize-none"></textarea>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-500 uppercase ml-1">Nội dung chi tiết *</label>
+            <textarea name="content" id="full-editor"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-4 space-y-6">
+        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8 sticky top-24">
+          
+          <div class="space-y-4">
+            <div class="flex justify-between items-end ml-1">
+                <label class="text-xs font-bold text-slate-500 uppercase">Ảnh đại diện</label>
+                <span id="file-name" class="text-[10px] text-orange-600 font-bold truncate max-w-[150px]"></span>
+            </div>
+            <div class="aspect-video rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 overflow-hidden relative group transition-all hover:border-orange-400 hover:bg-orange-50/30">
+                <img id="previewThumb" src="" class="w-full h-full object-cover hidden z-10 relative" />
+                <div id="placeholderThumb" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 z-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span class="text-[10px] font-black uppercase">Đổi hình ảnh</span>
+                </div>
+                <input type="file" name="image" id="thumbInput" class="absolute inset-0 opacity-0 cursor-pointer z-20" accept="image/*" />
+                <input type="hidden" name="currentThumbnail" id="currentThumbnail" />
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-500 uppercase ml-1">Chuyên mục</label>
+            <select name="category" id="category" class="w-full bg-slate-50 border-none rounded-2xl py-4 px-5 font-bold text-slate-700 outline-none ring-1 ring-slate-100 focus:ring-2 focus:ring-orange-500 appearance-none cursor-pointer">
+                <option value="thi-truong">Tin tức thị trường</option>
+                <option value="tien-do">Tiến độ công trình</option>
+            </select>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-500 uppercase ml-1">Trạng thái</label>
+            <select name="status" id="status" class="w-full bg-slate-50 border-none rounded-2xl py-4 px-5 font-bold text-slate-700 outline-none ring-1 ring-slate-100 focus:ring-2 focus:ring-orange-500 appearance-none cursor-pointer">
+                <option value="published">Đã xuất bản</option>
+                <option value="draft">Bản nháp</option>
+            </select>
+          </div>
+
+          <div class="pt-4">
+            <button type="submit" id="submitBtn" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black shadow-xl hover:bg-orange-600 transition-all active:scale-95 disabled:opacity-50">
+              Lưu thay đổi
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</AdminLayout>
+
+<style is:global>
+  .tox-tinymce { border: none !important; border-radius: 1.5rem !important; background-color: #f8fafc !important; overflow: hidden; }
+</style>
+
+<script is:inline>
+  // 🔥 ĐÃ SỬA: Đồng bộ môi trường linh hoạt, bốc biến cấu hình API Backend từ hệ thống
+  const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://127.0.0.1:8000' 
+    : (window.import_meta_env_PUBLIC_API_BASE || 'http://127.0.0.1:8000');
+
+  const Swal = window.Swal;
+
+  // 🔥 ĐÃ SỬA: Trích xuất mã ID từ thanh điều hướng địa chỉ trình duyệt để tránh sập build tĩnh
+  const urlParams = new URLSearchParams(window.location.search);
+  const postId = urlParams.get('id');
+
+  // Khóa mõm bảo mật nếu hacker cố tình truy cập trang sửa bài viết thiếu tham số ID
+  if (!postId) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Thiếu mã bài viết',
+      text: 'Không tìm thấy tham số ID bài viết hợp lệ trên URL!',
+      confirmButtonColor: '#ef4444'
+    }).then(() => {
+      window.location.href = '/admin/posts';
+    });
+  }
+
+  // 🔥 ĐÃ SỬA BẢO MẬT CHỮ Đ: Hàm sinh Slug tự động, bảo toàn chữ "Đẹp" thành chữ "dep" mượt mà chuẩn SEO
+  function convertToSlug(str) {
+    if (!str) return '';
+    let value = str.toLowerCase();
+    
+    // Ép chuyển hóa đích danh ký tự đ/Đ thành d trước khi lọc dấu tránh bị nuốt mất chữ
+    value = value.replace(/đ/g, 'd');
+    
+    return value.normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Khử sạch các dấu mũ lẻ tiếng Việt
+      .replace(/[^\w\s-]/g, '')        // Chỉ cho phép giữ lại chữ cái la-tinh, số và khoảng trắng
+      .replace(/\s+/g, '-')            // Thay khoảng trắng thành gạch ngang
+      .replace(/-+/g, '-')             // Gom các dấu gạch ngang liên tiếp thành 1
+      .trim();
+  }
+
+  // Lắng nghe hành vi gõ tiêu đề để sinh Slug thời gian thực sạch sẽ
+  document.getElementById('title')?.addEventListener('input', function(e) {
+    const titleValue = e.target.value;
+    const slugInput = document.getElementById('slug');
+    if (slugInput) {
+      slugInput.value = convertToSlug(titleValue);
+    }
+  });
+
+  // 1. Lấy dữ liệu cũ từ API Laravel đổ vào Form khi load trang qua token an toàn
+  async function fetchPostData() {
+    if (!postId) return;
+    const rawToken = localStorage.getItem('admin_token');
+    const token = rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/posts/${postId}`, {
+         headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+         }
+      });
+      
+      if (res.status === 401 || res.status === 403) { window.location.href = '/admin'; return; }
+      if (!res.ok) throw new Error('Không thể tải thông tin bài viết từ máy chủ.');
+      
+      const post = await res.json();
+
+      const categoryValue = post.category || post.category_id || 'thi-truong';
+      const statusValue = post.status || (post.is_published === false || post.is_published === 0 ? 'draft' : 'published');
+      const thumbnailValue = post.thumbnail || post.image_url || '';
+
+      document.getElementById('title').value = post.title || '';
+      document.getElementById('slug').value = post.slug || '';
+      document.getElementById('summary').value = post.summary || '';
+      document.getElementById('category').value = categoryValue;
+      document.getElementById('status').value = statusValue;
+      document.getElementById('currentThumbnail').value = thumbnailValue;
+
+      if (thumbnailValue) {
+        const preview = document.getElementById('previewThumb');
+        if (preview) {
+          preview.src = thumbnailValue.startsWith('http') ? thumbnailValue : `${BACKEND_URL}${thumbnailValue}`;
+          preview.classList.remove('hidden');
+        }
+        document.getElementById('placeholderThumb')?.classList.add('hidden');
+      }
+
+      if (window.tinymce && tinymce.get('full-editor')) {
+        tinymce.get('full-editor').setContent(post.content || '');
+      }
+    } catch (err) {
+      console.error("Lỗi fetch chi tiết dữ liệu bài viết:", err);
+    }
+  }
+
+  // 2. Khởi tạo Trình soạn thảo văn bản chuyên sâu TinyMCE
+  tinymce.init({
+    selector: '#full-editor',
+    height: 500,
+    language: 'vi',
+    plugins: 'image link media table lists wordcount code emoticons',
+    toolbar: 'undo redo | blocks | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image emoticons | code',
+    content_style: 'body { font-family: "Plus Jakarta Sans", sans-serif; font-size: 16px; }',
+    setup: (editor) => {
+      editor.on('init', () => fetchPostData());
+      editor.on('change', () => editor.save());
+    }
+  });
+
+  // 3. Preview hình ảnh đại diện bài viết khi thay đổi tệp tin tức thời
+  document.getElementById('thumbInput')?.addEventListener('change', function(e) {
+    const target = e.target;
+    if (target.files && target.files[0]) {
+      const file = target.files[0];
+      const nameSpan = document.getElementById('file-name');
+      if (nameSpan) nameSpan.textContent = file.name;
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const preview = document.getElementById('previewThumb');
+        if (preview && event.target) {
+          preview.src = event.target.result;
+          preview.classList.remove('hidden');
+        }
+        document.getElementById('placeholderThumb')?.classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // 4. Đóng gói và submit Form dữ liệu cập nhật lên máy chủ API Laravel
+  document.getElementById('editPostForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    tinymce.triggerSave();
+
+    const submitBtn = document.getElementById('submitBtn');
+    const thumbInput = document.getElementById('thumbInput');
+    
+    if (submitBtn) submitBtn.disabled = true;
+
+    // 🔒 LỚP KHIÊN BẢO MẬT FILE: Quét sâu dung lượng và định dạng ảnh tránh lỗi tải lên shellcode giả mạo hình ảnh
+    if (thumbInput && thumbInput.files && thumbInput.files.length > 0) {
+      const file = thumbInput.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({ icon: 'error', title: 'Tệp quá lớn', text: 'Kích thước ảnh đại diện bài viết tối đa cho phép là 5MB!', confirmButtonColor: '#ef4444' });
+        if (submitBtn) submitBtn.disabled = false;
+        return;
+      }
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+      if (!allowedTypes.includes(file.type)) {
+        Swal.fire({ icon: 'error', title: 'Sai định dạng', text: 'Hệ thống chỉ chấp nhận định dạng tệp ảnh bài viết dạng JPG, PNG hoặc WEBP!', confirmButtonColor: '#ef4444' });
+        if (submitBtn) submitBtn.disabled = false;
+        return;
+      }
+    }
+
+    const rawToken = localStorage.getItem('admin_token');
+    const token = rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
+    
+    const formData = new FormData(e.target);
+    // Method Spoofing vượt lỗi bóc tách file Multipart của Laravel PUT Method
+    formData.append('_method', 'PUT');
+
+    Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/posts/${postId}`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        body: formData
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.clear();
+        window.location.replace('/admin');
+        return;
+      }
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        await Swal.fire({ icon: 'success', title: 'Thành công', text: 'Đã cập nhật bài viết thành công!', timer: 1500, showConfirmButton: false });
+        window.location.href = '/admin/posts';
+      } else {
+        if (data.errors) {
+          const errorMsgs = Object.values(data.errors).flat().join('<br>');
+          throw new Error(errorMsgs);
+        }
+        throw new Error(data.message || 'Cập nhật dữ liệu thất bại từ máy chủ.');
+      }
+    } catch (err) {
+      console.error("Lỗi gửi Form cập nhật:", err);
+      Swal.fire('Thất bại', err.message || 'Không thể kết nối tới máy chủ API cổng 8000.', 'error');
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+</script>

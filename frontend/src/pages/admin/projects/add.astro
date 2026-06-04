@@ -1,0 +1,273 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Thêm Dự Án Mới">
+  <script is:inline src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <div class="max-w-full mx-auto px-4 py-8">
+    <div class="mb-8">
+      <a href="/admin/projects" id="backBtn" class="text-slate-400 hover:text-slate-800 transition-colors flex items-center gap-2 font-medium">
+        <span>←</span> Hủy bỏ
+      </a>
+      <h1 class="text-3xl font-bold text-slate-800 mt-2">Thêm dự án mới</h1>
+    </div>
+
+    <form id="addProjectForm" class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-50">
+      <div class="md:col-span-2">
+        <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Tên dự án <span class="text-red-500">*</span></label>
+        <input type="text" name="title" id="title" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none font-medium transition-all" placeholder="Nhập tên dự án Bcons..." />
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Địa chỉ <span class="text-red-500">*</span></label>
+        <input type="text" name="address" id="address" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none font-medium transition-all" placeholder="Nhập vị trí tọa lạc dự án..." />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 w-full">
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Lat</label>
+          <input type="text" name="lat" id="lat" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" placeholder="Ví dụ: 10.885348" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Lng</label>
+          <input type="text" name="lng" id="lng" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" placeholder="Ví dụ: 106.783637" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 w-full mb-4">
+        <div class="relative dropdown-container" id="dropdown-status">
+          <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Tình trạng</label>
+          <input type="hidden" name="status" id="status" value="dang_xay_dung">
+          <button type="button" class="drop-btn w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl flex items-center justify-between font-medium hover:bg-slate-100 transition-all focus:border-orange-500 outline-none shadow-sm">
+            <span class="selected-text">Đang xây dựng</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="drop-menu absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+            <div class="p-2 space-y-1">
+              <div data-value="dang_xay_dung" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                <span>Đang xây dựng</span>
+              </div>
+              <div data-value="da_ban_giao" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                <span>Đã bàn giao</span>
+              </div>
+              <div data-value="dang_mo_ban" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                <span>Đang mở bán</span>
+              </div>
+              <div data-value="sap_mo_ban" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                <span>Sắp mở bán</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative dropdown-container" id="dropdown-legal">
+          <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Pháp lý</label>
+          <input type="hidden" name="legal" id="legal" value="hdmb">
+          <button type="button" class="drop-btn w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl flex items-center justify-between font-medium hover:bg-slate-100 transition-all focus:border-orange-500 outline-none shadow-sm">
+            <span class="selected-text">Hợp đồng mua bán</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="drop-menu absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+            <div class="p-2 space-y-1">
+              <div data-value="hdmb" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                <span>Hợp đồng mua bán</span>
+              </div>
+              <div data-value="so_hong" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                <span>Đã có sổ hồng</span>
+              </div>
+              <div data-value="booking" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                <span>Booking tư vấn</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Hình ảnh dự án <span class="text-red-500">*</span></label>
+        <input type="file" id="imageInput" name="image" required accept="image/*" class="w-full mb-4 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer" />
+        
+        <div class="flex justify-center bg-slate-50 rounded-3xl p-6 border-2 border-dashed border-slate-200">
+          <div class="relative group">
+            <img id="imgPreview" src="https://placehold.co/400x225?text=Preview+Image" class="w-48 h-48 object-cover rounded-2xl shadow-md border-4 border-white transition-transform group-hover:scale-105" />
+          </div>
+        </div>
+      </div>
+
+      <div class="md:col-span-2 pt-4">
+        <button type="submit" id="submitBtn" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-5 rounded-2xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50">
+          Khởi tạo dự án mới
+        </button>
+      </div>
+    </form>
+  </div>
+</AdminLayout>
+
+<style>
+  .dropdown-container.active .drop-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .dropdown-container.active .drop-btn svg {
+    transform: rotate(180deg);
+  }
+</style>
+
+<script>
+  import { checkAdminAuth } from '../../../lib/auth'
+
+  checkAdminAuth();
+  declare var Swal: any;
+
+  // 🔥 ĐỒNG BỘ MÔI TRƯỜNG: Định tuyến chính xác sang Laravel API Port 8000 toàn cục
+  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+
+  const form = document.getElementById('addProjectForm') as HTMLFormElement;
+  const imgPreview = document.getElementById('imgPreview') as HTMLImageElement;
+  const imageInput = document.getElementById('imageInput') as HTMLInputElement;
+
+  // 1. Hàm vận hành Custom Dropdown - Giữ nguyên chuyển động mịn màng
+  function setupCustomDropdown(containerId: string) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const btn = container.querySelector('.drop-btn') as HTMLButtonElement;
+    const input = container.querySelector('input[type="hidden"]') as HTMLInputElement;
+    const options = container.querySelectorAll('.option-item');
+    const selectedText = container.querySelector('.selected-text');
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.dropdown-container').forEach(el => {
+        if (el !== container) el.classList.remove('active');
+      });
+      container.classList.toggle('active');
+    });
+
+    options.forEach(opt => {
+      opt.addEventListener('click', () => {
+        const val = opt.getAttribute('data-value');
+        const content = opt.innerHTML;
+        if (val && input) input.value = val;
+        if (selectedText) selectedText.innerHTML = content;
+        container.classList.remove('active');
+      });
+    });
+  }
+
+  setupCustomDropdown('dropdown-status');
+  setupCustomDropdown('dropdown-legal');
+
+  window.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-container').forEach(el => el.classList.remove('active'));
+  });
+
+  // 2. Lắng nghe thay đổi để cập nhật khung Preview ảnh ảnh tỉ lệ 16:9
+  imageInput?.addEventListener('change', () => {
+    const file = imageInput.files?.[0];
+    if (file) imgPreview.src = URL.createObjectURL(file);
+  });
+
+  // 3. Logic xử lý Submit Thêm Mới Dự Án
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // 🔒 BẢO MẬT PHÒNG THỦ FILE: Chặn trực tiếp mã độc hoặc file dung lượng quá lớn (Max 5MB)
+    if (imageInput.files && imageInput.files.length > 0) {
+      const file = imageInput.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({ icon: 'error', title: 'Tệp quá lớn', text: 'Kích thước ảnh dự án tối đa là 5MB!', confirmButtonColor: '#ef4444' });
+        return;
+      }
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+      if (!allowedTypes.includes(file.type)) {
+        Swal.fire({ icon: 'error', title: 'Sai định dạng', text: 'Chỉ chấp nhận file ảnh định dạng JPG, PNG hoặc WEBP!', confirmButtonColor: '#ef4444' });
+        return;
+      }
+    }
+
+    Swal.fire({
+      title: 'Đang khởi tạo...',
+      text: 'Vui lòng chờ trong giây lát',
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    submitBtn.disabled = true;
+
+    // Đóng gói dữ liệu dạng Multipart Form Data gửi kèm file
+    const formData = new FormData(form);
+
+    // 🔒 BẢO MẬT XỬ LÝ TOKEN: Cắt gọn sạch sẽ khoảng trắng và dấu nháy kép rác
+    const token = localStorage.getItem('admin_token')?.replace(/['"]+/g, '').trim();
+
+    try {
+      // 🔥 ĐỒNG BỘ ENDPOINT CHUẨN RESTFUL: Gửi POST thẳng đến /api/admin/projects của Laravel
+      const res = await fetch(`${API_BASE}/api/admin/projects`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        body: formData
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.clear();
+        window.location.replace('/admin');
+        return;
+      }
+
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Khởi tạo thành công!',
+          text: result.message || 'Dự án mới đã được lưu vào hệ thống.',
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => {
+          window.location.href = '/admin/projects';
+        });
+      } else {
+        throw new Error(result.message || "Không thể khởi tạo dữ liệu dự án trên máy chủ Laravel.");
+      }
+    } catch (err: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Thất bại',
+        text: err.message || 'Lỗi mất kết nối đến cổng API Laravel.',
+        confirmButtonColor: '#ef4444'
+      });
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  // Hủy bỏ lệnh thêm mới có hộp thoại cảnh báo của hệ thống Bcons
+  document.getElementById('backBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    Swal.fire({
+      title: 'Hủy bỏ thao tác?',
+      text: "Các thông tin dự án vừa nhập sẽ không được lưu lại.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#ea580c',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Đúng, hủy bỏ',
+      cancelButtonText: 'Tiếp tục nhập'
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        window.location.href = '/admin/projects';
+      }
+    });
+  });
+</script>

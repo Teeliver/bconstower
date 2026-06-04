@@ -1,0 +1,235 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Danh sách dự án Bcons">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h2 class="text-2xl font-bold text-slate-800">Tất cả dự án</h2>
+      <p class="text-slate-500">Quản lý và cập nhật thông tin các dự án Bcons</p>
+    </div>
+    <a href="/admin/projects/add" class="bg-orange-600 hover:bg-orange-500 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-orange-900/20 flex items-center gap-2">
+      <span class="text-xl">+</span> Thêm dự án mới
+    </a>
+  </div>
+
+  <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+    <table class="w-full text-left">
+      <thead class="bg-slate-50 border-b border-slate-200">
+        <tr>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm">Dự án</th>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm">Tình trạng</th>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm">Pháp lý</th>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm">Ngày tạo</th>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm text-right">Hành động</th>
+        </tr>
+      </thead>
+      <tbody id="projectList" class="divide-y divide-slate-100">
+        <tr><td colspan="5" class="p-10 text-center text-slate-400 italic">Đang tải dữ liệu...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</AdminLayout>
+
+<style is:global>
+  /* Fix lỗi TS bằng cách dùng CSS để bo góc đồng bộ UI Bcons */
+  .swal2-popup {
+    border-radius: 1.5rem !important;
+  }
+</style>
+
+<script>
+  import Swal from 'sweetalert2';
+  import { checkAdminAuth } from '../../../lib/auth';
+
+  // 🔥 ĐỒNG BỘ MÔI TRƯỜNG VÀ KHỞI CHẠY KIỂM TRA QUYỀN
+  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  const projectList = document.getElementById('projectList');
+
+  checkAdminAuth();
+
+  // 🔒 BẢO MẬT: Bộ lọc thực thể HTML, triệt tiêu hoàn toàn nguy cơ Stored XSS khi render dữ liệu từ Database
+  const escapeHTML = (str: string): string => {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, (match) => {
+      const map: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      };
+      return map[match] || match;
+    });
+  };
+
+  async function fetchProjects() {
+    const token = localStorage.getItem('admin_token')?.replace(/['"]+/g, '').trim();
+    
+    if (!token) {
+      localStorage.clear();
+      window.location.replace('/admin');
+      return;
+    }
+
+    try {
+      // 🔥 ĐỒNG BỘ ENDPOINT MỚI: Gọi trực tiếp đến route bảo mật /api/admin/projects kèm Token chứng thực
+      const res = await fetch(`${API_BASE}/api/admin/projects`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // BẢO MẬT ĐẦU RA: Nếu phiên đăng nhập lệch hoặc hết hạn, tước quyền truy cập ngay lập tức
+      if (res.status === 401 || res.status === 403) {
+        localStorage.clear();
+        window.location.replace('/admin');
+        return;
+      }
+
+      const rawData = await res.json();
+      
+      // Khắc phục lỗi lỗi biên dịch cấu trúc dữ liệu không phải mảng
+      const data = Array.isArray(rawData) ? rawData : (rawData.data || []);
+
+      if (!projectList) return;
+      projectList.innerHTML = '';
+
+      if (data.length === 0) {
+        projectList.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-500 italic">Chưa có dự án nào</td></tr>';
+        return;
+      }
+
+      data.forEach((item: any) => {
+        // Đồng bộ các biến linh hoạt định dạng từ Laravel Model (Hỗ trợ cả snake_case và camelCase)
+        const currentTitle = item.title || '';
+        const currentAddress = item.address || item.location || '';
+        const currentStatus = item.status || (item.is_active == 1 ? 'dang_xay_dung' : 'tam_an');
+        const currentLegal = item.legal || 'hdmb';
+        const currentCreatedAt = item.created_at || item.createdAt || Date.now();
+        const currentImage = item.image_url || item.image || '';
+
+        // Đồng bộ dữ liệu hiển thị text nhãn theo data thực tế
+        const statusLabel = 
+          currentStatus === 'da_ban_giao' || currentStatus === 'Đã bàn giao' ? 'Đã bàn giao' : 
+          currentStatus === 'sap_mo_ban' || currentStatus === 'Sắp mở bán' ? 'Sắp mở bán' : 'Đang xây dựng';
+
+        const legalLabel = 
+          currentLegal === 'so_hong' || currentLegal === 'Sổ hồng riêng' ? 'Sổ hồng' : 
+          currentLegal === 'booking' || currentLegal === 'Booking tư vấn' ? 'Booking tư vấn' : 'HĐMB';
+        
+        const imageUrl = currentImage 
+          ? (currentImage.startsWith('http') ? currentImage : `${API_BASE}${currentImage}`)
+          : 'https://placehold.co/100x100?text=Bcons';
+
+        const row = document.createElement('tr');
+        row.className = "hover:bg-slate-50 transition-all";
+        
+        // GIỮ NGUYÊN VẸN 100% CẤU TRÚC HTML VÀ CLASS TAILWIND CỦA BẠN
+        row.innerHTML = `
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-4">
+                <img src="${imageUrl}" class="w-12 h-12 rounded-lg object-cover border border-slate-200" onerror="this.src='https://placehold.co/100x100?text=Error'"/>
+                <div>
+                  <div class="font-bold text-slate-800 line-clamp-1">${escapeHTML(currentTitle)}</div>
+                  <div class="text-[11px] text-slate-400 font-medium uppercase tracking-tighter">${escapeHTML(currentAddress)}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                currentStatus === 'da_ban_giao' || currentStatus === 'Đã bàn giao'
+                  ? 'bg-green-100 text-green-700'
+                  : currentStatus === 'sap_mo_ban' || currentStatus === 'Sắp mở bán'
+                  ? 'bg-amber-100 text-amber-700'
+                  : 'bg-blue-100 text-blue-700'
+              }">
+                ${statusLabel}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm font-bold text-slate-600">${legalLabel}</td>
+            <td class="px-6 py-4 text-xs text-slate-400 font-mono italic">${new Date(currentCreatedAt).toLocaleDateString('vi-VN')}</td>
+            <td class="px-6 py-5 text-right">
+              <div class="flex justify-end gap-2">
+              <a href="/admin/projects/edit?id=${item.id}" class="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all" title="Sửa">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+              </a>
+              <button class="delete-btn p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all" data-id="${item.id}" data-title="${escapeHTML(currentTitle)}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              </button>
+              </div>
+            </td>
+        `;
+        projectList.appendChild(row);
+      });
+
+      // 🔥 GẮN SỰ KIỆN XÓA THEO CHUẨN RESTFUL API MỚI CỦA LARAVEL CONTROLLER
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const target = e.currentTarget as HTMLElement;
+          const id = target.dataset.id;
+          const title = target.dataset.title;
+          
+          if (!id) return;
+
+          const result = await Swal.fire({
+            title: 'Xác nhận xóa dự án?',
+            text: `Dữ liệu về "${title}" sẽ không thể khôi phục!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Xóa ngay',
+            cancelButtonText: 'Hủy'
+          });
+
+          if (result.isConfirmed) {
+            Swal.fire({ title: 'Đang xóa...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            try {
+              const currentToken = localStorage.getItem('admin_token')?.replace(/['"]+/g, '').trim();
+              
+              // Gọi API DELETE truyền ID trực tiếp theo mô hình chuẩn hóa RESTful
+              const deleteRes = await fetch(`${API_BASE}/api/admin/projects/${id}`, {
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${currentToken}`,
+                  'Accept': 'application/json'
+                }
+              });
+
+              if (deleteRes.status === 401 || deleteRes.status === 403) {
+                localStorage.clear();
+                window.location.replace('/admin');
+                return;
+              }
+
+              const deleteData = await deleteRes.json();
+
+              if (deleteRes.ok) {
+                await Swal.fire('Đã xóa!', deleteData.message || 'Dự án đã được loại bỏ thành công.', 'success');
+                fetchProjects(); // Tải lại danh sách mượt mà không cần F5 tải lại toàn bộ trang
+              } else {
+                Swal.fire('Thất bại', deleteData.message || 'Không thể xóa dự án này.', 'error');
+              }
+            } catch (error) {
+              Swal.fire('Thất bại', 'Lỗi đường truyền kết nối hệ thống khi thực thi lệnh xóa', 'error');
+            }
+          }
+        });
+      });
+
+    } catch (err) {
+      if (projectList) projectList.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-red-500 font-bold">⚠️ Lỗi kết nối máy chủ API Laravel Port 8000</td></tr>';
+    }
+  }
+
+  // Khởi chạy khi tài liệu DOM sẵn sàng
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchProjects();
+  });
+</script>

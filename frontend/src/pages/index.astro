@@ -1,0 +1,65 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import SearchApartment from '../components/home/SearchApartment.astro'
+import HeroSlide from '../components/home/HeroSlide.astro';
+import QuickStats from '../components/home/QuickStats.astro'
+import WhyChooseBcons from '../components/home/WhyChooseBcons.astro'
+import HotTransfers from '../components/home/HotTransfers.astro'
+import ProjectsByStatus from '../components/home/ProjectsByStatus.astro'
+import FaqSEO from '../components/home/FaqSEO.astro'
+import Testimonials from '../components/home/Testimonials.astro'
+import NewPostList from '../components/home/NewPostList.astro'
+import CTARegistration from '../components/home/CTARegistration.astro'
+import NewsSection from '../components/home/NewsSection.astro'
+// ... các components khác
+---
+
+<MainLayout title="Bcons Tower">
+  
+  <main class="pt-5"> 
+    <HeroSlide />
+
+    <SearchApartment />
+
+    <QuickStats />
+
+    <NewPostList />
+
+    <WhyChooseBcons />
+
+    <HotTransfers />
+
+    <ProjectsByStatus />
+
+    <NewsSection />
+    
+    <Testimonials />
+
+    <CTARegistration />
+
+    <FaqSEO />
+  </main>
+</MainLayout>
+
+<style is:global>
+  /* Nhúng tailwind vào để sử dụng @apply mà không lỗi build */
+  @import "tailwindcss";
+
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    /* Thay vì @apply text-slate-900, hãy dùng class trực tiếp hoặc biến CSS */
+    color: var(--color-slate-900);
+    overflow-x: hidden;
+  }
+
+  /* Custom Swiper Bullets chuẩn màu Vàng Bcons */
+  .swiper-pagination-bullet-active {
+    background: #fac72e !important;
+    width: 24px !important;
+    border-radius: 4px !important;
+  }
+</style>

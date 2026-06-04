@@ -1,0 +1,264 @@
+---
+// src/pages/admin/banks/edit.astro
+// 🔥 ĐÃ SỬA: Giảm một cấp thư mục "../" do file đã được đưa ra ngoài folder động [id]
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Chỉnh sửa ngân hàng liên kết Bcons">
+  <script is:inline src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <div class="max-w-full mx-auto" id="editBankRoot">
+    <div class="mb-6">
+      <a href="/admin/banks" id="backBtn" class="text-slate-500 hover:text-orange-600 flex items-center gap-2 transition font-medium">
+        <span>←</span> Quay lại danh sách
+      </a>
+    </div>
+
+    <div class="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl border border-slate-50">
+      <h2 class="text-2xl font-bold text-slate-800 mb-8 font-heading">Chỉnh sửa cấu hình ngân hàng</h2>
+      
+      <div id="fetchErrorContainer" class="hidden p-10 text-center text-red-500 font-bold italic bg-red-50/50 rounded-2xl border border-red-100 mb-6">
+        ⚠️ Không tìm thấy hoặc lỗi kết nối dữ liệu ngân hàng này từ máy chủ API Laravel.
+      </div>
+
+      <form id="bankForm" class="space-y-6 font-body invisible">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          
+          <div class="col-span-2">
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Tên ngân hàng <span class="text-red-500">*</span></label>
+            <input type="text" name="name" id="name" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Lãi suất ưu đãi (%/Năm) <span class="text-red-500">*</span></label>
+            <input type="number" name="preferential_rate" id="preferential_rate" step="0.01" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Thời gian ưu đãi (Tháng) <span class="text-red-500">*</span></label>
+            <input type="number" name="preferential_term" id="preferential_term" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Lãi suất thả nổi ước tính (%/Năm) <span class="text-red-500">*</span></label>
+            <input type="number" name="floating_rate" id="floating_rate" step="0.01" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Thời hạn cho vay tối đa (Năm) <span class="text-red-500">*</span></label>
+            <input type="number" name="max_term" id="max_term" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" />
+          </div>
+
+          <div class="col-span-2">
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Logo ngân hàng (Upload file mới nếu muốn đổi)</label>
+            <input type="file" id="logoFile" name="logo" accept="image/*" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer text-slate-500" />
+            
+            <div id="preview" class="mt-6 flex justify-start">
+                <div class="relative bg-slate-50 p-3 rounded-2xl border-2 border-dashed border-slate-200 flex items-center gap-4">
+                    <img 
+                      id="imgPreview" 
+                      src="https://placehold.co/150x60?text=No+Logo" 
+                      class="w-36 h-16 object-contain bg-white rounded-xl shadow-sm border border-slate-200 px-2 py-1" 
+                      onerror="this.src='https://placehold.co/150x60?text=Error'"
+                    />
+                    <div>
+                      <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Logo hiện tại</p>
+                      <p class="text-[9px] text-slate-400 mt-0.5">Hiển thị chuẩn trên công cụ tính</p>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-8">
+          <button type="submit" id="submitBtn" class="w-full bg-slate-900 hover:bg-orange-600 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-slate-900/10 active:scale-95 disabled:opacity-50 cursor-pointer focus:outline-none">
+            Cập nhật thông tin cấu hình
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</AdminLayout>
+
+<style is:global>
+  .swal2-popup {
+    border-radius: 1.5rem !important;
+  }
+</style>
+
+<script>
+  import Swal from 'sweetalert2';
+  import { checkAdminAuth } from '../../../lib/auth'; // Đã chỉnh sửa cấp import
+
+  const API_BASE_URL = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+  const form = document.getElementById('bankForm') as HTMLFormElement;
+  const btn = document.getElementById('submitBtn') as HTMLButtonElement;
+  const logoInput = document.getElementById('logoFile') as HTMLInputElement;
+  const imgPreview = document.getElementById('imgPreview') as HTMLImageElement;
+  const fetchErrorContainer = document.getElementById('fetchErrorContainer') as HTMLDivElement;
+  
+  // 🔥 ĐÃ SỬA BẢO MẬT: Bốc tham số ID linh hoạt từ Query string client-side (?id=xx)
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get('id');
+
+  checkAdminAuth();
+
+  function getToken() {
+    const rawToken = localStorage.getItem('admin_token') || localStorage.getItem('token');
+    return rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
+  }
+
+  // Khóa mõm lỗ hổng logic: Nếu hacker cố tình vào thẳng trang edit mà không truyền tham số ID
+  if (!id) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi cấu hình',
+      text: 'Không tìm thấy tham số nhận diện ID ngân hàng liên kết!',
+      confirmButtonColor: '#ef4444'
+    }).then(() => {
+      window.location.href = '/admin/banks';
+    });
+  }
+
+  // 🔥 NẠP DỮ LIỆU CŨ BAN ĐẦU QUA TOKEN AUTHENTICATION CHỐNG 401
+  async function loadBankData() {
+    if (!id) return;
+    const token = getToken();
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/banks/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (res.status === 401) { window.location.href = '/admin'; return; }
+      if (!res.ok) throw new Error("Không thể tải thông tin ngân hàng.");
+
+      const bank = await res.json();
+
+      (document.getElementById('name') as HTMLInputElement).value = bank.name || '';
+      (document.getElementById('preferential_rate') as HTMLInputElement).value = bank.preferential_rate ?? bank.preferentialRate ?? '';
+      (document.getElementById('preferential_term') as HTMLInputElement).value = bank.preferential_term ?? bank.preferentialTerm ?? '';
+      (document.getElementById('floating_rate') as HTMLInputElement).value = bank.floating_rate ?? bank.floatingRate ?? '';
+      (document.getElementById('max_term') as HTMLInputElement).value = bank.max_term ?? bank.maxTerm ?? '';
+
+      if (bank.logo) {
+        imgPreview.src = bank.logo.startsWith('http') ? bank.logo : `${API_BASE_URL}${bank.logo}`;
+      } else {
+        imgPreview.src = 'https://placehold.co/150x60?text=No+Logo';
+      }
+
+      form.classList.remove('invisible');
+      fetchErrorContainer.classList.add('hidden');
+    } catch (e) {
+      console.error("Lỗi nạp cấu hình ngân hàng:", e);
+      fetchErrorContainer.classList.remove('hidden');
+      form.classList.add('hidden');
+    }
+  }
+
+  loadBankData();
+
+  logoInput?.addEventListener('change', () => {
+    const file = logoInput.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      imgPreview.src = url;
+    }
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // 🔒 LỚP KHIÊN BẢO MẬT FILE: Quét sâu định dạng tệp tin logo ngăn chặn Shellcode thực thi ngầm
+    if (logoInput.files && logoInput.files.length > 0) {
+      const file = logoInput.files[0];
+      
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({ icon: 'error', title: 'Tệp quá lớn', text: 'Kích thước tệp tin logo tối đa cho phép là 5MB!', confirmButtonColor: '#ef4444' });
+        return;
+      }
+      
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+      if (!allowedTypes.includes(file.type)) {
+        Swal.fire({ icon: 'error', title: 'Sai định dạng tệp', text: 'Hệ thống chỉ chấp nhận định dạng ảnh logo chuẩn JPG, PNG hoặc WEBP!', confirmButtonColor: '#ef4444' });
+        return;
+      }
+    }
+
+    Swal.fire({
+      title: 'Đang cập nhật...',
+      text: 'Đang lưu các thay đổi cấu hình ngân hàng',
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    btn.disabled = true;
+    const formData = new FormData(form);
+    const token = getToken();
+
+    formData.append('_method', 'PUT');
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/banks/${id}`, {
+        method: 'POST', 
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        body: formData
+      });
+
+      if (res.status === 401) {
+        throw new Error("Phiên đăng nhập hết hạn hoặc bạn không có quyền!");
+      }
+
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        await Swal.fire({
+          icon: 'success',
+          title: 'Thành công!',
+          text: result.message || 'Thông tin ngân hàng đã được cập nhật.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        window.location.href = '/admin/banks';
+      } else {
+        if (result.errors) {
+          const errMsg = Object.values(result.errors).flat().join('<br>');
+          throw new Error(errMsg);
+        }
+        throw new Error(result?.message || "Cập nhật dữ liệu thất bại từ máy chủ");
+      }
+    } catch (err: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        html: err.message || "Lỗi kết nối mạng tới server cổng 8000!",
+        confirmButtonColor: '#ef4444'
+      });
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('backBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    Swal.fire({
+      title: 'Hủy bỏ chỉnh sửa?',
+      text: "Các thay đổi bạn vừa nhập sẽ không được lưu lại.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ea580c',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Ở lại'
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        window.location.href = '/admin/banks';
+      }
+    });
+  });
+</script>

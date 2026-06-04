@@ -1,0 +1,304 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Quản lý Banner Hero">
+    <!-- TIÊU ĐỀ & NÚT THÊM - BẢO TOÀN NGUYÊN VẸN 100% UI/UX -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-2xl font-black text-slate-900">Banner trang chủ</h1>
+        <p class="text-slate-500">Quản lý các slide trình chiếu ở đầu trang chủ</p>
+      </div>
+      <a href="/admin/hero-slides/add" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-orange-200">
+        + Thêm slide mới
+      </a>
+    </div>
+
+    <!-- KHỐI THANH BỘ LỌC DROPDOWN - BẢO TOÀN NGUYÊN VẸN 100% UI/UX -->
+    <div class="bg-white p-6 rounded-[1.5rem] shadow-sm border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="relative dropdown-container" id="drop-status">
+        <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Trạng thái hiển thị</label>
+        <button type="button" class="drop-btn w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-xl flex items-center justify-between text-sm font-medium hover:bg-slate-100 transition-all outline-none">
+          <span class="selected-text">Tất cả trạng thái</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        <input type="hidden" id="filterStatus" value="all">
+        <div class="drop-menu absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+          <div class="p-2 space-y-1">
+            <div data-value="all" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">Tất cả trạng thái</div>
+            <div data-value="1" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">✅ Đang hiển thị</div>
+            <div data-value="0" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">⏳ Đang ẩn</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="md:col-span-3 flex items-end">
+          <p class="text-xs text-slate-400 italic mb-2">Gợi ý: Nên sử dụng ảnh tỉ lệ 16:9 để hiển thị đẹp nhất trên mọi thiết bị.</p>
+      </div>
+    </div>
+
+    <!-- BẢNG DỮ LIỆU ĐỔ BANNER - BẢO TOÀN NGUYÊN VẸN 100% UI/UX -->
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-left">
+          <thead class="bg-slate-50 border-b border-slate-200">
+            <tr>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Hình ảnh</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Nội dung Banner</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Nút bấm & Link</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm text-center">Thứ tự</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm text-center">Trạng thái</th>
+              <th class="px-6 py-5 font-bold text-slate-600 text-sm text-right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100" id="heroTableBody">
+            <tr>
+                <td colspan="6" class="p-20 text-center text-slate-400 italic">Đang tải danh sách banner...</td>
+            </tr>
+          </tbody>
+        </table>
+        <div id="noResults" class="hidden p-20 text-center text-slate-400 italic bg-white">
+          Không tìm thấy banner nào.
+        </div>
+    </div>
+</AdminLayout>
+
+<style>
+  .dropdown-container.active .drop-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+  .dropdown-container.active .drop-btn svg { transform: rotate(180deg); }
+  .dropdown-container.active .drop-btn { border-color: #f97316; background-color: #fff; }
+</style>
+
+<script>
+  import Swal from 'sweetalert2';
+  import { checkAdminAuth } from '../../../lib/auth';
+
+  // Khởi động vòng kiểm soát quyền sơ bộ bên client
+  checkAdminAuth();
+
+  // 🔥 ĐỒNG BỘ ĐƯỜNG DẪN MÔI TRƯỜNG: Bốc chuẩn xác cổng phân phát từ tệp .env toàn cục
+  const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+
+  // 🔥 HÀM BẢO MẬT: Bộ mã hóa thực thể HTML, loại bỏ hoàn toàn nguy cơ Stored XSS tấn công vào Admin Panel
+  const escapeHTML = (str: string): string => {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, (match) => {
+      const map: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      };
+      return map[match] || match;
+    });
+  };
+
+  async function initPage() {
+    const tbody = document.getElementById('heroTableBody');
+    if (!tbody) return;
+
+    try {
+      const adminToken = localStorage.getItem('admin_token');
+      if (!adminToken) {
+        localStorage.clear();
+        window.location.replace('/admin');
+        return;
+      }
+
+      // 🔥 ĐỒNG BỘ ENDPOINT: Gọi cổng tập hợp admin chuyên biệt của Laravel Backend mới
+      const res = await fetch(`${BACKEND_URL}/api/admin/hero-slides`, {
+          headers: { 
+            'Authorization': `Bearer ${adminToken}`,
+            'Content-Type': 'application/json'
+          }
+      });
+
+      // BẢO MẬT ĐẦU RA: Nếu Laravel chặn quyền do Token rác/hết hạn, tước quyền truy cập ngay lập tức
+      if (res.status === 401 || res.status === 403) {
+        localStorage.clear();
+        window.location.replace('/admin');
+        return;
+      }
+
+      const slides = await res.json();
+
+      if (!slides || slides.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="p-20 text-center text-slate-400 italic">Chưa có banner nào được khởi tạo.</td></tr>';
+        return;
+      }
+
+      renderTable(slides);
+      
+      // Khởi tạo các sự kiện bộ lọc (Chỉ đăng ký 1 lần duy nhất sau khi đã dựng DOM thành công)
+      setupFilters();
+
+    } catch (err) {
+      console.error("Lỗi sập kết nối API Banner:", err);
+      tbody.innerHTML = '<tr><td colspan="6" class="p-20 text-center text-red-500 italic">Lỗi kết nối Server API Laravel. Vui lòng đăng nhập lại hệ thống.</td></tr>';
+    }
+  }
+
+  function renderTable(data: any[]) {
+    const tbody = document.getElementById('heroTableBody');
+    const noResults = document.getElementById('noResults');
+    if (!tbody) return;
+
+    if (noResults) noResults.classList.add('hidden');
+
+    tbody.innerHTML = data.map((item: any) => {
+        // 🔥 ĐỒNG BỘ BIẾN: Áp dụng cơ chế phòng thủ bọc lót linh hoạt cả hai định dạng camelCase và snake_case
+        const currentImg = item.image_url || item.imageUrl || '';
+        const currentTitle = item.title || '';
+        const currentSubtitle = item.subtitle || 'Không có mô tả';
+        const currentBtnText = item.button_text || item.buttonText || 'Không có chữ';
+        const currentLink = item.link_url || item.linkUrl || '#';
+        const currentOrder = item.display_order ?? item.displayOrder ?? 0;
+        const currentActive = item.is_active ?? item.isActive ?? false;
+
+        // Xử lý chuyển đổi giá trị hoạt động về dạng string số để bộ lọc hoạt động đồng nhất
+        const dataStatusAttr = (currentActive === true || currentActive === 1 || currentActive === '1') ? '1' : '0';
+
+        return `
+        <tr class="hero-row" data-status="${dataStatusAttr}">
+            <td class="px-6 py-5">
+                <img src="${BACKEND_URL}${currentImg}" class="w-24 h-14 rounded-xl object-cover border border-slate-100 shadow-sm" />
+            </td>
+            <td class="px-6 py-5">
+                <div class="font-bold text-slate-800">${escapeHTML(currentTitle)}</div>
+                <div class="text-xs text-slate-500 line-clamp-1">${escapeHTML(currentSubtitle)}</div>
+            </td>
+            <td class="px-6 py-5">
+                <div class="text-xs font-bold text-slate-700">${escapeHTML(currentBtnText)}</div>
+                <div class="text-[10px] text-slate-400 truncate max-w-[150px]">${escapeHTML(currentLink)}</div>
+            </td>
+            <td class="px-6 py-5 text-center font-bold text-slate-600">
+                ${currentOrder}
+            </td>
+            <td class="px-6 py-5 text-center">
+                <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                    (currentActive === true || currentActive === 1 || currentActive === '1') ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-400'
+                }">
+                    ${(currentActive === true || currentActive === 1 || currentActive === '1') ? '✅ Hiển thị' : '⏳ Đang ẩn'}
+                </span>
+            </td>
+            <td class="px-6 py-5 text-right">
+                <div class="flex justify-end gap-2">
+                    <a href="/admin/hero-slides/edit?id=${item.id}" class="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    </a>
+                    <button class="delete-btn p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all" data-id="${item.id}">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+
+    setupActionEvents();
+  }
+
+  // Khai báo biến toàn cục trong phạm vi mô-đun script để quản lý một sự kiện click duy nhất
+  let isFilterSetup = false;
+
+  function setupFilters() {
+    const container = document.getElementById('drop-status');
+    if (!container || isFilterSetup) return; // Nếu đã cài đặt rồi thì bỏ qua không tạo trùng lặp sự kiện click
+
+    const btn = container.querySelector('.drop-btn') as HTMLButtonElement;
+    const hiddenInput = container.querySelector('input[type="hidden"]') as HTMLInputElement;
+    const selectedText = container.querySelector('.selected-text');
+
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        container.classList.toggle('active');
+    });
+
+    container.addEventListener('click', (e) => {
+        const optionItem = (e.target as HTMLElement).closest('.option-item');
+        if (optionItem) {
+            const val = optionItem.getAttribute('data-value');
+            if (val && hiddenInput) {
+                hiddenInput.value = val;
+                if (selectedText) selectedText.textContent = optionItem.textContent;
+                container.classList.remove('active');
+                filterData();
+            }
+        }
+    });
+
+    window.addEventListener('click', () => container.classList.remove('active'));
+    isFilterSetup = true; // Đánh dấu đã cấu hình xong bộ lắng nghe
+  }
+
+  function filterData() {
+    const valStatus = (document.getElementById('filterStatus') as HTMLInputElement).value;
+    const rows = document.querySelectorAll('.hero-row');
+    const noResults = document.getElementById('noResults');
+    let hasVisibleRow = false;
+
+    rows.forEach((row: any) => {
+      const status = row.dataset.status;
+      const passStatus = valStatus === 'all' || valStatus === status;
+      row.classList.toggle('hidden', !passStatus);
+      if (passStatus) hasVisibleRow = true;
+    });
+
+    if (noResults) {
+      noResults.classList.toggle('hidden', hasVisibleRow);
+    }
+  }
+
+  function setupActionEvents() {
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        // Thay thế bản sao lắng nghe cũ tránh rò rỉ mã Token
+        btn.replaceWith(btn.cloneNode(true));
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const id = (e.currentTarget as HTMLElement).dataset.id;
+            if (!id) return;
+            
+            const confirm = await Swal.fire({ 
+                title: 'Xóa banner này?', 
+                text: 'Dữ liệu sẽ mất vĩnh viễn!', 
+                icon: 'warning', 
+                showCancelButton: true, 
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Vẫn xóa',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (confirm.isConfirmed) {
+                const adminToken = localStorage.getItem('admin_token');
+                
+                const res = await fetch(`${BACKEND_URL}/api/admin/hero-slides/${id}`, {
+                    method: 'DELETE',
+                    headers: { 
+                      'Authorization': `Bearer ${adminToken}`,
+                      'Content-Type': 'application/json'
+                    }
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                  localStorage.clear();
+                  window.location.replace('/admin');
+                  return;
+                }
+
+                if (res.ok) {
+                    await Swal.fire('Đã xóa!', '', 'success');
+                    initPage();
+                } else {
+                    await Swal.fire('Lỗi xóa!', 'Không thể thực thi lệnh xóa trên Server.', 'error');
+                }
+            }
+        });
+    });
+  }
+
+  // Kích hoạt nạp dữ liệu hoàn chỉnh khi cấu trúc trang sẵn sàng
+  document.addEventListener('DOMContentLoaded', () => {
+    initPage();
+  });
+</script>

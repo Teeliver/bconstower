@@ -1,0 +1,336 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import Navbar from '../../components/Navbar.astro';
+
+// 🔥 ĐỒNG BỘ HỆ THỐNG: Lấy trực tiếp biến cấu hình từ file .env của Trung Tín
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
+---
+
+<MainLayout title="Danh sách dự án Bcons mới nhất 2026">
+  <div class="bg-white w-full overflow-x-hidden break-words min-h-screen pb-24 font-sans text-slate-800">
+    
+    <div class="w-full bg-[#064e3b] relative py-10 sm:py-12 animate-fadeIn overflow-hidden mt-20">
+      <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:3rem_3rem]"></div>
+      
+      <div class="max-w-7xl mx-auto w-full px-4 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-7 space-y-4 text-white">
+          <div class="space-y-1">
+            <h1 class="text-2xl text-[#fac72e] sm:text-4xl font-black uppercase tracking-tight leading-tight">
+              Hệ thống dự án tập đoàn Bcons
+            </h1>
+          </div>
+          <p class="text-md sm:text-md text-white font-medium max-w-xl leading-relaxed">
+            Nơi tổng hợp toàn bộ các dự án căn hộ, nhà phố cao cấp từ chủ đầu tư Bcons. Dữ liệu tiến độ, bảng giá chuyển nhượng và ký gửi được cập nhật real-time.
+          </p>
+        </div>
+
+        <div class="lg:col-span-5 w-full">
+          <div class="relative aspect-[16/10] rounded-2xl overflow-hidden bg-white/10 border border-white/10 shadow-xl">
+            <img src="/images/no-photo.jpg" id="featured-projects-hero-img" class="w-full h-full object-cover" alt="Tổng quan dự án Bcons" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 pt-6">
+      
+      <div class="flex flex-wrap gap-4 mb-6 animate-fadeIn relative z-30">
+        
+        <div class="flex flex-col gap-1 min-w-[190px] md:min-w-[160px]">
+          <span class="text-[12px] text-slate-700 font-bold pl-1">Vị trí tỉnh thành</span>
+          <div class="dropdown-container border border-slate-200 rounded-[1rem] px-4 bg-white relative flex items-center h-[48px] transition-all duration-200 cursor-pointer select-none" id="dropdown-location">
+            <div class="text-sm font-bold text-slate-800 display-value">Tất cả</div>
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-transform duration-200 chevron-icon flex items-center">
+              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+            <div class="absolute left-0 top-[calc(100%+6px)] min-w-full w-max bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] py-1.5 hidden dropdown-menu border border-slate-100 overflow-hidden whitespace-nowrap">
+              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="all">Tất cả tỉnh thành</div>
+              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="hồ chí minh">TP. Hồ Chí Minh</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1 min-w-[190px] md:min-w-[160px]">
+          <span class="text-[12px] text-slate-700 font-bold pl-1">Trạng thái dự án</span>
+          <div class="dropdown-container border border-slate-200 rounded-[1rem] px-4 bg-white relative flex items-center h-[48px] transition-all duration-200 cursor-pointer select-none" id="dropdown-status">
+            <div class="text-sm font-bold text-slate-800 display-value">Tất cả</div>
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-transform duration-200 chevron-icon flex items-center">
+              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+            <div class="absolute left-0 top-[calc(100%+6px)] min-w-full w-max bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] py-1.5 hidden dropdown-menu border border-slate-100 overflow-hidden whitespace-nowrap">
+              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="all">Tất cả trạng thái</div>
+              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="da_ban_giao">Đã bàn giao căn hộ</div>
+              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="dang_xay_dung">Đang tiến hành xây dựng</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <nav class="flex text-[13px] text-slate-400 font-medium mb-3 animate-fadeIn">
+        <a href="/" class="hover:underline">Trang chủ</a>
+        <span class="mx-2 text-slate-300">&gt;</span>
+        <span class="text-slate-600 font-semibold">Danh sách dự án</span>
+      </nav>
+
+      <h2 class="text-xl font-black text-slate-900 tracking-tight mb-2 animate-fadeIn">
+        Khám phá toàn bộ dự án Bcons mới nhất
+      </h2>
+
+      <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-6 text-sm text-slate-500 font-medium animate-fadeIn relative z-25">
+        <div>Tổng cộng: <span id="project-results-count" class="font-bold text-slate-800">0</span> khu đô thị</div>
+        
+        <div class="dropdown-container relative flex items-center gap-1 cursor-pointer select-none hover:text-slate-800 transition-colors text-slate-500 font-bold text-xs" id="dropdown-sort">
+          <span>Sắp xếp: <span class="display-value font-black text-slate-700">Mới cập nhật</span></span>
+          <div class="chevron-icon transition-transform duration-200 mt-0.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
+          <div class="absolute right-0 top-[calc(100%+6px)] min-w-full w-max bg-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] py-1 hidden dropdown-menu border border-slate-100 overflow-hidden text-slate-700 text-left whitespace-nowrap">
+            <div class="px-4 py-2 text-xs font-bold hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item shadow-sm" data-value="all">Mới cập nhật</div>
+            <div class="px-4 py-2 text-xs font-bold hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item shadow-sm" data-value="name-asc">Tên dự án (A - Z)</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="project-list-skeleton" class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-8 animate-pulse">
+        {[1, 2, 3, 4].map(() => (
+          <div class="space-y-3">
+            <div class="aspect-[4/3] bg-slate-100 rounded-xl w-full"></div>
+            <div class="h-4 bg-slate-100 rounded w-2/3"></div>
+            <div class="h-3 bg-slate-100 rounded w-1/3"></div>
+          </div>
+        ))}
+      </div>
+
+      <div id="master-projects-grid" class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-8 hidden"></div>
+
+      <div id="empty-project-message" class="hidden text-center py-20 bg-slate-50 border border-slate-100 rounded-2xl animate-fadeIn">
+        <div class="text-4xl mb-2">🏢</div>
+        <p class="font-bold text-slate-700 text-sm">Không tìm thấy dự án phù hợp với bộ lọc</p>
+        <p class="text-xs text-slate-400 mt-1">Trung Tín hãy thử reset lại vị trí địa lý hoặc trạng thái dự án nhé!</p>
+      </div>
+
+    </div>
+  </div>
+</MainLayout>
+
+<script define:vars={{ PUBLIC_API_BASE }}>
+  const BACKEND_URL = PUBLIC_API_BASE;
+
+  let MASTER_PROJECTS = [];
+  let FILTERED_PROJECTS = [];
+
+  let activeFilters = {
+    location: 'all',
+    status: 'all'
+  };
+  let activeSort = 'all';
+
+  // 🔒 LỚP BẢO MẬT XSS CHUẨN CAO: Khử trùng chuỗi văn bản kết xuất thô từ CSDL
+  const escapeHTML = (str) => {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, (match) => {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+      return map[match] || match;
+    });
+  };
+
+  function initCustomDropdowns() {
+    const containers = document.querySelectorAll('.dropdown-container');
+    
+    containers.forEach(container => {
+      container.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const menu = this.querySelector('.dropdown-menu');
+        const chevron = this.querySelector('.chevron-icon');
+        
+        const isHidden = menu.classList.contains('hidden');
+
+        containers.forEach(other => {
+          other.querySelector('.dropdown-menu').classList.add('hidden');
+          const c = other.querySelector('.chevron-icon');
+          if (c) c.classList.remove('rotate-180');
+          if (other.id !== 'dropdown-sort') {
+            other.classList.remove('border-orange-500', 'border-2');
+            other.classList.add('border-slate-200');
+          }
+        });
+
+        if (isHidden) {
+          menu.classList.remove('hidden');
+          if (chevron) chevron.classList.add('rotate-180');
+          
+          if (this.id !== 'dropdown-sort') {
+            this.classList.remove('border-slate-200');
+            this.classList.add('border-orange-500', 'border-2');
+          }
+        }
+      });
+
+      const options = container.querySelectorAll('.option-item');
+      const displayVal = container.querySelector('.display-value');
+      const filterKey = container.id.replace('dropdown-', '');
+
+      options.forEach(option => {
+        option.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const value = this.getAttribute('data-value');
+          const text = this.textContent;
+
+          displayVal.textContent = text;
+
+          if (filterKey === 'sort') {
+            activeSort = value;
+          } else {
+            activeFilters[filterKey] = value;
+          }
+
+          container.querySelector('.dropdown-menu').classList.add('hidden');
+          const chevron = container.querySelector('.chevron-icon');
+          if (chevron) chevron.classList.remove('rotate-180');
+          
+          if (container.id !== 'dropdown-sort') {
+            container.classList.remove('border-orange-500', 'border-2');
+            container.classList.add('border-slate-200');
+          }
+
+          applyFilters();
+        });
+      });
+    });
+
+    document.addEventListener('click', () => {
+      containers.forEach(container => {
+        container.querySelector('.dropdown-menu').classList.add('hidden');
+        const chevron = container.querySelector('.chevron-icon');
+        if (chevron) chevron.classList.remove('rotate-180');
+        if (container.id !== 'dropdown-sort') {
+          container.classList.remove('border-orange-500', 'border-2');
+          container.classList.add('border-slate-200');
+        }
+      });
+    });
+  }
+
+  function renderProjects() {
+    const grid = document.getElementById('master-projects-grid');
+    const emptyBox = document.getElementById('empty-project-message');
+    const resultsCountEl = document.getElementById('project-results-count');
+
+    resultsCountEl.textContent = FILTERED_PROJECTS.length.toString();
+
+    if (FILTERED_PROJECTS.length === 0) {
+      grid.classList.add('hidden');
+      emptyBox.classList.remove('hidden');
+      return;
+    }
+
+    emptyBox.classList.add('hidden');
+    grid.classList.remove('hidden');
+
+    grid.innerHTML = FILTERED_PROJECTS.map(function(item) {
+      // ⚡ PHÒNG THỦ ĐƯỜNG DẪN ẢNH: Xử lý làm sạch ký tự gạch chéo kép an toàn
+      const thumb = item.image 
+        ? (item.image.startsWith('http') ? item.image : (BACKEND_URL.replace(/\/$/, '') + '/' + item.image.replace(/^\//, ''))) 
+        : '/images/no-photo.jpg';
+      
+      // 🔥 ĐỒNG BỘ ĐÉT MA TRẬN PHÂN LOẠI TRẠNG THÁI THEO ENUM DATABASE THỰC TẾ
+      let statusClass = 'text-orange-500';
+      let statusText = 'Đang xây dựng';
+
+      const currentStatus = item.status ? String(item.status).trim().toLowerCase() : '';
+
+      if (currentStatus === 'da_ban_giao') {
+        statusClass = 'text-emerald-500';
+        statusText = 'Đã bàn giao';
+      } else if (currentStatus === 'sap_mo_ban') {
+        statusClass = 'text-blue-500';
+        statusText = 'Sắp mở bán';
+      } else if (currentStatus === 'dang_mo_ban') {
+        statusClass = 'text-orange-500';
+        statusText = 'Đang mở bán';
+      } else {
+        statusClass = 'text-orange-500';
+        statusText = 'Đang xây dựng';
+      }
+
+      const safeTitle = escapeHTML(item.title || '');
+      const safeAddress = escapeHTML(item.address || 'Bình Dương');
+      const safeSlug = escapeHTML(item.slug || '');
+
+      let html = '<a href="/du-an/' + safeSlug + '" class="group block bg-white transition-all duration-300">';
+      html += '  <div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-50 border border-slate-100 mb-2.5">';
+      html += '    <img src="' + thumb + '" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" alt="' + safeTitle + '" />';
+      html += '  </div>';
+      html += '  <div class="space-y-1 px-0.5">';
+      html += '    <h4 class="font-bold text-slate-900 text-[18px] md:text-[14px] leading-snug line-clamp-1 group-hover:text-[#006B5D] transition-colors uppercase tracking-tight">' + safeTitle + '</h4>';
+      html += '    <p class="text-[16px] md:text-[14px] line-clamp-1 text-slate-500 font-medium">' + safeAddress + '</p>';
+      html += '    <div class="pt-0.5 text-[14px] md:text-[12px] ' + statusClass + ' font-black uppercase tracking-wider">' + statusText + '</div>';
+      html += '  </div>';
+      html += '</a>';
+      return html;
+    }).join('');
+  }
+
+  function applyFilters() {
+    const locVal = activeFilters.location;
+    const statVal = activeFilters.status;
+
+    FILTERED_PROJECTS = MASTER_PROJECTS.filter(function(proj) {
+      if (locVal !== 'all') {
+        const addr = String(proj.address || '').toLowerCase();
+        if (!addr.includes(locVal)) return false;
+      }
+      if (statVal !== 'all') {
+        const projStatus = String(proj.status || '').trim().toLowerCase();
+        if (projStatus !== statVal) return false;
+      }
+      return true;
+    });
+
+    if (activeSort === 'name-asc') {
+      FILTERED_PROJECTS.sort(function(a, b) { return a.title.localeCompare(b.title, 'vi'); });
+    }
+
+    renderProjects();
+  }
+
+  async function loadAllProjectsData() {
+    const skeleton = document.getElementById('project-list-skeleton');
+    try {
+      // 🔥 ĐÃ ĐỒNG BỘ: Kết nối trực diện qua endpoint API public chuyên biệt lấy data dự án phẳng
+      const res = await fetch(BACKEND_URL + "/api/projects/public?limit=100");
+      if (!res.ok) throw new Error("API sập mạng");
+      const result = await res.json();
+
+      // 🧠 PHÒNG THỦ PAYLOAD PAYLOAD: Tự tương thích cả mảng phẳng lẫn object bọc data của Laravel Resource
+      MASTER_PROJECTS = Array.isArray(result) ? result : (result.data || result.projects || []);
+      FILTERED_PROJECTS = MASTER_PROJECTS;
+
+      if (MASTER_PROJECTS.length > 0 && MASTER_PROJECTS[0].image) {
+        const leadImg = MASTER_PROJECTS[0].image;
+        const fullLeadUrl = leadImg.startsWith('http') ? leadImg : (BACKEND_URL.replace(/\/$/, '') + '/' + leadImg.replace(/^\//, ''));
+        const heroImgEl = document.getElementById('featured-projects-hero-img');
+        if (heroImgEl) heroImgEl.setAttribute('src', fullLeadUrl);
+      }
+
+      initCustomDropdowns();
+
+      if (skeleton) skeleton.classList.add('hidden');
+      renderProjects();
+
+    } catch (e) {
+      console.error("Lỗi dựng trang danh sách dự án Bcons:", e);
+      if (skeleton) skeleton.classList.add('hidden');
+    }
+  }
+
+  loadAllProjectsData();
+</script>
+
+<style is:global>
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+  .rotate-180 { transform: rotate(180deg) !important; }
+  .z-25 { z-index: 25; }
+</style>

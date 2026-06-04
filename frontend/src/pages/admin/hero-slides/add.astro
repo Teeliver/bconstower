@@ -1,0 +1,276 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Thêm banner mới">
+  <!-- Script liên kết thư viện cảnh báo - GIỮ NGUYÊN VẸN 100% -->
+  <script is:inline src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <div class="max-w-full mx-auto">
+    <!-- NÚT QUAY LẠI - GIỮ NGUYÊN VẸN 100% UI/UX -->
+    <div class="mb-6">
+      <a href="/admin/hero-slides" id="backBtn" class="text-slate-500 hover:text-orange-600 flex items-center gap-2 transition font-medium">
+        <span>←</span> Quay lại danh sách
+      </a>
+    </div>
+
+    <!-- KHUNG FORM NHẬP LIỆU CHÍNH - GIỮ NGUYÊN VẸN 100% UI/UX -->
+    <div class="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl border border-slate-50">
+      <h2 class="text-2xl font-bold text-slate-800 mb-8">Thông tin banner</h2>
+      
+      <form id="heroForm" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="col-span-2">
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Tiêu đề Banner <span class="text-red-500">*</span></label>
+            <input type="text" name="title" id="title" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" placeholder="VD: An cư thịnh vượng với Bcons City" />
+          </div>
+
+          <div class="col-span-2">
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Mô tả ngắn (Subtitle)</label>
+            <textarea name="subtitle" id="subtitle" rows="3" class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" placeholder="Nhập mô tả xuất hiện dưới tiêu đề..."></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Chữ trên nút</label>
+            <input type="text" name="buttonText" id="buttonText" value="Tìm kiếm ngay" class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Link liên kết (URL)</label>
+            <input type="text" name="linkUrl" id="linkUrl" value="#" class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" />
+          </div>
+
+          <!-- DROPDOWN TRẠNG THÁI TÙY CHỈNH - GIỮ NGUYÊN VẸN 100% UI/UX -->
+          <div class="relative dropdown-container" id="dropdown-status">
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Trạng thái hiển thị</label>
+            <input type="hidden" name="isActive" id="isActive" value="1">
+            <button type="button" class="drop-btn w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl flex items-center justify-between font-medium hover:bg-slate-100 transition-all focus:border-orange-500 outline-none shadow-sm">
+              <span class="selected-text">✅ Đang hiển thị</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="drop-menu absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+              <div class="p-2 space-y-1">
+                <div data-value="1" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer text-sm">
+                  <span>✅ Đang hiển thị</span>
+                </div>
+                <div data-value="0" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer text-sm">
+                  <span>⏳ Tạm ẩn</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Thứ tự hiển thị</label>
+            <input type="number" name="displayOrder" id="displayOrder" value="0" class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" />
+          </div>
+
+          <!-- KHỐI TẢI ẢNH VÀ XEM TRƯỚC TỈ LỆ 16:9 - GIỮ NGUYÊN VẸN 100% UI/UX -->
+          <div class="col-span-2">
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Hình ảnh Banner (Tỉ lệ 16:9) <span class="text-red-500">*</span></label>
+            <input type="file" id="image" name="image" accept="image/*" required class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer" />
+            
+            <div id="preview" class="mt-6 flex justify-center hidden">
+                <div class="relative bg-slate-50 p-4 rounded-3xl border-2 border-dashed border-slate-200 w-full max-w-2xl">
+                    <img id="imgPreview" src="" class="w-full aspect-video object-cover rounded-2xl shadow-md border-4 border-white" />
+                    <p class="text-[10px] text-center text-slate-400 mt-2 uppercase font-bold tracking-widest">Ảnh xem trước (16:9)</p>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-8">
+          <button type="submit" id="submitBtn" class="w-full bg-slate-900 hover:bg-orange-600 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-slate-900/10 active:scale-95 disabled:opacity-50">
+            Đăng Banner ngay
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</AdminLayout>
+
+<style>
+  .dropdown-container.active .drop-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+  .dropdown-container.active .drop-btn svg { transform: rotate(180deg); }
+</style>
+
+<script>
+  declare var Swal: any;
+  import { checkAdminAuth } from '../../../lib/auth';
+
+  // Khởi chạy vòng bảo mật kiểm tra token client sơ bộ
+  checkAdminAuth();
+
+  // 🔥 ĐỒNG BỘ MÔI TRƯỜNG: Tự động bốc URL phân phát cổng Laravel API từ tệp .env toàn cục
+  const API_BASE_URL = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+
+  const form = document.getElementById('heroForm') as HTMLFormElement;
+  const btn = document.getElementById('submitBtn') as HTMLButtonElement;
+  const imageInput = document.getElementById('image') as HTMLInputElement;
+  const previewDiv = document.getElementById('preview');
+  const imgPreview = document.getElementById('imgPreview') as HTMLImageElement;
+
+  // 1. Setup Custom Dropdown (Giữ nguyên logic chuyển động mịn màng của Trung Tín)
+  function setupCustomDropdown(containerId: string) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const dropBtn = container.querySelector('.drop-btn') as HTMLButtonElement;
+    const hiddenInput = container.querySelector('input[type="hidden"]') as HTMLInputElement;
+    const options = container.querySelectorAll('.option-item');
+    const selectedText = container.querySelector('.selected-text');
+
+    dropBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.dropdown-container').forEach(el => {
+        if (el !== container) el.classList.remove('active');
+      });
+      container.classList.toggle('active');
+    });
+
+    options.forEach(opt => {
+      opt.addEventListener('click', () => {
+        const val = opt.getAttribute('data-value');
+        const content = opt.innerHTML;
+        if (val && hiddenInput) hiddenInput.value = val;
+        if (selectedText) selectedText.innerHTML = content;
+        container.classList.remove('active');
+      });
+    });
+  }
+
+  window.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-container').forEach(el => el.classList.remove('active'));
+  });
+
+  // 2. Xử lý xem trước ảnh (Tỉ lệ 16:9)
+  imageInput?.addEventListener('change', () => {
+    const file = imageInput.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      imgPreview.src = url;
+      previewDiv?.classList.remove('hidden');
+    }
+  });
+
+  // 3. Xử lý Gửi Form dữ liệu an toàn
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.disabled = true;
+
+    const token = localStorage.getItem('admin_token');
+
+    // 🔒 BẢO MẬT TUYỆT ĐỐI: Nếu không tìm thấy token, chặn đứng hành vi đẩy dữ liệu rác lên server
+    if (!token) {
+      localStorage.clear();
+      window.location.replace('/admin');
+      return;
+    }
+
+    // 🔒 BẢO MẬT FILE UPLOAD: Kiểm tra định dạng và dung lượng tệp tin để chống hack tệp shell độc
+    if (imageInput.files && imageInput.files.length > 0) {
+      const file = imageInput.files[0];
+      
+      // Giới hạn file tối đa là 5MB tránh quá tải hoặc DoS máy chủ hosting
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({ icon: 'error', title: 'Tệp tin quá lớn', text: 'Kích thước ảnh banner tối đa chỉ được 5MB!', confirmButtonColor: '#ef4444' });
+        btn.disabled = false;
+        return;
+      }
+
+      // Giới hạn định dạng hình ảnh hợp lệ
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+      if (!allowedMimeTypes.includes(file.type)) {
+        Swal.fire({ icon: 'error', title: 'Sai định dạng', text: 'Hệ thống chỉ chấp nhận định dạng ảnh JPG, PNG hoặc WEBP!', confirmButtonColor: '#ef4444' });
+        btn.disabled = false;
+        return;
+      }
+    }
+
+    // Kích hoạt thông báo xoay tròn của SweetAlert2
+    Swal.fire({
+      title: 'Đang đăng tải...',
+      text: 'Đang cập nhật diện mạo mới cho Bcons Portal',
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    // 🔒 CHUẨN HÓA KHÓA DỮ LIỆU: Đóng gói thủ công để chuyển đổi toàn bộ khóa thành dạng snake_case khớp Model Laravel
+    const formPayload = new FormData();
+    formPayload.append('title', (document.getElementById('title') as HTMLInputElement).value.trim());
+    formPayload.append('subtitle', (document.getElementById('subtitle') as HTMLTextAreaElement).value.trim());
+    formPayload.append('button_text', (document.getElementById('buttonText') as HTMLInputElement).value.trim());
+    formPayload.append('link_url', (document.getElementById('linkUrl') as HTMLInputElement).value.trim());
+    formPayload.append('is_active', (document.getElementById('isActive') as HTMLInputElement).value);
+    formPayload.append('display_order', (document.getElementById('displayOrder') as HTMLInputElement).value);
+    if (imageInput.files?.[0]) {
+        formPayload.append('image', imageInput.files[0]);
+    }
+
+    try {
+      // 🔥 ĐỒNG BỘ ROUTE: Đẩy gói tin lên cổng endpoint tạo lập an toàn của Laravel Backend mới
+      const res = await fetch(`${API_BASE_URL}/api/admin/hero-slides`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formPayload
+      });
+
+      // BẢO MẬT ĐẦU RA: Nếu máy chủ chặn quyền do Token hết hạn (401/403) lập tức trục xuất ngay
+      if (res.status === 401 || res.status === 403) {
+        localStorage.clear();
+        window.location.replace('/admin');
+        return;
+      }
+
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công!',
+          text: result.message || 'Banner đã được lưu và sẵn sàng hiển thị.',
+          timer: 2000,
+          showConfirmButton: false
+        }).then(() => {
+          window.location.href = '/admin/hero-slides';
+        });
+      } else {
+        throw new Error(result.message || "Lỗi xử lý lưu trữ trên máy chủ.");
+      }
+    } catch (err: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Thất bại',
+        text: err.message || "Lỗi sập kết nối Server API Laravel!",
+        confirmButtonColor: '#ef4444'
+      });
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // 4. Xác nhận hủy bỏ quay lại - Giữ nguyên vẹn 100% logic cảnh báo của Trung Tín
+  document.getElementById('backBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    Swal.fire({
+      title: 'Hủy bỏ?',
+      text: "Các thay đổi sẽ không được lưu.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ea580c',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Ở lại'
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        window.location.href = '/admin/hero-slides';
+      }
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setupCustomDropdown('dropdown-status');
+  });
+</script>

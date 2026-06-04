@@ -1,0 +1,180 @@
+---
+// src/components/home/HeroSlide.astro
+// 🔥 ĐỒNG BỘ HỆ THỐNG: Lấy biến cấu hình URL Server từ tệp .env của Trung Tín
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+---
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<script is:inline src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<section class="max-w-[1440px] mx-auto mt-16 md:mt-24 px-4 py-2 block" id="hero-slider-section" data-api={PUBLIC_API_BASE}>
+  
+  <div class="swiper heroSwiper rounded-3xl md:rounded-[2.5rem] overflow-hidden bg-[#0d0d0d] relative group shadow-2xl h-[380px] sm:h-[460px] md:h-[660px]">
+    
+    <div class="swiper-wrapper" id="hero-wrapper">
+      
+      <div id="hero-skeleton" class="w-full h-[420px] sm:h-[500px] md:h-[640px] flex flex-col items-center justify-center bg-[#0d0d0d] text-center p-6 space-y-3">
+        <div class="w-6 h-6 border-2 border-[#fac72e] border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-white/40 text-[10px] font-bold tracking-[0.2em] uppercase animate-pulse">Bcons Corporate System Loading...</p>
+      </div>
+
+    </div>
+
+    <div class="swiper-button-next !text-white/70 !w-12 !h-12 bg-white/5 backdrop-blur-md rounded-full after:!text-[10px] opacity-0 group-hover:opacity-100 transition-all duration-500 right-6 hidden md:flex items-center justify-center border border-white/10 hover:bg-[#fac72e] hover:!text-[#1E1E1E] hover:border-[#fac72e]"></div>
+    <div class="swiper-button-prev !text-white/70 !w-12 !h-12 bg-white/5 backdrop-blur-md rounded-full after:!text-[10px] opacity-0 group-hover:opacity-100 transition-all duration-500 left-6 hidden md:flex items-center justify-center border border-white/10 hover:bg-[#fac72e] hover:!text-[#1E1E1E] hover:border-[#fac72e]"></div>
+    
+    <div class="swiper-pagination !text-right !px-8 md:!px-16 !pb-6 md:!pb-10"></div>
+  </div>
+</section>
+
+<script is:inline>
+  async function initHeroSlider() {
+    const section = document.getElementById('hero-slider-section');
+    const wrapper = document.getElementById('hero-wrapper');
+    if (!section || !wrapper) return;
+
+    if (section.dataset.sliderLoaded === 'true') return;
+    section.dataset.sliderLoaded = 'true';
+
+    const BACKEND_URL = section.getAttribute('data-api') || 'http://127.0.0.1:8000';
+
+    const escapeHTML = (str) => {
+      if (!str) return '';
+      return str.replace(/[&<>"']/g, (match) => {
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+        return map[match] || match;
+      });
+    };
+
+    // 🚀 SLIDE DỰ PHÒNG CAO CẤP: Khoe trọn 100% độ sáng ảnh phối cảnh, chữ ép góc trái đáy cực thoáng
+    const fallbackSlideHtml = `
+      <div class="swiper-slide relative w-full h-[420px] sm:h-[500px] md:h-[640px] flex items-end overflow-hidden">
+        <div class="absolute inset-0 z-0 w-full h-full">
+          <img src="http://127.0.0.1:8000/upload/heroslider/banenr-1-1779902707.png" alt="Banner Bcons" class="w-full h-full object-cover object-center block" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/35 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent hidden md:block"></div>
+        </div>
+        <div class="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-12 md:px-16 pb-16 sm:pb-20 md:pb-28 text-left space-y-4 md:space-y-5">
+          <div class="flex items-center gap-3">
+            <div class="w-0.5 h-4 bg-[#fac72e]"></div>
+            <span class="text-[#fac72e] font-bold tracking-[0.25em] uppercase text-[9px] md:text-[11px]">Bcons Tower • Sự lựa chọn hoàn hảo</span>
+          </div>
+          <div class="space-y-2 md:space-y-3">
+            <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight text-white leading-none drop-shadow-sm">Bcons Center City</h1>
+            <p class="text-slate-300/80 text-xs sm:text-sm md:text-base font-medium max-w-xl md:max-w-2xl leading-relaxed line-clamp-2">Vị trí đắc địa mặt tiền đại lộ, giỏ hàng căn hộ sang nhượng cắt lỗ sâu, pháp lý vững vàng cam kết sổ hồng riêng.</p>
+          </div>
+          <div class="pt-2">
+            <a href="#cta-register-root" class="inline-flex items-center justify-center border border-white/20 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-white hover:text-black hover:border-white transition-all duration-300 shadow-xl select-none">Tìm hiểu ngay</a>
+          </div>
+        </div>
+      </div>
+    `;
+
+    try {
+      const response = await fetch(BACKEND_URL + '/api/hero-slides');
+      if (!response.ok) throw new Error("Cổng kết nối API thất bại");
+
+      const resResult = await response.json();
+      const slides = Array.isArray(resResult) ? resResult : (resResult.data && Array.isArray(resResult.data) ? resResult.data : []);
+
+      if (slides.length === 0) {
+        wrapper.innerHTML = fallbackSlideHtml;
+      } else {
+        wrapper.innerHTML = slides.map(slide => {
+          // Khớp chuẩn xác cấu hình DB: image_url và link_url
+          const rawImg = slide.image_url || '';
+          const fullImgUrl = rawImg.startsWith('http') ? rawImg : (BACKEND_URL.replace(/\/$/, '') + '/' + rawImg.replace(/^\//, ''));
+          
+          const title = escapeHTML(slide.title || 'Dự án Bcons');
+          const subtitle = escapeHTML(slide.subtitle || 'Bcons Group • Đón đầu an cư');
+          const description = escapeHTML(slide.description || 'Cập nhật bảng giá rổ hàng ký gửi sang nhượng vị trí đẹp trực tiếp từ phòng kinh doanh.');
+          const targetLink = escapeHTML(slide.link_url || '#cta-register-root');
+          const btnText = escapeHTML(slide.button_text || 'Xem chi tiết ngay');
+
+          // Ép cứng object-cover object-center cố định tỷ lệ khung hình không lo móp méo ảnh
+          let html = `<div class="swiper-slide relative w-full h-[420px] sm:h-[500px] md:h-[640px] flex items-end overflow-hidden">`;
+          html += `  <div class="absolute inset-0 z-0 w-full h-full">`;
+          html += `    <img src="${fullImgUrl}" alt="${title}" class="w-full h-full object-cover md:object-fit object-center block" onerror="this.src='http://127.0.0.1:8000/upload/heroslider/banenr-1-1779902707.png'" />`;
+          html += `    <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/25 to-transparent"></div>`;
+          html += `    <div class="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent hidden md:block"></div>`;
+          html += `  </div>`;
+          html += `  <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-12 md:px-16 pb-16 sm:pb-20 md:pb-28 text-left space-y-4 md:space-y-5 mt-50 md:mt-100 md:-ml-4">`;
+          html += `    <div class="space-y-2 md:space-y-3">`;
+          html += `      <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight text-white leading-none drop-shadow-sm">${title}</h1>`;
+          html += `      <p class="text-slate-300/100 text-xs sm:text-sm md:text-base font-medium max-w-xl md:max-w-2xl leading-relaxed line-clamp-2">${description}</p>`;
+          html += `    </div>`;
+          html += `    <div class="pt-2">`;
+          html += `      <a href="${targetLink}" class="bg-[#fac72e] text-[#1E1E1E] px-6 py-3 md:px-10 md:py-4 rounded-xl font-black uppercase tracking-wider text-[11px] md:text-xs hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg shadow-black/10 select-none">${btnText}</a>`;
+          html += `    </div>`;
+          html += `  </div>`;
+          html += `</div>`;
+          return html;
+        }).join('');
+      }
+    } catch (err) {
+      console.error("[HeroSlider] Lỗi kết nối API:", err);
+      wrapper.innerHTML = fallbackSlideHtml;
+    } finally {
+      if (typeof window.Swiper !== 'undefined') {
+        // HỦY THỰC THỂ CŨ NẾU CÓ TRƯỚC KHI RE-INIT ĐỂ TRÁNH LỖI ĐƠ ROUTER TĨNH CỦA ASTRO
+        if (window.myHeroSwiper && typeof window.myHeroSwiper.destroy === 'function') {
+          window.myHeroSwiper.destroy(true, true);
+        }
+
+        window.myHeroSwiper = new window.Swiper('.heroSwiper', {
+          loop: true,
+          speed: 1000, 
+          autoplay: {
+            delay: 10000, // 🔥 KHÓA CHẶT: Giữ slide đứng im trượt dài đúng 10 giây tròn trịa
+            disableOnInteraction: false,
+          },
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      }
+    }
+  }
+
+  initHeroSlider();
+  document.addEventListener('DOMContentLoaded', initHeroSlider);
+  document.addEventListener('astro:page-load', initHeroSlider);
+</script>
+
+<style is:global>
+  /* 🔥 BIẾN ĐỔI CHẤM PHÂN TRANG THÀNH THANH LINE NGANG DẸT PREMIUM */
+  .heroSwiper .swiper-pagination {
+    width: auto !important;
+    left: auto !important;
+    right: 4rem !important;
+    bottom: 2.5rem !important;
+  }
+  @media (max-width: 768px) {
+    .heroSwiper .swiper-pagination {
+      right: 1.5rem !important;
+      bottom: 1.5rem !important;
+    }
+  }
+  .heroSwiper .swiper-pagination-bullet {
+    background: #ffffff !important;
+    opacity: 0.3;
+    width: 20px !important;
+    height: 2px !important;
+    border-radius: 0px !important;
+    margin: 0 4px !important;
+    transition: all 0.4s ease !important;
+  }
+  .heroSwiper .swiper-pagination-bullet-active {
+    background: #fac72e !important;
+    opacity: 1 !important;
+    width: 45px !important; /* Line active tự động kéo dãn dài ra phong cách công nghệ */
+  }
+  .heroSwiper .swiper-button-next:after, .heroSwiper .swiper-button-prev:after {
+    font-weight: 900 !important;
+  }
+</style>

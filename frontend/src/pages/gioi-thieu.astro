@@ -1,0 +1,178 @@
+---
+// src/pages/gioi-thieu.astro
+import MainLayout from '../layouts/MainLayout.astro'; // Trung Tín check lại đường dẫn chứa file MainLayout này nha
+
+// Cấu hình SEO Meta cho thương hiệu Bcons
+const seoTitle = "Giới thiệu về Tập đoàn Bcons - Khác Biệt Ở Chữ Tín";
+const seoDescription = "Tìm hiểu về Tập đoàn Bcons - Đơn vị phát triển bất động sản uy tín hàng đầu với chuỗi căn hộ Bcons tại Dĩ An, Bình Dương. Cam kết vượt trội về tiến độ và pháp lý sổ hồng.";
+---
+
+<MainLayout title={seoTitle} description={seoDescription}>
+  <div class="w-full overflow-hidden animate-fadeIn mt-20">
+    
+    <section class="relative w-full py-20 md:py-28 bg-[#064e3b] text-white">
+      <div class="absolute inset-0 bg-gradient-to-tr from-[#114232] to-[#005043] opacity-90 z-0"></div>
+      
+      <div class="max-w-7xl mx-auto px-5 relative z-10">
+        <div class="max-w-3xl space-y-5 text-left">
+          <span class="inline-block text-[10px] font-black uppercase tracking-widest text-[#005043] bg-[#FFC94A] px-3 py-1 rounded-md font-heading shadow-sm">
+            Về Tập Đoàn Bcons
+          </span>
+          <h1 class="text-3xl sm:text-4xl md:text-5xl font-black font-heading tracking-tight leading-tight uppercase mt-6">
+            Tập đoàn Bcons <br class="hidden sm:inline" />
+            <span class="text-[#FFC94A]">Khác biệt ở chữ "tín"</span>
+          </h1>
+          <p class="text-[16px] sm:text-sm md:text-base text-white/80 font-medium leading-relaxed max-w-2xl pt-2 font-body">
+            Với hơn 10 năm kiến tạo và phát triển, Bcons tự hào là đơn vị tiên phong áp dụng công nghệ BIM tiên tiến, tối ưu hóa quy trình từ thiết kế, thi công đến quản lý vận hành nhằm mang lại những tổ ấm chất lượng vượt trội với giá thành tốt nhất.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="w-full py-16 md:py-24 bg-white">
+      <div class="max-w-7xl mx-auto px-5">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          
+          <div class="lg:col-span-5 space-y-4 text-left">
+            <span class="inline-block text-[10px] font-black uppercase tracking-widest text-white bg-[#F48223] px-3 py-1 rounded font-heading shadow-sm">
+              Chặng Đường Phát Triển
+            </span>
+            <h2 class="text-2xl md:text-3xl font-bold font-heading text-[#005043] uppercase tracking-tight leading-tight">
+              Thương hiệu bảo chứng cho tiến độ xây dựng và pháp lý
+            </h2>
+            <div class="w-12 h-1 bg-[#F48223] rounded-full mt-2"></div>
+          </div>
+
+          <div class="lg:col-span-7 space-y-6 text-[#686B6B] text-[16px] md:text-base leading-relaxed font-medium font-body text-justify">
+            <p>
+              Thành lập từ năm 2013, <strong class="text-[#1E1E1E]">Tập đoàn Bcons</strong> đã khẳng định vị thế vững chắc trên thị trường bất động sản phía Nam bằng chuỗi sản phẩm căn hộ mang thương hiệu Bcons đáp ứng nhu cầu thực. Chúng tôi sở hữu quy trình quản lý khép kín giúp kiểm soát nghiêm ngặt chi phí và chất lượng công trình.
+            </p>
+            <p>
+              Lấy "Chữ Tín" làm tôn chỉ hành động, các dự án của Bcons từ Bcons Suối Tiên, Bcons Green View, Bcons Plaza đến khu phức hợp Bcons City đều đạt tốc độ xây dựng thần tốc, <span class="text-[#005043] font-bold">bàn giao nhà đúng tiến độ và cấp sổ hồng kỷ lục</span>, mang lại sự an tâm tuyệt đối cho nhà đầu tư và cư dân.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="w-full py-16 bg-[#F8F8F6] border-t border-b border-[#E1E7E7]/60">
+      <div class="max-w-7xl mx-auto px-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          
+          <div class="bg-white p-8 rounded-2xl shadow-sm space-y-4 transition-all duration-300 hover:shadow-xl flex flex-col justify-between">
+            <div class="space-y-4">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-[#005043] text-[#FFC94A] flex items-center justify-center shadow-md shrink-0">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </div>
+                <h3 class="text-lg font-bold font-heading text-[#005043] uppercase tracking-tight">Tầm Nhìn Chiến Lược</h3>
+              </div>
+              <p class="text-[16px] sm:text-sm text-[#686B6B] font-medium leading-relaxed font-body">
+                Trở thành một trong những Tập đoàn đầu tư đa ngành, phát triển Bất động sản và Xây dựng hàng đầu Việt Nam. Khẳng định vị thế thương hiệu quốc gia gắn liền với các công trình nhà ở thông minh, tối ưu công năng và thân thiện với môi trường.
+              </p>
+            </div>
+          </div>
+
+          <div class="bg-white p-8 rounded-2xl shadow-sm space-y-4 transition-all duration-300 hover:shadow-xl flex flex-col justify-between">
+            <div class="space-y-4">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-[#005043] text-[#FFC94A] flex items-center justify-center shadow-md shrink-0">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <h3 class="text-lg font-bold font-heading text-[#005043] uppercase tracking-tight">Sứ Mệnh Với Cộng Đồng</h3>
+              </div>
+              <p class="text-[16px] sm:text-sm text-[#686B6B] font-medium leading-relaxed font-body">
+                Kiên trì theo đuổi mục tiêu cung cấp giải pháp an cư phân khúc vừa túi tiền, giúp hàng triệu gia đình trẻ dễ dàng sở hữu không gian sống hiện đại, tiện nghi, góp phần thúc đẩy quá trình đô thị hóa văn minh tại Bình Dương và toàn quốc.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="w-full py-16 md:py-24 bg-white">
+      <div class="max-w-7xl mx-auto px-5">
+        
+          <div class="w-full flex flex-col items-center text-center mb-12">
+            <span class="inline-block text-[9px] font-black uppercase tracking-widest text-[#005043] bg-[#FFC94A] px-2.5 py-1 rounded font-heading shadow-sm">
+              Giá Trị Cốt Lõi
+            </span>
+            <h3 class="text-xl sm:text-2xl font-bold font-heading text-[#005043] uppercase tracking-tight mt-2.5">
+              3 Trụ Cột Thành Công Của Bcons
+            </h3>
+            <div class="w-12 h-1 bg-[#F48223] rounded-full mt-2.5"></div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="p-6 bg-[#F8F8F6] rounded-xl border border-[#E1E7E7]/60 space-y-2 text-left">
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-black text-[#005043] bg-[#FFC94A] w-6 h-6 rounded-full flex items-center justify-center border border-[#E1E7E7] shadow-sm font-heading">01</span>
+                <h4 class="font-bold font-heading text-[#1E1E1E] text-[18px] uppercase tracking-tight">Chữ Tín (Credibility)</h4>
+              </div>
+              <p class="text-[16px] font-body text-[#686B6B] font-medium leading-relaxed pl-9">
+                Cam kết tuyệt đối về tiến độ xây dựng, bàn giao nhà đúng hạn and hoàn thiện quy trình pháp lý ra sổ hồng sớm nhất thị trường cho cư dân.
+              </p>
+            </div>
+
+            <div class="p-6 bg-[#F8F8F6] rounded-xl border border-[#E1E7E7]/60 space-y-2 text-left">
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-black text-[#005043] bg-[#FFC94A] w-6 h-6 rounded-full flex items-center justify-center border border-[#E1E7E7] shadow-sm font-heading">02</span>
+                <h4 class="font-bold font-heading text-[#1E1E1E] text-[18px] uppercase tracking-tight">Tận Tâm (Dedication)</h4>
+              </div>
+              <p class="text-[16px] font-body text-[#686B6B] font-medium leading-relaxed pl-9">
+                Luôn đặt lợi ích và trải nghiệm sống của khách hàng làm trọng tâm, chăm chút tỉ mỉ từ khâu thiết kế căn hộ đến dịch vụ quản lý vận hành.
+              </p>
+            </div>
+
+            <div class="p-6 bg-[#F8F8F6] rounded-xl border border-[#E1E7E7]/60 space-y-2 text-left">
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-black text-[#005043] bg-[#FFC94A] w-6 h-6 rounded-full flex items-center justify-center border border-[#E1E7E7] shadow-sm font-heading">03</span>
+                <h4 class="font-bold font-heading text-[#1E1E1E] text-[18px] uppercase tracking-tight">Cải Tiến (Innovation)</h4>
+              </div>
+              <p class="text-16px font-body text-[#686B6B] font-medium leading-relaxed pl-9">
+                Không ngừng ứng dụng các công nghệ số hóa, chuẩn công nghệ BIM để tối ưu hiệu suất, tiết kiệm tài nguyên và hạ giá thành căn hộ.
+              </p>
+            </div>
+
+          </div>
+      </div>
+    </section>
+
+    <section class="w-full py-14 bg-[#005043] text-white">
+      <div class="max-w-7xl mx-auto px-5 text-center space-y-5">
+        <h3 class="text-xl sm:text-2xl font-bold font-heading uppercase tracking-tight">
+          Sở hữu ngay căn hộ thương hiệu <p class="text-[#FFC94A]">Bcons</p>
+        </h3>
+        <p class="text-[16px] sm:text-sm text-white/70 font-medium max-w-xl mx-auto leading-relaxed font-body">
+          Kết nối trực tiếp với phòng kinh doanh để nhận thông tin quỹ căn ngoại giao, bảng giá gốc chủ đầu tư và chính sách hỗ trợ vay lãi suất ưu đãi nhất.
+        </p>
+        <div class="pt-3 flex flex-col sm:flex-row justify-center items-center gap-3">
+          <a 
+            href="/can-ho" 
+            class="w-full sm:w-auto px-8 py-3.5 bg-[#FFC94A] text-[#005043] font-heading font-bold text-xs uppercase tracking-widest rounded-xl text-center shadow-md hover:bg-[#F48223] hover:text-white transition-all duration-300 active:scale-95 cursor-pointer"
+          >
+            Xem Giỏ Hàng Bcons
+          </a>
+          <a 
+            href="/lien-he" 
+            class="w-full sm:w-auto px-8 py-3.5 bg-transparent border-2 border-white/20 text-white font-heading font-bold text-xs uppercase tracking-widest rounded-xl text-center hover:bg-white hover:text-[#005043] transition-all duration-300 active:scale-95 cursor-pointer"
+          >
+            Liên Hệ Tư Vấn Trực Tiếp
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</MainLayout>
+
+<style>
+  @keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(12px); } 
+    to { opacity: 1; transform: translateY(0); } 
+  }
+  .animate-fadeIn { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+</style>

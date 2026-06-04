@@ -1,0 +1,183 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Tính Thuế Phí Sang Nhượng">
+  <div class="max-w-full mx-auto">
+    <div class="mb-8">
+      <h1 class="text-3xl font-black text-slate-900 uppercase tracking-tight">Công cụ tính thuế phí</h1>
+      <p class="text-slate-500 italic">Dành riêng cho căn hộ Bcons - Cập nhật quy trình sang tên</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">Loại hình sang nhượng</label>
+          <div class="grid grid-cols-2 gap-3">
+            <button id="typeHDMB" class="type-btn active px-4 py-3 rounded-2xl border-2 font-bold text-sm transition-all border-orange-500 bg-orange-50 text-orange-600">HĐMB</button>
+            <button id="typeSoHong" class="type-btn px-4 py-3 rounded-2xl border-2 font-bold text-sm transition-all border-slate-100 text-slate-400 hover:border-orange-200">Đã có sổ</button>
+          </div>
+        </div>
+
+        <div id="hdmbStatusBox">
+          <label class="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">Trạng thái bàn giao</label>
+          <select id="hdmbStatus" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none font-bold text-slate-700">
+            <option value="chua_bg">Chưa bàn giao (Tính thuế trên % thanh toán)</option>
+            <option value="da_bg">Đã bàn giao (Tính thuế trên 100% giá trị)</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="col-span-2">
+            <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">Tổng giá trị HĐMB (VNĐ)</label>
+            <input type="number" id="inputTotalContract" placeholder="VD: 1600000000" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none font-black text-xl text-slate-800">
+          </div>
+          <div class="col-span-2">
+            <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">Tiền khách chênh thu về (VNĐ)</label>
+            <input type="number" id="inputGapPrice" placeholder="VD: 50000000" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none font-black text-xl text-orange-600">
+          </div>
+          <div id="percentBox">
+            <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">% Khách đã đóng</label>
+            <input type="number" id="inputPercent" value="70" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none font-bold text-slate-700">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">Phí Sales nhận (VNĐ)</label>
+            <input type="number" id="inputSalesFee" placeholder="VD: 30000000" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none font-bold text-blue-600">
+          </div>
+        </div>
+
+        <button id="btnCalc" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-orange-600 transition-all active:scale-95">XUẤT PHIẾU TÍNH</button>
+      </div>
+
+      <div id="resultBox" class="bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl text-white space-y-6 hidden">
+        <div class="flex justify-between items-center">
+            <h3 class="text-orange-500 font-black uppercase text-xs tracking-[0.2em]">Bảng chi tiết dự tính</h3>
+            <span id="displayType" class="bg-white/10 px-3 py-1 rounded-full text-[10px] font-bold">HĐMB</span>
+        </div>
+        
+        <div class="space-y-4">
+          <div class="flex justify-between border-b border-slate-800 pb-3">
+            <span class="text-slate-400 text-sm">Giá trị đã đóng (Vốn gốc)</span>
+            <span id="resPaidAmount" class="font-bold text-slate-200">0đ</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-800 pb-3">
+            <span class="text-slate-400 text-sm">Thuế TNCN (2% trên phần đã đóng)</span>
+            <span id="resTNCN" class="font-bold text-red-400">0đ</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-800 pb-3">
+            <span class="text-slate-400 text-sm">Tiền chênh lệch (Chủ thu)</span>
+            <span id="resGapDisplay" class="font-bold text-orange-400">0đ</span>
+          </div>
+          <div id="rowTruocBa" class="flex justify-between border-b border-slate-800 pb-3 hidden">
+            <span class="text-slate-400 text-sm">Lệ phí trước bạ (0.5%)</span>
+            <span id="resTruocBa" class="font-bold">0đ</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-800 pb-3">
+            <span class="text-slate-400 text-sm">Phí sang tên (Bcons)</span>
+            <span id="resBcons" class="font-bold text-orange-400">3,000,000đ</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-800 pb-3">
+            <span class="text-slate-400 text-sm">Phí công chứng</span>
+            <span id="resCongChung" class="font-bold text-orange-400">3,000,000đ</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-800 pb-3">
+            <span class="text-slate-400 text-sm">Phí dịch vụ Sales</span>
+            <span id="resSales" class="font-bold text-blue-400">0đ</span>
+          </div>
+          
+          <div class="bg-white/5 p-6 rounded-2xl mt-6 border border-white/10">
+            <p class="text-slate-400 text-xs uppercase font-bold mb-2 text-center">Tổng tiền thanh toán sang nhượng</p>
+            <div class="text-center">
+                <span id="resTotal" class="text-3xl font-black text-orange-500 uppercase">0đ</span>
+            </div>
+            <p class="text-[12px] text-slate-500 mt-2 text-center">* Tổng = Giá trị đã đóng + Chênh + Thuế + Phí Bcons + Phí CC + Phí Sales</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script is:inline>
+  let currentType = 'HDMB';
+  const formatVND = (n) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n).replace(/\s/g, '');
+
+  const elStatusBox = document.getElementById('hdmbStatusBox');
+  const elPercentBox = document.getElementById('percentBox');
+  const elRowTruocBa = document.getElementById('rowTruocBa');
+
+  // Chuyển loại hình
+  document.getElementById('typeHDMB').onclick = function() {
+    currentType = 'HDMB';
+    this.className = 'type-btn active px-4 py-3 rounded-2xl border-2 font-bold text-sm border-orange-500 bg-orange-50 text-orange-600';
+    document.getElementById('typeSoHong').className = 'type-btn px-4 py-3 rounded-2xl border-2 font-bold text-sm border-slate-100 text-slate-400';
+    elStatusBox.classList.remove('hidden');
+    elPercentBox.classList.remove('hidden');
+    elRowTruocBa.classList.add('hidden');
+    document.getElementById('displayType').innerText = "HĐMB";
+    document.getElementById('resBcons').innerText = "3,000,000đ";
+    document.getElementById('resCongChung').innerText = "3,000,000đ";
+  };
+
+  document.getElementById('typeSoHong').onclick = function() {
+    currentType = 'SOHONG';
+    this.className = 'type-btn active px-4 py-3 rounded-2xl border-2 font-bold text-sm border-orange-500 bg-orange-50 text-orange-600';
+    document.getElementById('typeHDMB').className = 'type-btn px-4 py-3 rounded-2xl border-2 font-bold text-sm border-slate-100 text-slate-400';
+    elStatusBox.classList.add('hidden');
+    elPercentBox.classList.add('hidden');
+    elRowTruocBa.classList.remove('hidden');
+    document.getElementById('displayType').innerText = "SỔ HỒNG";
+    document.getElementById('resBcons').innerText = "0đ";
+    document.getElementById('resCongChung').innerText = "Tạm tính 0.1%";
+  };
+
+  // Logic tính toán
+  document.getElementById('btnCalc').onclick = function() {
+    const totalContract = Number(document.getElementById('inputTotalContract').value);
+    const gapPrice = Number(document.getElementById('inputGapPrice').value) || 0;
+    const salesFee = Number(document.getElementById('inputSalesFee').value) || 0;
+    const percent = Number(document.getElementById('inputPercent').value) / 100;
+    const hdmbStatus = document.getElementById('hdmbStatus').value;
+
+    if (!totalContract) {
+        alert("Vui lòng nhập Tổng giá trị trên hợp đồng!");
+        return;
+    }
+
+    document.getElementById('resultBox').classList.remove('hidden');
+
+    let tncn = 0;
+    let truocBa = 0;
+    let phiCongChung = 3000000;
+    let phiBcons = 3000000;
+    let giaTriDaDong = totalContract;
+
+    if (currentType === 'HDMB') {
+      // 1. Giá trị đóng = Tổng HĐMB x % khách đóng (Nếu đã bàn giao thì tính 100%)
+      giaTriDaDong = totalContract * (hdmbStatus === 'da_bg' ? 1 : percent);
+      
+      // 2. Thuế TNCN (2%) tính trên Giá trị đã đóng
+      tncn = giaTriDaDong * 0.02;
+    } else {
+      // TRƯỜNG HỢP CÓ SỔ
+      giaTriDaDong = totalContract;
+      const tongGiaoDich = totalContract + gapPrice;
+      tncn = tongGiaoDich * 0.02;
+      truocBa = tongGiaoDich * 0.005;
+      phiCongChung = tongGiaoDich * 0.001; 
+      phiBcons = 0;
+    }
+
+    // TỔNG TIỀN THANH TOÁN SANG NHƯỢNG
+    // = Giá trị đã đóng + Thuế TNCN + Tiền chênh + Các phí
+    const total = giaTriDaDong + tncn + gapPrice + truocBa + phiCongChung + phiBcons + salesFee;
+
+    document.getElementById('resPaidAmount').innerText = formatVND(giaTriDaDong);
+    document.getElementById('resTNCN').innerText = formatVND(tncn);
+    document.getElementById('resGapDisplay').innerText = formatVND(gapPrice);
+    document.getElementById('resTruocBa').innerText = formatVND(truocBa);
+    document.getElementById('resCongChung').innerText = formatVND(phiCongChung);
+    document.getElementById('resSales').innerText = formatVND(salesFee);
+    document.getElementById('resTotal').innerText = formatVND(total);
+  };
+</script>

@@ -1,0 +1,313 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+
+const seoTitle = "Liên Hệ Với Chúng Tôi - Phòng Kinh Doanh Bcons";
+const seoDescription = "Kết nối trực tiếp với phòng kinh doanh dự án Bcons. Hỗ trợ tư vấn bảng giá, xem nhà mẫu và thủ tục pháp lý, đòn bẩy tài chính 24/7.";
+const seoImage = "https://placehold.co/800x450?text=Bcons+Contact";
+---
+
+<MainLayout title={seoTitle} description={seoDescription} image={seoImage}>
+  <!-- 🚀 NẠP CỨNG THƯ VIỆN ĐẦU TRANG: Đảm bảo bản đồ luôn sẵn sàng 100% trước khi dựng hình -->
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <script is:inline src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+
+  <div class="bg-[#F4F7F6] w-full overflow-x-hidden break-words min-h-screen pb-20 font-sans mt-20">
+    
+    <!-- Hero Header: Tông vàng Bcons phối chữ đen Luxury tương phản mạnh -->
+    <div class="w-full bg-[#064e3b] py-14 border-b border-black/5 relative overflow-hidden">
+      <div class="absolute inset-0 bg-black/5 pointer-events-none"></div>
+      <div class="max-w-7xl mx-auto px-5 relative z-10 text-center space-y-2 animate-fadeIn">
+        <span class="text-[9px] font-black uppercase tracking-widest bg-[#fac72e] text-black px-2.5 py-1 rounded-md inline-block">
+          Kết Nối Trực Tiếp
+        </span>
+        <h1 class="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
+          Liên Hệ Phòng Kinh Doanh
+        </h1>
+        <p class="text-sm sm:text-md text-white font-medium max-w-xl mx-auto leading-relaxed">
+          Quý khách vui lòng để lại thông tin hoặc kết nối trực tiếp qua Hotline để được hỗ trợ thủ tục, bảng giá suất nội bộ nhanh nhất.
+        </p>
+      </div>
+    </div>
+
+    <!-- 🔥 ĐÃ SỬA: Thay thế items-start thành lg:items-stretch để ép 2 cột bằng khít chiều dọc trên Desktop -->
+    <div class="max-w-7xl mx-auto px-4 mt-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:items-stretch">
+      
+      <!-- Cột Trái: Thông tin liên hệ công ty & Bản đồ -->
+      <div class="lg:col-span-5 space-y-6 flex flex-col justify-between animate-fadeIn">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-6 flex-1">
+          <div class="flex items-center gap-3">
+            <div class="w-1.5 h-6 bg-[#1E1E1E] rounded-full"></div>
+            <h2 class="text-md font-bold text-slate-800 uppercase tracking-tight">Thông Tin Trụ Sở</h2>
+          </div>
+
+          <ul class="space-y-4">
+            <li class="flex items-start gap-3.5">
+              <div class="w-9 h-9 rounded-xl bg-[#1E1E1E] text-[#fac72e] flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              </div>
+              <div>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Địa chỉ làm việc</p>
+                <p class="text-sm font-bold text-slate-800 leading-snug">Số 176/1 - 176/3 Đường Nguyễn Văn Thương, Phường 25, Quận Bình Thạnh, TP. Hồ Chí Minh</p>
+              </div>
+            </li>
+
+            <li class="flex items-start gap-3.5">
+              <div class="w-9 h-9 rounded-xl bg-[#1E1E1E] text-[#fac72e] flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+              </div>
+              <div>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Hotline hỗ trợ 24/7</p>
+                <a href="tel:0911502603" class="text-md font-black text-emerald-700 hover:underline">0911 502 603</a>
+              </div>
+            </li>
+
+            <li class="flex items-start gap-3.5">
+              <div class="w-9 h-9 rounded-xl bg-[#1E1E1E] text-[#fac72e] flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9h18"></path></svg>
+              </div>
+              <div>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Website chính thức</p>
+                <a href="https://bconstower.vn" target="_blank" class="text-sm font-bold text-slate-800 hover:text-emerald-700 hover:underline">bconstower.vn</a>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Khung bản đồ văn phòng -->
+        <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 overflow-hidden -mt-2">
+          <div id="contact-map" style="width: 100%; height: 320px; min-height: 320px; display: block; position: relative;" class="bg-slate-100 rounded-xl overflow-hidden"></div>
+        </div>
+      </div>
+
+      <!-- 🔥 ĐÃ SỬA CỘT PHẢI: Thêm flex flex-col để bốc trọn không gian dọc kéo form dài xuống bằng khít bản đồ -->
+      <div class="lg:col-span-7 bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-100 text-slate-800 animate-fadeIn flex flex-col justify-between">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-1.5 h-6 bg-[#1E1E1E] rounded-full"></div>
+          <h2 class="text-md font-bold text-slate-800 uppercase tracking-tight">Gửi Yêu Cầu Cho Chúng Tôi</h2>
+        </div>
+
+        <!-- Biến form thành flexbox dọc chiếm trọn diện tích -->
+        <form id="page-contact-form" data-api={PUBLIC_API_BASE} class="space-y-4 flex-1 flex flex-col justify-between">
+          
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">Họ và tên quý khách *</label>
+                <input type="text" id="contact-name" required placeholder="Ví dụ: Nguyễn Văn Tín" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E1E1E] text-sm font-bold text-slate-900 bg-slate-50 shadow-sm" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">Số điện thoại / Zalo *</label>
+                <input type="tel" id="contact-phone" required placeholder="Ví dụ: 0911502603" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E1E1E] text-sm font-bold text-slate-900 bg-slate-50 shadow-sm" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">Dự án cần hỗ trợ</label>
+                <select id="contact-project" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E1E1E] text-sm font-bold text-slate-900 bg-slate-50 cursor-pointer shadow-sm">
+                  <option value="Liên hệ chung">Tất cả dự án Bcons</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">Nhu cầu cốt lõi</label>
+                <select id="contact-status" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E1E1E] text-sm font-bold text-slate-900 bg-slate-50 cursor-pointer shadow-sm">
+                  <option value="bao_gia">Nhận báo giá & giỏ hàng mới nhất</option>
+                  <option value="tham_quan_nha_mau">Đặt lịch hẹn đi xem nhà mẫu</option>
+                  <option value="tu_van_vay">Tư vấn gói vay & đòn bẩy tài chính</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔥 ĐÃ SỬA Ô TEXTAREA: Cấu hình flex-1 và resize-none để ô nhập tự nới rộng hấp thụ khoảng trống hụt -->
+          <div class="flex-1 flex flex-col min-h-[120px] pt-1">
+            <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">Nội dung tin nhắn / Câu hỏi cần giải đáp</label>
+            <textarea id="contact-message" class="w-full flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E1E1E] text-sm font-medium text-slate-900 bg-slate-50 shadow-sm resize-none" placeholder="Quý khách có yêu cầu gì đặc biệt, vui lòng ghi rõ tại đây..."></textarea>
+          </div>
+
+          <!-- Nút Đăng ký tự động bám chặt xuống đáy bằng mt-auto -->
+          <button type="submit" id="contact-submit-btn" class="w-full py-3.5 mt-2 rounded-xl bg-[#1E1E1E] text-[#fac72e] font-black text-xs uppercase tracking-widest hover:bg-black/90 transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer focus:outline-none select-none">
+            Gửi Yêu Cầu Liên Hệ Ngay
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</MainLayout>
+
+<script is:inline>
+  // 1. TỰ ĐỘNG NẠP CDN SWEETALERT2 PHÒNG THỦ
+  if (!window.Swal && !document.getElementById('sweetalert-js')) {
+    const script = document.createElement('script');
+    script.id = 'sweetalert-js';
+    script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+    document.head.appendChild(script);
+  }
+
+  const escapeHTML = (str) => {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, (match) => {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+      return map[match] || match;
+    });
+  };
+
+  // 2. KHỞI TẠO BẢN ĐỒ CÓ CƠ CHẾ ÉP SIZE KHÍT KHUNG VÀ TRÁNH RE-INIT LỖI WEBGL
+  function initContactMap() {
+    const container = document.getElementById('contact-map');
+    if (!container) return;
+    if (typeof window.maplibregl === 'undefined') return;
+    
+    if (container.dataset.mapInitialized === 'true') {
+      if (window.currentContactMap) window.currentContactMap.resize();
+      return;
+    }
+    container.dataset.mapInitialized = 'true';
+
+    try {
+      const map = new window.maplibregl.Map({
+        container: 'contact-map',
+        style: {
+          "version": 8,
+          "sources": { "osm": { "type": "raster", "tiles": ["https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"], "tileSize": 256 } },
+          "layers": [{ "id": "osm-tiles", "type": "raster", "source": "osm", "maxzoom": 19 }]
+        },
+        center: [106.719175, 10.799342], 
+        zoom: 15,
+        scrollZoom: false
+      });
+
+      window.currentContactMap = map;
+
+      map.on('load', () => {
+        map.addControl(new window.maplibregl.NavigationControl(), 'top-right');
+        new window.maplibregl.Marker({ color: '#1E1E1E' })
+          .setLngLat([106.719175, 10.799342])
+          .addTo(map);
+        map.resize();
+      });
+
+      setTimeout(() => { map.resize(); }, 100);
+    } catch (e) {
+      console.error("Lỗi dựng hình bản đồ:", e);
+      container.dataset.mapInitialized = 'false';
+    }
+  }
+
+  // 3. KHỞI TẠO LOGIC GỬI FORM LIÊN HỆ
+  async function initContactForm() {
+    const form = document.getElementById('page-contact-form');
+    const projectSelect = document.getElementById('contact-project');
+    if (!form) return;
+
+    const BACKEND_URL = form.getAttribute('data-api') || 'http://127.0.0.1:8000';
+
+    if (projectSelect && projectSelect.children.length <= 1) {
+      try {
+        const pRes = await fetch(BACKEND_URL + '/api/projects-list');
+        if (pRes.ok) {
+          const pResult = await pRes.json();
+          const projects = pResult.data || [];
+          projects.forEach((proj) => {
+            const opt = document.createElement('option');
+            opt.value = proj.title;
+            opt.textContent = proj.title;
+            projectSelect.appendChild(opt);
+          });
+        }
+      } catch (err) {
+        console.error("Lỗi nạp danh sách dự án:", err);
+      }
+    }
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const Swal = window.Swal;
+      const btn = document.getElementById('contact-submit-btn');
+
+      if (!Swal || !btn) return;
+
+      const name = document.getElementById('contact-name').value.trim();
+      const phone = document.getElementById('contact-phone').value.trim();
+      const project = document.getElementById('contact-project').value;
+      const status = document.getElementById('contact-status').value;
+      const message = document.getElementById('contact-message').value.trim();
+
+      if (!/^(0|84)\d{9,10}$/.test(phone)) {
+        Swal.fire({ icon: 'error', title: 'Lỗi nhập liệu', text: 'Số điện thoại không hợp lệ.', confirmButtonColor: '#1E1E1E' });
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "ĐANG CHUYỂN HỒ SƠ...";
+
+      try {
+        const response = await fetch(BACKEND_URL + '/api/leads', {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify({
+            name,
+            phone,
+            project,
+            status,
+            source: message ? `Trang Liên Hệ | Khách nhắn: ${escapeHTML(message)}` : "Trang Liên Hệ"
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          Swal.fire({
+            icon: 'success',
+            title: '<span class="text-md font-bold text-slate-800 uppercase">Gửi thành công!</span>',
+            text: 'Yêu cầu của bạn đã được ghi nhận thành công vào cơ sở dữ liệu Lead.',
+            confirmButtonColor: '#1E1E1E',
+            width: '520px'
+          });
+          form.reset();
+        } else {
+          throw new Error(result.message || "Lỗi xử lý dữ liệu từ Server.");
+        }
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gửi thất bại',
+          text: err.message || 'Hệ thống bận, quý khách vui lòng thử lại sau hoặc kết nối Hotline!',
+          confirmButtonColor: '#1E1E1E'
+        });
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "GỬI YÊU CẦU LIÊN HỆ NGAY";
+      }
+    });
+  }
+
+  function triggerAll() {
+    initContactMap();
+    initContactForm();
+  }
+
+  triggerAll();
+  document.addEventListener('DOMContentLoaded', triggerAll);
+  document.addEventListener('astro:page-load', triggerAll);
+
+  const defensiveTimer = setInterval(() => {
+    const container = document.getElementById('contact-map');
+    if (container && container.dataset.mapInitialized !== 'true' && typeof window.maplibregl !== 'undefined') {
+      initContactMap();
+    }
+    if (container && container.dataset.mapInitialized === 'true') {
+      clearInterval(defensiveTimer);
+    }
+  }, 200);
+  setTimeout(() => clearInterval(defensiveTimer), 4000);
+</script>
+
+<style is:global>
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+  #contact-map { width: 100% !important; display: block !important; }
+</style>

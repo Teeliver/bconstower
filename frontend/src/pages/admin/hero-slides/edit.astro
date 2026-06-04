@@ -1,0 +1,313 @@
+---
+// src/pages/admin/hero-slides/edit.astro
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+
+// Page Title - GIỮ NGUYÊN VẸN 100% THIẾT KẾ CỦA BẠN
+const pageTitle = `Chỉnh sửa Banner | Bcons Portal`;
+---
+
+<AdminLayout title={pageTitle}>
+  <div class="max-w-full mx-auto">
+    <div class="mb-6">
+      <a href="/admin/hero-slides" id="backBtn" class="text-slate-500 hover:text-orange-600 flex items-center gap-2 transition font-medium">
+        <span>←</span> Quay lại danh sách
+      </a>
+    </div>
+
+    <div class="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl border border-slate-50">
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-800">Cập nhật Banner</h2>
+          <p class="text-slate-400 text-sm italic tracking-tight">Mã định danh hệ thống: #<span id="bannerIdDisplay">...</span></p>
+        </div>
+      </div>
+      
+      <form id="editHeroForm" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="col-span-2">
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Tiêu đề chính <span class="text-red-500">*</span></label>
+            <input type="text" name="title" id="title" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" placeholder="Nhập tiêu đề banner..." />
+          </div>
+
+          <div class="col-span-2">
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Mô tả ngắn (Subtitle)</label>
+            <textarea name="subtitle" id="subtitle" rows="3" class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" placeholder="Mô tả xuất hiện dưới tiêu đề..."></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Chữ trên nút</label>
+            <input type="text" name="buttonText" id="buttonText" class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Link liên kết</label>
+            <input type="text" name="linkUrl" id="linkUrl" class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" />
+          </div>
+
+          <div class="relative dropdown-container" id="dropdown-status">
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Trạng thái hiển thị</label>
+            <input type="hidden" name="isActive" id="isActive">
+            <button type="button" class="drop-btn w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl flex items-center justify-between font-medium hover:bg-slate-100 transition-all focus:border-orange-500 outline-none shadow-sm">
+              <span class="selected-text text-slate-400">Đang tải trạng thái...</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="drop-menu absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+              <div class="p-2 space-y-1">
+                <div data-value="1" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer text-sm font-medium">
+                  <span>✅ Đang hiển thị</span>
+                </div>
+                <div data-value="0" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer text-sm font-medium">
+                  <span>⏳ Tạm ẩn</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Thứ tự ưu tiên</label>
+            <input type="number" name="displayOrder" id="displayOrder" class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" />
+          </div>
+
+          <div class="col-span-2">
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Thay đổi hình ảnh (Tỉ lệ 16:9)</label>
+            <input type="file" id="image" name="image" accept="image/*" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer" />
+            
+            <div id="preview" class="mt-6 flex justify-center">
+                <div class="relative bg-slate-50 p-4 rounded-3xl border-2 border-dashed border-slate-200 w-full max-w-2xl">
+                    <img id="imgPreview" src="" class="w-full aspect-video object-cover rounded-2xl shadow-md border-4 border-white" />
+                    <p class="text-[10px] text-center text-slate-400 mt-2 uppercase font-bold tracking-widest">Ảnh hiện tại / Preview</p>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-8">
+          <button type="submit" id="submitBtn" class="w-full bg-slate-900 hover:bg-orange-600 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-slate-900/10 active:scale-95 disabled:opacity-50">
+            Lưu thay đổi Banner
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</AdminLayout>
+
+<style>
+  .dropdown-container.active .drop-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+  .dropdown-container.active .drop-btn svg { transform: rotate(180deg); }
+</style>
+
+<script>
+  import Swal from 'sweetalert2';
+  import { checkAdminAuth } from '../../../lib/auth';
+
+  checkAdminAuth();
+
+  // 🔥 ĐÃ CẬP NHẬT BẢO MẬT: Đọc trực biến môi trường trong thẻ script tiêu chuẩn của Astro
+  const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  
+  const form = document.getElementById('editHeroForm') as HTMLFormElement;
+  const imageInput = document.getElementById('image') as HTMLInputElement;
+  const imgPreview = document.getElementById('imgPreview') as HTMLImageElement;
+  const btn = document.getElementById('submitBtn') as HTMLButtonElement;
+  const token = localStorage.getItem('admin_token');
+
+  // 🔥 ĐÃ SỬA: Trích xuất an toàn tham số ID từ URL thanh địa chỉ trình duyệt máy khách (?id=xxx)
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get('id');
+
+  // Đồng bộ đẩy mã ID lên giao diện hiển thị phụ phụ của ông
+  const idDisplay = document.getElementById('bannerIdDisplay');
+  if (idDisplay && id) {
+    idDisplay.textContent = id;
+  }
+
+  // 🔒 CHỐT CHẶN BẢO MẬT LOGIC: Đá văng ra ngoài nếu thiếu tham số ID nhận dạng banner
+  if (!id) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Thiếu mã Banner',
+      text: 'Không tìm thấy tham số ID kết nối Banner hợp lệ trên URL!',
+      confirmButtonColor: '#ef4444'
+    }).then(() => {
+      window.location.href = '/admin/hero-slides';
+    });
+  }
+
+  // 1. Tải dữ liệu hiện tại từ hệ cơ sở dữ liệu của Laravel Backend
+  async function fetchCurrentData() {
+    if (!id || !token) {
+      localStorage.clear();
+      window.location.replace('/admin');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${PUBLIC_API_BASE}/api/admin/hero-slides/${id}`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.clear();
+        window.location.replace('/admin');
+        return;
+      }
+
+      if (!res.ok) throw new Error("Không tìm thấy dữ liệu slide yêu cầu.");
+      
+      const data = await res.json();
+
+      (document.getElementById('title') as HTMLInputElement).value = data.title || '';
+      (document.getElementById('subtitle') as HTMLTextAreaElement).value = data.subtitle || '';
+      (document.getElementById('buttonText') as HTMLInputElement).value = data.button_text || data.buttonText || '';
+      (document.getElementById('linkUrl') as HTMLInputElement).value = data.link_url || data.linkUrl || '';
+      (document.getElementById('displayOrder') as HTMLInputElement).value = data.display_order ?? data.displayOrder ?? 0;
+      
+      const currentActive = data.is_active ?? data.isActive ?? false;
+      const isActiveValue = (currentActive === true || currentActive === 1 || currentActive === '1') ? '1' : '0';
+      (document.getElementById('isActive') as HTMLInputElement).value = isActiveValue;
+      
+      const currentImg = data.image_url || data.imageUrl || '';
+      imgPreview.src = currentImg.startsWith('http') ? currentImg : `${PUBLIC_API_BASE}${currentImg}`;
+      
+      const selectedText = document.querySelector('.selected-text');
+      if (selectedText) {
+          selectedText.innerHTML = (currentActive === true || currentActive === 1 || currentActive === '1') ? '✅ Đang hiển thị' : '⏳ Tạm ẩn';
+      }
+
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Lỗi nạp dữ liệu', text: 'Không thể bốc tách dữ liệu banner từ API Laravel', confirmButtonColor: '#ef4444' });
+    }
+  }
+
+  // 2. Xử lý Dropdown UI - Bảo toàn chuyển động trượt mịn màng
+  function initDropdown() {
+    const container = document.getElementById('dropdown-status');
+    if (!container) return;
+    const dropBtn = container.querySelector('.drop-btn') as HTMLButtonElement;
+    const hiddenInput = document.getElementById('isActive') as HTMLInputElement;
+    const options = container.querySelectorAll('.option-item');
+    const selectedText = container.querySelector('.selected-text');
+
+    dropBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      container.classList.toggle('active');
+    });
+
+    options.forEach(opt => {
+      opt.addEventListener('click', () => {
+        const val = opt.getAttribute('data-value');
+        if (val && hiddenInput) hiddenInput.value = val;
+        if (selectedText) selectedText.innerHTML = opt.innerHTML;
+        container.classList.remove('active');
+      });
+    });
+
+    window.addEventListener('click', () => container.classList.remove('active'));
+  }
+
+  // 3. Xem trước ảnh khi chọn file mới (Bảo lưu cấu hình preview 16:9)
+  imageInput?.addEventListener('change', () => {
+    const file = imageInput.files?.[0];
+    if (file) {
+      imgPreview.src = URL.createObjectURL(file);
+    }
+  });
+
+  // 4. Lệnh gửi gói tin Cập nhật dữ liệu
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!btn) return;
+    btn.disabled = true;
+
+    if (!token) {
+      localStorage.clear();
+      window.location.replace('/admin');
+      return;
+    }
+
+    // 🔒 BẢO MẬT TỆP TIN: Quét sâu dung lượng và hệ ký tự định dạng ảnh mới ngăn chặn Shellcode thực thi ngầm
+    if (imageInput.files && imageInput.files.length > 0) {
+      const file = imageInput.files[0];
+      
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({ icon: 'error', title: 'Tệp tin quá lớn', text: 'Kích thước ảnh banner chỉnh sửa tối đa là 5MB!', confirmButtonColor: '#ef4444' });
+        btn.disabled = false;
+        return;
+      }
+
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+      if (!allowedTypes.includes(file.type)) {
+        Swal.fire({ icon: 'error', title: 'Sai định dạng', text: 'Hệ thống chỉ chấp nhận định dạng ảnh JPG, PNG hoặc WEBP!', confirmButtonColor: '#ef4444' });
+        btn.disabled = false;
+        return;
+      }
+    }
+    
+    Swal.fire({
+      title: 'Đang lưu...',
+      text: 'Vui lòng chờ trong giây lát',
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    const formPayload = new FormData();
+    formPayload.append('_method', 'PUT');
+    formPayload.append('title', (document.getElementById('title') as HTMLInputElement).value.trim());
+    formPayload.append('subtitle', (document.getElementById('subtitle') as HTMLTextAreaElement).value.trim());
+    formPayload.append('button_text', (document.getElementById('buttonText') as HTMLInputElement).value.trim());
+    formPayload.append('link_url', (document.getElementById('linkUrl') as HTMLInputElement).value.trim());
+    formPayload.append('is_active', (document.getElementById('isActive') as HTMLInputElement).value);
+    formPayload.append('display_order', (document.getElementById('displayOrder') as HTMLInputElement).value);
+    
+    if (imageInput.files?.[0]) {
+        formPayload.append('image', imageInput.files[0]);
+    }
+
+    try {
+      const res = await fetch(`${PUBLIC_API_BASE}/api/admin/hero-slides/${id}`, {
+        method: 'POST', 
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formPayload
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.clear();
+        window.location.replace('/admin');
+        return;
+      }
+
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        Swal.fire({ icon: 'success', title: 'Thành công', text: result.message || 'Banner đã được cập nhật', timer: 1500, showConfirmButton: false })
+        .then(() => window.location.href = '/admin/hero-slides');
+      } else {
+        throw new Error(result.message || "Lỗi lưu trữ dữ liệu cập nhật trên máy chủ.");
+      }
+    } catch (err: any) {
+      Swal.fire({ icon: 'error', title: 'Thất bại', text: err.message || 'Lỗi sập kết nối cổng API Laravel', confirmButtonColor: '#ef4444' });
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // 5. Nút hủy bỏ và xác nhận quay lại
+  document.getElementById('backBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    Swal.fire({
+      title: 'Hủy bỏ?',
+      text: "Các thay đổi chưa lưu sẽ bị mất.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ea580c',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Đòng ý',
+      cancelButtonText: 'Ở lại'
+    }).then((res) => { if (res.isConfirmed) window.location.href = '/admin/hero-slides'; });
+  });
+
+  initDropdown();
+  fetchCurrentData();
+</script>

@@ -1,0 +1,143 @@
+---
+// src/components/FaqSEO.astro
+// Khối thành phần FAQ Accordion tích hợp cấu trúc dữ liệu Schema FAQPage chuẩn SEO Google 2026
+
+const faqData = [
+  {
+    id: "faq-1",
+    question: "Giá căn hộ Bcons City hiện tại là bao nhiêu?",
+    answer: "Giá căn hộ Bcons City hiện đang dao động từ khoảng 30 - 34 triệu/m² tùy thuộc vào vị trí tháp, tầng và hướng view. Một căn hộ 2 phòng ngủ phổ biến có mức giá từ 1,9 tỷ đến 2,2 tỷ đồng (đã bao gồm VAT). Khách hàng chỉ cần chuẩn bị dòng vốn tự có từ 20% đến 30% là có thể tiến hành ký Hợp đồng mua bán trực tiếp với chủ đầu tư."
+  },
+  {
+    id: "faq-2",
+    question: "Dự án Bcons có hỗ trợ vay ngân hàng không và những ngân hàng nào tài trợ?",
+    answer: "Tất cả các dự án thuộc tập đoàn Bcons đều được hỗ trợ liên kết vay vốn lên đến 70 - 80% giá trị căn hộ với thời hạn kéo dài tới 20 - 30 năm. Các ngân hàng chiến lược bảo lãnh và giải ngân có thể kể đến như Vietcombank, MBBank, TPBank, và Public Bank. Tùy từng giai đoạn mở bán, chủ đầu tư sẽ có chính sách hỗ trợ lãi suất 0% và ân hạn nợ gốc cho đến khi nhận nhà."
+  },
+  {
+    id: "faq-3",
+    question: "Thủ tục và chi phí sang nhượng căn hộ Bcons tính phí như thế nào?",
+    answer: "Chi phí chuyển nhượng sang nhượng căn hộ Bcons bao gồm các khoản cơ bản: Thuế thu nhập cá nhân (2% giá trị trên văn bản chuyển nhượng), phí công chứng hợp đồng chuyển nhượng (theo biểu phí nhà nước từ 1 - 3 triệu đồng), và phí nộp hồ sơ xác nhận tại văn phòng chủ đầu tư Bcons. Đội ngũ chuyên viên sẽ hỗ trợ Trung Tín xử lý trọn gói mọi thủ tục ký gửi, chuẩn bị hồ sơ từ giai đoạn công chứng đến khi hoàn tất bàn giao văn bản xác nhận."
+  },
+  {
+    id: "faq-4",
+    question: "Thiết kế dự án Bcons có loại hình căn hộ Studio diện tích nhỏ không?",
+    answer: "Để tối ưu hóa không gian sống và công năng sử dụng cho các gia đình trẻ, tập đoàn Bcons chủ yếu tập trung thiết kế các loại hình căn hộ từ 1 phòng ngủ, 2 phòng ngủ đến 3 phòng ngủ (diện tích đa dạng từ 43m² đến 63m²). Tuy nhiên, tại một số tháp đặc thù thuộc khu phức hợp Bcons City (như phân khu Bcons Polaris hoặc tháp dịch vụ), chủ đầu tư vẫn bố trí các dòng căn hộ Studio diện tích nhỏ từ 30m² - 35m² với mức tài chính cực tốt, đáp ứng trọn vẹn nhu cầu ở đơn thân hoặc đầu tư cho thuê tích lũy tài sản."
+  }
+];
+
+// Tạo chuỗi JSON-LD để bơm cấu trúc FAQPage cho Bot Google cào dữ liệu dữ liệu SEO
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqData.map(item => ({
+    "@type": "Question",
+    "name": item.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": item.answer
+    }
+  }))
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+<section class="w-full py-16 bg-slate-50 border-t border-slate-100 animate-fadeIn">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-[115px]">
+    
+    <div class="w-full flex flex-col items-center text-center mb-12">
+      <span class="text-[10px] font-black uppercase tracking-widest text-[#064e3b] bg-[#fac72e]/20 px-3 py-1 rounded-md mb-2">
+        Hỏi đáp chuyên gia
+      </span>
+      <h3 class="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">
+        Giải đáp thắc mắc khách hàng (FAQ)
+      </h3>
+      <div class="w-12 h-1 bg-[#fac72e] rounded-full mt-2.5"></div>
+    </div>
+
+    <div class="max-w-3xl mx-auto space-y-4" id="faq-accordion-group">
+      {faqData.map((item) => (
+        <div class="faq-item-card bg-white rounded-2xl border border-slate-200/60 overflow-hidden shadow-sm transition-all duration-300">
+          
+          <button 
+            type="button"
+            class="faq-trigger-btn w-full px-6 py-4.5 flex items-center justify-between gap-4 text-left font-bold text-slate-900 hover:text-[#064e3b] transition-colors focus:outline-none cursor-pointer select-none text-[14px] sm:text-[15px]"
+            data-target={item.id}
+          >
+            <span>{item.question}</span>
+            <div class="faq-icon-chevron shrink-0 w-6 h-6 rounded-full bg-slate-50 text-slate-500 flex items-center justify-center transition-transform duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </button>
+
+          <div 
+            id={item.id} 
+            class="faq-content-panel max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+          >
+            <div class="px-6 pb-5 pt-1 text-xs sm:text-sm text-slate-500 font-medium leading-relaxed border-t border-slate-50 text-justify">
+              {item.answer}
+            </div>
+          </div>
+
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+<script is:inline>
+  (function initFaqAccordion() {
+    const group = document.getElementById('faq-accordion-group');
+    if (!group) return;
+
+    const cards = group.querySelectorAll('.faq-item-card');
+
+    cards.forEach(card => {
+      const btn = card.querySelector('.faq-trigger-btn');
+      const panel = card.querySelector('.faq-content-panel');
+      const chevron = card.querySelector('.faq-icon-chevron');
+
+      btn.addEventListener('click', function() {
+        const isCurrentlyOpen = panel.style.maxHeight && panel.style.maxHeight !== '0px';
+
+        // 1. Thu hồi đóng toàn bộ các thẻ FAQ khác để tránh vỡ độ cao giao diện
+        cards.forEach(otherCard => {
+          const otherPanel = otherCard.querySelector('.faq-content-panel');
+          const otherChevron = otherCard.querySelector('.faq-icon-chevron');
+          otherPanel.style.maxHeight = null;
+          if (otherChevron) {
+            otherChevron.classList.remove('rotate-180', 'bg-[#fac72e]', 'text-[#064e3b]');
+            otherChevron.classList.add('bg-slate-50', 'text-slate-500');
+          }
+          otherCard.classList.remove('border-[#064e3b]/30', 'shadow-md');
+          otherCard.classList.add('border-slate-200/60');
+        });
+
+        // 2. Bật mở mượt mà thẻ card đang click dựa theo chiều cao nội dung thực tế (scrollHeight)
+        if (!isCurrentlyOpen) {
+          panel.style.maxHeight = panel.scrollHeight + "px";
+          if (chevron) {
+            chevron.classList.add('rotate-180', 'bg-[#fac72e]', 'text-[#064e3b]');
+            chevron.classList.remove('bg-slate-50', 'text-slate-500');
+          }
+          card.classList.remove('border-slate-200/60');
+          card.classList.add('border-[#064e3b]/30', 'shadow-md');
+        }
+      });
+    });
+  })();
+</script>
+
+<style>
+  @import "tailwindcss";
+  
+  @keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(6px); } 
+    to { opacity: 1; transform: translateY(0); } 
+  }
+  .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+  .rotate-180 { transform: rotate(180deg); }
+</style>

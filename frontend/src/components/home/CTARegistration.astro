@@ -1,0 +1,159 @@
+---
+// src/components/home/CTARegistration.astro
+// 🔥 ĐỒNG BỘ HỆ THỐNG: Lấy biến cấu hình URL Server từ file .env của Trung Tín
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+---
+
+<!-- 🔥 Đmax ĐÃ CẬP NHẬT MÀU NỀN: Chuyển toàn bộ nền sang màu xanh Bcons, chữ trắng sang trọng -->
+<section id="cta-register-root" data-api-base={PUBLIC_API_BASE} class="w-full py-16 bg-[#005043] text-white animate-fadeIn relative overflow-hidden">
+  <div class="absolute inset-0 bg-black/5 pointer-events-none"></div>
+  
+  <div class="max-w-7xl mx-auto px-5 relative z-10 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+    
+    <div class="md:col-span-5 space-y-3 text-center md:text-left py-10 md:py-20">
+      <!-- Badge đổi sang nền Vàng chữ Xanh tạo độ tương phản mạnh -->
+      <span class="text-[9px] font-black uppercase tracking-widest bg-[#fac72e] text-[#005043] px-2.5 py-1 rounded-md inline-block">
+        Suất Nội Bộ Giới Hạn
+      </span>
+      <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tight text-white leading-tight">
+        Nhận Bảng Giá & Giỏ Hàng Giá Tốt
+      </h3>
+      <p class="text-[14px] md:text-[16px] text-white/80 font-medium leading-relaxed">
+        Hệ thống tự động gửi file PDF chi tiết tiến độ thanh toán, giá bán gốc và chính sách vay ưu đãi mới nhất qua Zalo của quý khách sau 3 phút.
+      </p>
+    </div>
+
+    <div class="-mt-10 md:mt-10 md:col-span-7 bg-white rounded-2xl p-5 sm:p-6 shadow-xl text-slate-800">
+      <form id="cta-lead-form" class="space-y-3.5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Họ và tên *</label>
+            <input type="text" id="lead-name" required placeholder="Nguyễn Văn A" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#005043] text-sm font-bold text-slate-900 bg-slate-50" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Số điện thoại / Zalo *</label>
+            <input type="tel" id="lead-phone" required placeholder="0911502603" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#005043] text-sm font-bold text-slate-900 bg-slate-50" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Yêu cầu của quý khách</label>
+            <select id="lead-status" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#005043] text-sm font-bold text-slate-900 bg-slate-50 cursor-pointer">
+              <option value="bao_gia">Nhận báo giá & giỏ hàng</option>
+              <option value="tham_quan_nha_mau">Đăng ký tham quan nhà mẫu</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Dự án quan tâm</label>
+            <select id="lead-project" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#005043] text-sm font-bold text-slate-900 bg-slate-50 cursor-pointer">
+              <option value="Trang chủ Bcons">Tất cả dự án Bcons</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Button Đăng ký đổi sang nền vàng chữ xanh làm nổi bật khối CTA trên nền xanh thẫm -->
+        <button type="submit" id="lead-submit-btn" class="w-full py-3 rounded-xl bg-[#fac72e] text-[#005043] font-black text-xs uppercase tracking-widest hover:bg-[#e0b224] transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer">
+          Đăng Ký Nhận Thông Tin Ngay
+        </button>
+      </form>
+      
+      <div id="lead-alert-msg" class="hidden mt-3 p-3 rounded-xl text-center text-xs font-bold animate-fadeIn"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  async function setupCtaForm() {
+    const form = document.getElementById('cta-lead-form') as HTMLFormElement | null;
+    const root = document.getElementById('cta-register-root');
+    const projectSelect = document.getElementById('lead-project') as HTMLSelectElement | null;
+    if (!form || !root) return;
+
+    if (form.dataset.listenerAttached === 'true') return;
+    form.dataset.listenerAttached = 'true';
+
+    const BACKEND_URL = root.getAttribute('data-api-base') || 'http://127.0.0.1:8000';
+    const btn = document.getElementById('lead-submit-btn') as HTMLButtonElement | null;
+    const alertMsg = document.getElementById('lead-alert-msg');
+
+    if (projectSelect && projectSelect.children.length <= 1) {
+      try {
+        const pRes = await fetch(`${BACKEND_URL}/api/projects-list`);
+        if (pRes.ok) {
+          const pResult = await pRes.json();
+          const projects = pResult.data || [];
+          
+          projects.forEach((proj: { title: string; slug: string }) => {
+            const opt = document.createElement('option');
+            opt.value = proj.title; 
+            opt.textContent = proj.title;
+            projectSelect.appendChild(opt);
+          });
+        }
+      } catch (err) {
+        console.error("Lỗi kéo quỹ dự án đổ bộ dropdown:", err);
+      }
+    }
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      if (!btn) return;
+      
+      const nameEl = document.getElementById('lead-name') as HTMLInputElement | null;
+      const phoneEl = document.getElementById('lead-phone') as HTMLInputElement | null;
+      const projectEl = document.getElementById('lead-project') as HTMLSelectElement | null;
+      const statusEl = document.getElementById('lead-status') as HTMLSelectElement | null;
+
+      const name = nameEl ? nameEl.value.trim() : '';
+      const phone = phoneEl ? phoneEl.value.trim() : '';
+      const project = projectEl ? projectEl.value : 'Trang chủ Bcons';
+      const status = statusEl ? statusEl.value : 'bao_gia';
+
+      btn.disabled = true;
+      btn.innerText = "ĐANG XỬ LÝ HỒ SƠ...";
+      if (alertMsg) alertMsg.className = "hidden";
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/leads`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({ 
+            name, 
+            phone, 
+            project, 
+            status, 
+            source: "CTA Lead Form Trang Chu" 
+          })
+        });
+
+        const result = await res.json();
+
+        if (res.ok && result.success) {
+          if (alertMsg) {
+            alertMsg.className = "mt-3 p-3 rounded-xl text-center text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 animate-fadeIn";
+            alertMsg.innerText = result.message || "🎉 Đăng ký thành công! Thông tin đã ghi nhận.";
+          }
+          form.reset();
+        } else {
+          throw new Error(result.message || "Lỗi xử lý dữ liệu từ Server.");
+        }
+      } catch(err: any) {
+        if (alertMsg) {
+          alertMsg.className = "mt-3 p-3 rounded-xl text-center text-xs font-bold bg-red-50 text-red-600 border border-red-100 animate-fadeIn";
+          alertMsg.innerText = err.message || "⚠️ Hệ thống bận! Quý khách vui lòng thử lại sau ít phút.";
+        }
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "ĐĂNG KÝ NHẬN THÔNG TIN NGAY";
+      }
+    });
+  }
+
+  setupCtaForm();
+  document.addEventListener('astro:page-load', setupCtaForm);
+</script>

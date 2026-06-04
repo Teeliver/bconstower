@@ -1,0 +1,266 @@
+---
+// src/components/home/Footer.astro
+// Hợp phần Footer cao cấp - Tối ưu hóa SEO Silo và nâng cao điểm tin cậy bộ nhận diện
+// 🔥 ĐÃ FIX: Đồng bộ cột tên dự án chuẩn trường 'title' theo đúng cấu trúc table projects của Trung Tín
+
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3000";
+const currentYear = new Date().getFullYear();
+
+// ==========================================
+// TYPESCRIPT INTERFACES (Chống lỗi noImplicitAny)
+// ==========================================
+interface CompanySettings {
+  description: string;
+  phone: string;
+  address: string;
+  email: string;
+  facebook: string;
+  zalo: string;
+  youtube: string;
+  google_maps: string;
+}
+
+interface PostItem {
+  title?: string;
+  name?: string;
+  slug?: string;
+  post_slug?: string;
+  id?: string | number;
+}
+
+interface ProjectItem {
+  title?: string; // 🔥 ĐÃ THÊM: Định nghĩa trường title chuẩn từ bảng projects của bạn
+  name?: string;
+  project_name?: string;
+  projectName?: string;
+  slug?: string;
+  project_slug?: string;
+  projectSlug?: string;
+  id?: string | number;
+}
+
+// ==========================================
+// KHỐI 1: Cấu hình và Gọi API Settings
+// ==========================================
+let settings: CompanySettings = {
+  description: "Kênh thông tin ký gửi, sang nhượng và phân phối chính thức chuỗi dự án căn hộ, nhà phố thương mại thuộc tập đoàn Bcons tại Bình Dương và TP. Hồ Chí Minh. Cam kết giỏ hàng gốc và pháp lý minh bạch.",
+  phone: "0911 502 603",
+  address: "Văn phòng Bcons Tower, Mặt tiền Thống Nhất, Dĩ An, Bình Dương",
+  facebook: "https://facebook.com",
+  zalo: "https://zalo.me/0911502603",
+  youtube: "https://youtube.com",
+  google_maps: "",
+  email: ""
+};
+
+try {
+  const res = await fetch(`${PUBLIC_API_BASE}/api/settings/info`);
+  if (res.ok) {
+    const result = await res.json();
+    const data = result.data || result.settings || result;
+    if (data) {
+      settings = {
+        description: data.description || data.footer_description || data.footerDescription || settings.description,
+        phone: data.phone || data.hotline || data.phone_number || settings.phone,
+        address: data.address || data.company_address || data.companyAddress || settings.address,
+        email: data.email || data.company_email || data.companyEmail || settings.email,
+        facebook: data.facebook || data.link_facebook || settings.facebook,
+        zalo: data.zalo || data.link_zalo || settings.zalo,
+        youtube: data.youtube || data.link_youtube || settings.youtube,
+        google_maps: data.google_maps || data.maps || data.googleMaps || settings.google_maps
+      };
+    }
+  }
+} catch (e) {
+  console.error("⚠️ [BCONS SETTINGS ERROR] Không thể đồng bộ cài đặt dữ liệu từ API Settings:", e);
+}
+
+// ==========================================
+// KHỐI 2: Gọi API Danh Sách Dự Án Động (Giới hạn 5 dự án)
+// ==========================================
+let footerProjects: ProjectItem[] = [];
+
+try {
+  let resProj = await fetch(`${PUBLIC_API_BASE}/api/projects/public`);
+  if (!resProj.ok) resProj = await fetch(`${PUBLIC_API_BASE}/api/projects/public-list`);
+  if (!resProj.ok) resProj = await fetch(`${PUBLIC_API_BASE}/api/projects`);
+
+  if (resProj && resProj.ok) {
+    const resultProj = await resProj.json();
+    const dataProj = Array.isArray(resultProj) ? resultProj : (resultProj.data || resultProj.projects || resultProj.projectsList || resultProj.rows || []);
+    
+    if (dataProj.length > 0) {
+      footerProjects = dataProj.slice(0, 10);
+    }
+  }
+} catch (e) {
+  console.warn("⚠️ [BCONS PROJECTS FOOTER NOTICE] Đang dùng danh mục dự án dự phòng.");
+}
+
+if (footerProjects.length === 0) {
+  footerProjects = [
+    { title: "Bcons City - Đại Lộ Thống Nhất", slug: "bcons-city" },
+    { title: "Bcons Polaris - Mặt Tiền Lê Trọng Tấn", slug: "bcons-polaris" },
+    { title: "Bcons Plaza - Giỏ Hàng Đã Có Sổ", slug: "bcons-plaza" },
+    { title: "Bcons Sala - Trung Tâm Dĩ An", slug: "bcons-sala" },
+    { title: "Nhà Phố Bcons Center City", slug: "bcons-center-city" }
+  ];
+}
+
+// ==========================================
+// KHỐI 3: Gọi API Tin Tức Động (Giới hạn 5 bài)
+// ==========================================
+let latestArticles: PostItem[] = [];
+
+try {
+  let resNews = await fetch(`${PUBLIC_API_BASE}/api/posts/public`);
+  if (!resNews.ok) resNews = await fetch(`${PUBLIC_API_BASE}/api/posts/public-list`);
+  if (!resNews.ok) resNews = await fetch(`${PUBLIC_API_BASE}/api/posts`);
+  if (!resNews.ok) resNews = await fetch(`${PUBLIC_API_BASE}/api/articles`);
+
+  if (resNews && resNews.ok) {
+    const resultNews = await resNews.json();
+    const dataNews = Array.isArray(resultNews) ? resultNews : (resultNews.data || resultNews.posts || resultNews.articles || resultNews.rows || []);
+    
+    if (dataNews.length > 0) {
+      latestArticles = dataNews.slice(0, 5);
+    }
+  }
+} catch (e) {
+  console.warn("⚠️ [BCONS NEWS NOTICE] Không thể kết nối API bài viết, đang dùng danh sách tin tức dự phòng.");
+}
+
+if (latestArticles.length === 0) {
+  latestArticles = [
+    { title: "Tiến độ thi công tháp Bcons City mới nhất tháng này", slug: "tien-do-bcons-city" },
+    { title: "Quy trình thủ tục sang nhượng căn hộ Bcons chưa ra sổ", slug: "thu-tuc-sang-nhuong-bcons" },
+    { title: "Lãi suất vay mua nhà phố Bcons Bình Dương ưu đãi nhất", slug: "lai-suat-vay-mua-nha-bcons" }
+  ];
+}
+
+const cleanPhone = settings.phone.replace(/\s+/g, '');
+const validZaloLink = settings.zalo.startsWith('http') ? settings.zalo : `https://zalo.me/${cleanPhone}`;
+---
+
+<footer class="w-full bg-black text-slate-400 pt-16 pb-8 border-t border-slate-800 animate-fadeIn">
+  <div class="max-w-7xl mx-auto px-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+    
+    <div class="space-y-4">
+      <div class="flex items-center gap-2">
+        <span class="text-xl font-black text-white uppercase tracking-tight">
+          BCONS<span class="text-[#fac72e]">TOWER</span>
+        </span>
+      </div>
+      <p class="text-xs leading-relaxed text-slate-400 font-medium">
+        {settings.description}
+      </p>
+      <div class="flex items-center gap-3 pt-2">
+        <a href={settings.facebook} target="_blank" rel="noopener noreferrer" title="Theo dõi fanpage Bcons Tower trên Facebook" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#064e3b] hover:text-[#fac72e] transition-all duration-300" aria-label="Facebook">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
+        </a>
+        <a href={validZaloLink} target="_blank" rel="noopener noreferrer" title="Liên hệ tư vấn trực tiếp qua Zalo Hotline" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-black text-white hover:bg-[#064e3b] hover:text-[#fac72e] transition-all duration-300" aria-label="Zalo">
+          ZALO
+        </a>
+        <a href={settings.youtube} target="_blank" rel="noopener noreferrer" title="Xem video thực tế các dự án trên kênh Youtube" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-red-600 hover:text-white transition-all duration-300" aria-label="Youtube">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <h4 class="text-xs font-black uppercase tracking-widest text-white border-l-2 border-[#fac72e] pl-2.5">
+        Danh Sách Dự Án
+      </h4>
+      <ul class="space-y-2 text-xs font-semibold">
+        {footerProjects.map((proj: ProjectItem) => {
+          // 🔥 ĐÃ ĐỒNG BỘ: Đặt trường 'title' lên ưu tiên số một bóc tách dữ liệu
+          const pName = proj.title || proj.name || proj.project_name || proj.projectName || "Dự án Bcons";
+          const pSlug = proj.slug || proj.project_slug || proj.projectSlug || "";
+          const validLink = pSlug ? `/du-an/${pSlug}` : "/du-an";
+          
+          return (
+            <li>
+              <a 
+                href={validLink} 
+                title={`Xem thông tin chi tiết bảng giá giỏ hàng dự án ${pName}`} 
+                class="hover:text-[#fac72e] hover:translate-x-1 flex items-center gap-1 transition-all duration-200"
+              >
+                <span>·</span> {pName}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+
+    <div class="space-y-4">
+      <h4 class="text-xs font-black uppercase tracking-widest text-white border-l-2 border-[#fac72e] pl-2.5">
+        Tin Tức Mới Nhất
+      </h4>
+      <ul class="space-y-2 text-xs font-semibold">
+        {latestArticles.map((art: PostItem) => {
+          const title = art.title || "Tin tức dự án Bcons";
+          const pSlug = art.slug || art.post_slug || art.id || "";
+          const validLink = pSlug ? `/tin-tuc/${pSlug}` : "/tin-tuc";
+          
+          return (
+            <li>
+              <a 
+                href={validLink} 
+                title={`Đọc bài viết tin tức: ${title}`} 
+                class="hover:text-[#fac72e] block line-clamp-2 leading-relaxed transition-colors duration-200"
+              >
+                {title}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+
+    <div class="space-y-4">
+      <h4 class="text-xs font-black uppercase tracking-widest text-white border-l-2 border-[#fac72e] pl-2.5">
+        Thông Tin Liên Hệ
+      </h4>
+      <ul class="space-y-2.5 text-xs font-semibold">
+        <li class="flex items-start gap-2">
+          <svg class="w-4 h-4 text-[#fac72e] shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="text-white hover:text-[#fac72e] font-black text-sm tracking-tight">{settings.email}</span>
+        </li>
+        <li class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-[#fac72e] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+          <a href={`tel:${cleanPhone}`} title={`Bấm để liên hệ gọi trực tiếp số điện thoại ${settings.phone}`} class="text-white hover:text-[#fac72e] font-black text-sm tracking-tight">{settings.phone}</a>
+        </li>
+        <li class="flex items-start gap-2">
+          <svg class="w-4 h-4 text-[#fac72e] shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="text-white hover:text-[#fac72e] font-black text-sm tracking-tight">{settings.address}</span>
+        </li>
+      </ul>
+<!-- 
+      {settings.google_maps && (
+        <div class="w-full aspect-[16/9] rounded-xl overflow-hidden border border-slate-800 shadow-inner bg-slate-800 mt-2">
+          <iframe 
+            src={settings.google_maps} 
+            title="Bản đồ định vị tọa độ vị trí văn phòng làm việc"
+            class="w-full h-full border-0 opacity-80 hover:opacity-100 transition-opacity duration-300" 
+            allowfullscreen="" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+      )} -->
+    </div>
+
+  </div>
+
+  <div class="w-full border-t border-slate-800/80 pt-6 mt-6">
+    <div class="max-w-7xl mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-medium text-slate-500">
+      <p>© Copyright {currentYear} Bcons Tower. All rights reserved.</p>
+      <div class="flex items-center gap-4">
+        <a href="/chinh-sach-bao-mat" title="Chính sách và quy định bảo mật dữ liệu thông tin khách hàng" class="hover:text-slate-300 transition-colors">Chính sách bảo mật</a>
+        <span class="text-slate-700">|</span>
+        <a href="/dieu-khoan-su-dung" title="Điều khoản và quy định điều kiện sử dụng dịch vụ hệ thống" class="hover:text-slate-300 transition-colors">Điều khoản dịch vụ</a>
+      </div>
+    </div>
+  </div>
+</footer>

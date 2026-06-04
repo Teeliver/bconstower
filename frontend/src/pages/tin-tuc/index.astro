@@ -1,0 +1,552 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import Navbar from '../../components/Navbar.astro';
+
+// 🔥 ĐỒNG BỘ HỆ THỐNG: Lấy trực tiếp biến cấu hình từ file .env của Trung Tín
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
+---
+
+<MainLayout title="Tin tức & Sự kiện bất động sản Bcons mới nhất 2026">
+  <div id="magazine-page-root" data-api-base={PUBLIC_API_BASE} class="bg-white w-full overflow-x-hidden break-words min-h-screen pb-24 font-sans text-slate-800 mt-9">
+    
+    <div class="sticky top-[calc(var(--web-mobile-header-height))] z-50 bg-[#064e3b] will-change-transform lg:top-[calc(var(--web-header-height))] mt-10">
+      <div class="no-scrollbar h-[var(--web-mobile-main-navigation-height)] w-full snap-x snap-mandatory overflow-x-auto lg:h-[var(--web-main-navigation-height)]">
+        <div class="relative mx-auto max-w-full xs:!container px-4 sm:px-6 lg:px-8 xl:px-[115px] 2xl:!max-w-[1280px]">
+          <div class="flex flex-row flex-nowrap items-end gap-x-1" id="magazine-nav-tabs">
+
+            <div class="flex flex-shrink-0 snap-center flex-row items-center nav-tab-item cursor-pointer" data-category="thi-truong">
+              <div class="h-7 w-px bg-gradient-to-b from-white/0 via-primary-50/[65%] to-white/0 opacity-30"></div>
+              <a class="group focus:outline-none focus:ring-0" href="javascript:void(0)">
+                <span class="box-border inline-block px-3 py-2.5 text-sm font-semibold sm:px-4 lg:py-3 transition-colors duration-200 tab-text text-white/70 group-hover:text-gray-400">
+                  Tin Thị Trường
+                </span>
+              </a>
+            </div>
+
+            <div class="flex flex-shrink-0 snap-center flex-row items-center nav-tab-item cursor-pointer" data-category="tien-do">
+              <div class="h-7 w-px bg-gradient-to-b from-white/0 via-primary-50/[65%] to-white/0 opacity-30"></div>
+              <a class="group focus:outline-none focus:ring-0" href="javascript:void(0)">
+                <span class="box-border inline-block px-3 py-2.5 text-sm font-semibold sm:px-4 lg:py-3 transition-colors duration-200 tab-text text-white/70 group-hover:text-gray-400">
+                  Tin Tiến Độ
+                </span>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-full border-b border-neutral-100 py-1.5">
+        <div class="no-scrollbar w-full overflow-x-auto">
+            <div class="relative mx-auto max-w-full xs:!container px-4 sm:px-6 lg:px-8 xl:px-[115px] 2xl:!max-w-[1280px]">
+                <div class="flex flex-row flex-nowrap items-center gap-x-1" id="magazine-breadcrumbs">
+                    <div class="flex flex-shrink-0 flex-row items-center gap-x-1">
+                        <a class="hover:text-neutral-900 focus-visible:text-neutral-900 text-xs text-neutral-600 lg:text-sm group focus:outline-none focus:ring-0" href="/">Trang chủ</a>
+                    </div>
+                    <div class="flex flex-shrink-0 flex-row items-center gap-x-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-3 w-3 flex-shrink-0 text-neutral-400"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        <a class="hover:text-neutral-900 focus-visible:text-neutral-900 text-xs lg:text-sm group focus:outline-none focus:ring-0 pointer-events-none pr-4 font-medium text-neutral-900 cursor-pointer" href="javascript:void(0)" id="breadcrumb-tin-tuc-link">Tin tức</a>
+                    </div>
+                    <div class="flex flex-shrink-0 flex-row items-center gap-x-1 hidden" id="breadcrumb-sub-node">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-3 w-3 flex-shrink-0 text-neutral-400"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        <span class="text-xs lg:text-sm font-medium text-neutral-900" id="breadcrumb-sub-text"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mx-auto max-w-full xs:!container px-4 sm:px-6 lg:px-8 xl:px-[115px] 2xl:!max-w-[1280px] relative z-[1] pt-8 pb-8 sm:pt-6 sm:pb-8">
+
+      <div id="top-magazine-grid" class="flex flex-row items-start gap-x-8">
+        <div class="w-full flex-1 lg:w-[60%]">
+            <div class="lg:col-span-7 border-b lg:border-b-0 pb-6 lg:pb-0" id="big-latest-card"></div>
+        </div>
+        <div class="hidden lg:block lg:w-[40%]">
+            <div id="sidebar-hot-stack" class="flex flex-col gap-4"></div>
+        </div>
+      </div>
+
+      <div class="relative mx-auto max-w-full xs:!container px-4 sm:px-6 lg:px-8 xl:px-[115px] 2xl:!max-w-[1280px]"><div class="h-px w-full my-8" style="background-image: linear-gradient(to right, rgb(168, 162, 158) 30%, rgba(255, 255, 255, 0) 20%); background-position: left center; background-repeat: repeat-x; background-size: 4px 1px;"></div></div>
+      
+      <div class="flex flex-row items-start gap-x-8">
+        <div class="w-full flex-1 lg:w-[60%]">
+          <div class="flex w-full flex-row items-center gap-x-2 pb-6"><div class="h-7 w-[3px] rounded-t-full rounded-b-full bg-[#fac72e]"></div><b class="text-xl text-neutral-900">Xem thêm</b></div>
+          
+          <div id="posts-skeleton" class="w-full flex flex-col gap-5 animate-pulse">
+            {[1, 2, 3, 4].map(() => (
+              <div class="flex gap-4 border-b border-slate-50 pb-4 items-start">
+                <div class="w-24 h-16 sm:w-36 sm:h-24 bg-slate-100 rounded-lg shrink-0"></div>
+                <div class="flex-1 space-y-2 py-0.5">
+                  <div class="h-4 bg-slate-100 rounded w-3/4"></div>
+                  <div class="h-3 bg-slate-100 rounded w-full"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div id="posts-vertical-list" class="flex flex-col gap-5 hidden"></div>
+
+          <div id="load-more-container" class="w-full flex justify-center items-center gap-x-1.5 mt-10 hidden"></div>
+        </div>
+
+        <div class="hidden w-full lg:sticky lg:top-24 lg:block lg:w-[40%] self-start pl-4">
+          <div class="flex w-full flex-row items-center gap-x-2 pb-5">
+            <div class="h-6 w-[4px] bg-[#fac72e] rounded-sm"></div>
+            <b class="text-xl font-bold text-neutral-900">Đọc nhiều</b>
+          </div>
+          
+          <div id="sidebar-most-read-list" class="flex flex-col gap-y-4"></div>
+        </div>
+
+      </div>
+
+      <div id="empty-posts-message" class="hidden text-center py-20 bg-slate-50 border border-slate-100 rounded-2xl animate-fadeIn">
+        <div class="text-4xl mb-2">📰</div>
+        <p class="font-bold text-slate-700 text-sm">Hiện tại chuyên mục bài viết này chưa tìm thấy dữ liệu phù hợp</p>
+      </div>
+
+    </div>
+  </div>
+</MainLayout>
+
+<script is:inline>
+  var pageRoot = document.getElementById('magazine-page-root');
+  var BACKEND_URL = pageRoot ? pageRoot.getAttribute('data-api-base') : 'http://localhost:3000';
+
+  var MASTER_POSTS = [];
+  var FILTERED_POSTS = []; 
+  
+  var CURRENT_PAGE = 1;
+  var POSTS_PER_PAGE = 10; 
+
+  var activeCategory = 'all'; 
+
+  // Hàm quét quét sâu cấu hình chuyên mục (Hỗ trợ bóc tách linh hoạt String và Object liên kết từ DB)
+  function getPostCategoryInfo(post) {
+    var result = { isThiTruong: false, isTienDo: false, displayName: "" };
+    if (!post) return result;
+    
+    var catObj = post.category || post.chuyen_muc || post.category_id || "";
+    var catStr = "";
+    
+    if (typeof catObj === 'object' && catObj !== null) {
+      catStr = catObj.name || catObj.title || catObj.slug || "";
+    } else {
+      catStr = String(catObj);
+    }
+    
+    var normalized = catStr.toLowerCase().trim();
+    var isThiTruong = (normalized.indexOf('thị trường') !== -1 || normalized.indexOf('thi truong') !== -1 || normalized.indexOf('thi-truong') !== -1 || normalized.indexOf('thi_truong') !== -1 || normalized.indexOf('market') !== -1);
+    var isTienDo = (normalized.indexOf('tiến độ') !== -1 || normalized.indexOf('tien do') !== -1 || normalized.indexOf('tien-do') !== -1 || normalized.indexOf('tien_do') !== -1 || normalized.indexOf('progress') !== -1);
+    
+    result.isThiTruong = isThiTruong;
+    result.isTienDo = isTienDo;
+    
+    if (isThiTruong) {
+      result.displayName = "Tin Thị Trường";
+    } else if (isTienDo) {
+      result.displayName = "Tin Tiến Độ";
+    } else {
+      result.displayName = catStr || "Tin tức";
+    }
+
+    return result;
+  }
+
+  function updateBreadcrumbsUI() {
+    var linkTinTuc = document.getElementById('breadcrumb-tin-tuc-link');
+    var subNode = document.getElementById('breadcrumb-sub-node');
+    var subText = document.getElementById('breadcrumb-sub-text');
+
+    if (!linkTinTuc || !subNode || !subText) return;
+
+    if (activeCategory === 'all') {
+      linkTinTuc.className = "hover:text-neutral-900 focus-visible:text-neutral-900 text-xs lg:text-sm group focus:outline-none focus:ring-0 pointer-events-none pr-4 font-medium text-neutral-900 cursor-pointer";
+      subNode.classList.add('hidden');
+    } else {
+      linkTinTuc.className = "hover:text-neutral-900 focus-visible:text-neutral-900 text-xs lg:text-sm group focus:outline-none focus:ring-0 font-medium text-neutral-600 cursor-pointer";
+      subNode.classList.remove('hidden');
+
+      if (activeCategory === 'thi-truong') {
+        subText.textContent = "Tin Thị Trường";
+      } else if (activeCategory === 'tien-do') {
+        subText.textContent = "Tin Tiến Độ";
+      }
+    }
+  }
+
+  function initMagazineTabs() {
+    var container = document.getElementById('magazine-nav-tabs');
+    if (!container) return;
+
+    container.onclick = function(e) {
+      var item = e.target.closest('.nav-tab-item');
+      if (!item) return;
+
+      activeCategory = item.getAttribute('data-category');
+      var tabItems = container.querySelectorAll('.nav-tab-item');
+
+      tabItems.forEach(function(t) {
+        var textSpan = t.querySelector('.tab-text');
+        var cat = t.getAttribute('data-category');
+        if (cat === activeCategory) {
+          t.className = "flex flex-shrink-0 snap-center flex-row items-center nav-tab-item cursor-pointer bg-[#d9ab1c]";
+          if (textSpan) textSpan.className = "box-border inline-block px-3 py-2.5 text-sm font-semibold sm:px-4 lg:py-3 transition-colors duration-200 tab-text text-black";
+        } else {
+          t.className = "flex flex-shrink-0 snap-center flex-row items-center nav-tab-item cursor-pointer";
+          if (textSpan) textSpan.className = "box-border inline-block px-3 py-2.5 text-sm font-semibold sm:px-4 lg:py-3 transition-colors duration-200 tab-text text-white/70 group-hover:text-gray-400";
+        }
+      });
+
+      applyFilters();
+    };
+
+    var linkTinTuc = document.getElementById('breadcrumb-tin-tuc-link');
+    if (linkTinTuc) {
+      linkTinTuc.onclick = function() {
+        if (activeCategory !== 'all') {
+          activeCategory = 'all';
+          var tabItems = container.querySelectorAll('.nav-tab-item');
+          tabItems.forEach(function(t) {
+            var textSpan = t.querySelector('.tab-text');
+            var cat = t.getAttribute('data-category');
+            if (cat === 'all') {
+              t.className = "flex flex-shrink-0 snap-center flex-row items-center nav-tab-item cursor-pointer bg-[#d9ab1c]";
+              if (textSpan) textSpan.className = "box-border inline-block px-3 py-2.5 text-sm font-semibold sm:px-4 lg:py-3 transition-colors duration-200 tab-text text-black";
+            } else {
+              t.className = "flex flex-shrink-0 snap-center flex-row items-center nav-tab-item cursor-pointer";
+              if (textSpan) textSpan.className = "box-border inline-block px-3 py-2.5 text-sm font-semibold sm:px-4 lg:py-3 transition-colors duration-200 tab-text text-white/70 group-hover:text-gray-400";
+            }
+          });
+          applyFilters();
+        }
+      };
+    }
+  }
+
+  function timeAgo(dateString) {
+    if (!dateString) return "Mới đăng";
+    var pastDate = new Date(dateString);
+    var pastTime = pastDate.getTime();
+    if (isNaN(pastTime)) return "Mới đăng";
+    var currentTime = new Date().getTime();
+    var seconds = Math.floor((currentTime - pastTime) / 1000);
+    if (seconds < 5) return "vừa xong";
+    var interval = seconds / 86400;
+    if (interval >= 1) return Math.floor(interval) + " ngày trước";
+    var intervalHr = seconds / 3600;
+    if (intervalHr >= 1) return Math.floor(intervalHr) + " giờ trước";
+    return "đăng hôm nay";
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return "";
+    var date = new Date(dateString);
+    if (isNaN(date.getTime())) return ""; 
+
+    var day = String(date.getDate());
+    if (day.length < 2) day = "0" + day;
+    var month = String(date.getMonth() + 1);
+    if (month.length < 2) month = "0" + month;
+    var year = date.getFullYear();
+
+    return day + "/" + month + "/" + year;
+  }
+
+  function renderLayoutMagazineExact() {
+    var magazineGrid = document.getElementById('top-magazine-grid');
+    var bigCard = document.getElementById('big-latest-card');
+    var sidebarHotStack = document.getElementById('sidebar-hot-stack');
+    var verticalList = document.getElementById('posts-vertical-list');
+    var loadMoreContainer = document.getElementById('load-more-container');
+    var emptyBox = document.getElementById('empty-posts-message');
+    var sidebarMostReadList = document.getElementById('sidebar-most-read-list');
+
+    if (!magazineGrid || !bigCard || !sidebarHotStack || !verticalList || !loadMoreContainer || !emptyBox || !sidebarMostReadList) return;
+
+    if (FILTERED_POSTS.length === 0) {
+      magazineGrid.classList.add('hidden');
+      verticalList.classList.add('hidden');
+      loadMoreContainer.classList.add('hidden');
+      emptyBox.classList.remove('hidden');
+      return;
+    }
+
+    emptyBox.classList.add('hidden');
+    magazineGrid.classList.remove('hidden');
+
+    // =========================================================================
+    // 🏢 LUỒNG 1: BÀI TIÊU ĐIỂM LỚN CỘT TRÁI (BÀI SỐ 1 MỚI NHẤT)
+    // =========================================================================
+    var latestPost = FILTERED_POSTS[0];
+    var latestThumb = latestPost.image || latestPost.thumbnail ? (BACKEND_URL + (latestPost.image || latestPost.thumbnail)) : '/images/no-photo.jpg';
+    var latestDate = latestPost.createdAt || latestPost.created_at;
+    var latestInfo = getPostCategoryInfo(latestPost);
+
+    var bigHtml = '';
+    bigHtml += '<a href="/tin-tuc/' + (latestPost.slug || '') + '" class="focus:outline-none group">';
+    bigHtml += '  <div class="relative aspect-[5/3] overflow-hidden rounded-md">';
+    bigHtml += '    <img src="' + latestThumb + '" class="object-cover duration-300 group-hover:scale-[1.1] group-focus-visible:scale-[1.1]" style="position: absolute; height: 100%; width: 100%; inset: 0px; color: transparent;" alt="' + (latestPost.title || '') + '" />';
+    bigHtml += '  </div>';
+    bigHtml += '  <div class="w-full pt-4 pb-6 lg:pt-6 lg:pb-8">';
+    bigHtml += '    <h6 class="text-base font-extrabold text-black line-clamp-2 group-hover:text-gray-600 group-focus-visible:text-gray-600 sm:text-lg lg:text-xl xl:text-2xl">';
+    bigHtml += '      ' + (latestPost.title || 'Chưa có tiêu đề') + '';
+    bigHtml += '    </h6>';
+    bigHtml += '    <p class="pt-2 text-sm font-medium text-neutral-600 line-clamp-2 sm:text-base xl:pt-3 xl:text-lg">';
+    bigHtml += '      ' + (latestPost.summary || latestPost.description || '') + '';
+    bigHtml += '    </p>';
+    bigHtml += '    <div class="flex flex-row items-center gap-x-1.5 pt-3 xl:pt-4">';
+    bigHtml += '      <div class="flex flex-row items-center gap-x-1">';
+    bigHtml += '          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 flex-shrink-0 text-neutral-600"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+    bigHtml += '          <span class="text-xs font-medium text-neutral-600">' + formatDate(latestDate) + '</span>';
+    bigHtml += '      </div>';
+    bigHtml += '      <div class="flex flex-row items-center gap-x-1">';
+    bigHtml += '          <div class="aspect-square w-[3px] rounded-full bg-neutral-600"></div>';
+    bigHtml += '          <span class="text-xs text-neutral-600">' + timeAgo(latestDate) + '</span>';
+    bigHtml += '      </div>';
+    if (latestInfo.displayName) {
+      bigHtml += '    <div class="flex flex-row items-center gap-x-1">';
+      bigHtml += '        <span class="text-xs text-neutral-600">|</span>';
+      bigHtml += '        <span class="text-xs text-neutral-600">' + latestInfo.displayName + '</span>';
+      bigHtml += '    </div>';
+    }
+    bigHtml += '    </div>';
+    bigHtml += '  </div>';
+    bigHtml += '</a>';
+    bigCard.innerHTML = bigHtml;
+
+    // =========================================================================
+    // 🏢 LUỒNG 2: CỘT PHẢI - HIỂN THỊ 3 BÀI MỚI TIẾP THEO (BÀI SỐ 2, 3, 4)
+    // =========================================================================
+    var sidebarPosts = FILTERED_POSTS.slice(1, 4);
+
+    var sidebarHtml = '';
+    sidebarPosts.forEach(function(post, index) {
+      var sThumb = post.image || post.thumbnail ? (BACKEND_URL + (post.image || post.thumbnail)) : '/images/no-photo.jpg';
+      var sDate = post.createdAt || post.created_at;
+      var isLast = (index === sidebarPosts.length - 1);
+
+      sidebarHtml += '<a href="/tin-tuc/' + (post.slug || '') + '" class="focus:outline-none group">';
+      sidebarHtml += '  <div class="relative flex flex-col items-start py-4 pb-4 pt-0">';
+      sidebarHtml += '    <div class="w-full flex-1">';
+      sidebarHtml += '        <b class="flex-1 text-base text-black line-clamp-2 group-hover:text-gray-600 group-focus-visible:text-gray-600">';
+      sidebarHtml += '          ' + (post.title || 'Chưa có tiêu đề') + '';
+      sidebarHtml += '        </b>';
+      sidebarHtml += '        <div class="flex flex-row items-start gap-x-3 pt-1">';
+      sidebarHtml += '            <div class="flex flex-1 flex-col items-start gap-y-2">';
+      sidebarHtml += '                <span class="text-sm text-neutral-600 line-clamp-3">' + (post.summary || '') + '</span>';
+      sidebarHtml += '                <div class="flex flex-row items-center gap-x-1.5">';
+      sidebarHtml += '                    <div class="flex flex-row items-center gap-x-1">';
+      sidebarHtml += '                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-neutral-600"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+      sidebarHtml += '                        <span class="text-xs font-medium text-neutral-600">' + formatDate(sDate) + '</span>';
+      sidebarHtml += '                    </div>';
+      sidebarHtml += '                    <div class="flex flex-row items-center gap-x-1">';
+      sidebarHtml += '                        <div class="aspect-square w-[3px] rounded-full bg-neutral-600"></div>';
+      sidebarHtml += '                        <span class="text-xs font-medium text-neutral-600">' + timeAgo(sDate) + '</span>';
+      sidebarHtml += '                    </div>';
+      sidebarHtml += '                </div>';
+      sidebarHtml += '            </div>';
+      sidebarHtml += '            <div class="relative h-[72px] w-[104px] overflow-hidden rounded-sm flex-shrink-0">';
+      sidebarHtml += '                <img src="' + sThumb + '" class="object-cover object-center duration-300 group-hover:scale-[1.1] group-focus-visible:scale-[1.1]" style="position: absolute; height: 100%; width: 100%; inset: 0px; color: transparent;" alt="" />';
+      sidebarHtml += '            </div>';
+      sidebarHtml += '        </div>';
+      sidebarHtml += '    </div>';
+      sidebarHtml += '  </div>';
+      sidebarHtml += '</a>';
+      if (!isLast) {
+        sidebarHtml += '<div class="w-full"><div class="h-px w-full" style="background-image: linear-gradient(to right, rgb(168, 162, 158) 30%, rgba(255, 255, 255, 0) 20%); background-position: left center; background-repeat: repeat-x; background-size: 4px 1px;"></div></div>';
+      }
+    });
+    sidebarHotStack.innerHTML = sidebarHtml;
+
+    // =========================================================================
+    // 🔥 LUỒNG 2.5: CỘT PHẢI DƯỚI (STICKY) - BOX "ĐỌC NHIỀU" TOP 5 LƯỢT XEM KHỚP 100% IMAGE_94079F.PNG
+    // =========================================================================
+    var mostReadPosts = [].concat(MASTER_POSTS).sort(function(a, b) {
+      return (Number(b.views) || 0) - (Number(a.views) || 0);
+    }).slice(0, 5);
+
+    var mostReadHtml = '';
+    mostReadPosts.forEach(function(post, index) {
+      mostReadHtml += '<a href="/tin-tuc/' + (post.slug || '') + '" class="group focus:outline-none block py-1.5">';
+      mostReadHtml += '  <div class="flex flex-row items-start gap-x-3.5">';
+      
+      // Khối tạo hình huy hiệu mũi tên 5 góc kèm bóng đổ offset y hệt bản thiết kế mẫu
+      mostReadHtml += '    <div class="relative shrink-0 w-[34px] h-[30px] mt-0.5">';
+      mostReadHtml += '      <div class="shrink-0 w-8 h-8 rounded-full bg-[#fac72e] shadow-lg text-black text-xs font-bold flex items-center justify-center mt-0.5 select-none">';
+      mostReadHtml += '        ' + (index + 1) + '';
+      mostReadHtml += '      </div>';
+      mostReadHtml += '    </div>';
+
+      // Tiêu đề bài viết đọc nhiều
+      mostReadHtml += '    <p class="text-[15px] leading-snug text-neutral-800 font-medium line-clamp-2 pt-0.5 transition-colors duration-200 group-hover:text-emerald-800 group-focus-visible:text-emerald-800">';
+      mostReadHtml += '      ' + (post.title || 'Chưa có tiêu đề') + '';
+      mostReadHtml += '    </p>';
+
+      mostReadHtml += '  </div>';
+      mostReadHtml += '</a>';
+    });
+    sidebarMostReadList.innerHTML = mostReadHtml;
+
+    // =========================================================================
+    // 🏢 LUỒNG 3: DANH SÁCH TIN "XEM THÊM" PHÍA DƯỚI (TRÀN TỪ BÀI SỐ 5 TRỞ ĐI)
+    // =========================================================================
+    var feedPosts = FILTERED_POSTS.slice(4);
+
+    if (feedPosts.length === 0) {
+      verticalList.innerHTML = '<p class="text-xs text-slate-400 font-medium py-6 px-1">Chưa có bài viết bổ sung tiếp theo trong chuyên mục này...</p>';
+      loadMoreContainer.className = "hidden";
+    } else {
+      verticalList.classList.remove('hidden');
+      
+      var totalPages = Math.ceil(feedPosts.length / POSTS_PER_PAGE);
+      var startIdx = (CURRENT_PAGE - 1) * POSTS_PER_PAGE;
+      var currentSlice = feedPosts.slice(startIdx, startIdx + POSTS_PER_PAGE);
+
+      var listHtml = '';
+      currentSlice.forEach(function(post) {
+        var thumb = post.image || post.thumbnail ? (BACKEND_URL + (post.image || post.thumbnail)) : '/images/no-photo.jpg';
+        var realDate = post.createdAt || post.created_at;
+
+        listHtml += '<a href="/tin-tuc/' + (post.slug || '') + '" class="focus:outline-none group">';
+        listHtml += '  <div class="flex w-full flex-col items-start gap-x-4 gap-y-2 sm:flex-row mb-5">';
+        listHtml += '    <div class="relative aspect-[49/24] w-full overflow-hidden rounded-md sm:aspect-auto sm:h-[168px] sm:w-[256px] flex-shrink-0">';
+        listHtml += '      <img src="' + thumb + '" class="object-cover duration-300 group-hover:scale-[1.1] group-focus-visible:scale-[1.1]" alt="' + (post.title || '') + '" style="position: absolute; height: 100%; width: 100%; inset: 0px; color: transparent;"/>';
+        listHtml += '    </div>';
+        listHtml += '    <div class="flex flex-1 flex-col min-w-0">';
+        listHtml += '      <span class="text-sm font-semibold text-emerald-800 uppercase">' + (latestInfo.displayName) + '</span>';
+        listHtml += '      <b class="text-base text-neutral-900 line-clamp-2 group-hover:text-emerald-800 group-focus-visible:text-emerald-800 sm:text-lg">' + (post.title || 'Chưa có tiêu đề') + '</b>';
+        listHtml += '      <p class="text-sm text-justify text-neutral-600 line-clamp-3 pt-1">' + (post.summary || post.description || '') + '</p>';
+        listHtml += '      <div class="flex w-full flex-row items-center gap-x-2 pt-3">';
+        listHtml += '         <div class="flex flex-row items-center gap-x-1">';
+        listHtml += '             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 flex-shrink-0 text-neutral-500"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+        listHtml += '             <span class="text-xs font-medium text-neutral-500">' + formatDate(realDate) + '</span>';
+        listHtml += '         </div>';
+        listHtml += '         <div class="flex flex-row items-center gap-x-1">';
+        listHtml += '             <div class="aspect-square w-[3px] rounded-full bg-neutral-500"></div>';
+        listHtml += '             <span class="text-xs font-medium text-neutral-500">' + timeAgo(realDate) + '</span>';
+        listHtml += '         </div>';
+        listHtml += '      </div>';
+        listHtml += '    </div>';
+        listHtml += '  </div>';
+        listHtml += '</a>';
+      });
+      verticalList.innerHTML = listHtml;
+
+      // Render bộ phân trang dynamic bằng chuỗi ký tự đơn
+      if (totalPages > 1) {
+        loadMoreContainer.className = "w-full flex justify-center items-center gap-x-1.5 mt-10";
+
+        var paginationHTML = '';
+        var isPrevDisabled = (CURRENT_PAGE === 1);
+        
+        paginationHTML += '<button type="button" ' + (isPrevDisabled ? 'disabled' : '') + ' id="pag-btn-prev" class="w-9 h-9 rounded-full flex items-center justify-center transition-all bg-[#f5f5f5] text-neutral-400 font-medium text-sm ' + (isPrevDisabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-neutral-200 text-neutral-700 cursor-pointer select-none') + '" >';
+        paginationHTML += '  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="h-3.5 w-3.5"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+        paginationHTML += '</button>';
+
+        for (var p = 1; p <= totalPages; p++) {
+          if (p === CURRENT_PAGE) {
+            paginationHTML += '<span class="w-9 h-9 rounded-full flex items-center justify-center bg-emerald-800 text-white font-bold text-sm select-none shadow-sm">' + p + '</span>';
+          } else {
+            paginationHTML += '<button type="button" data-page="' + p + '" class="pag-number-trigger w-9 h-9 rounded-full flex items-center justify-center bg-[#f5f5f5] hover:bg-neutral-200 text-neutral-800 font-medium text-sm transition-all cursor-pointer select-none">' + p + '</button>';
+          }
+        }
+
+        var isNextDisabled = (CURRENT_PAGE === totalPages);
+        paginationHTML += '<button type="button" ' + (isNextDisabled ? 'disabled' : '') + ' id="pag-btn-next" class="w-9 h-9 rounded-full flex items-center justify-center transition-all bg-[#f5f5f5] text-neutral-400 font-medium text-sm ' + (isNextDisabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-neutral-200 text-neutral-700 cursor-pointer select-none') + '">';
+        paginationHTML += '  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="h-3.5 w-3.5"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+        paginationHTML += '</button>';
+
+        loadMoreContainer.innerHTML = paginationHTML;
+
+        var prevBtn = document.getElementById('pag-btn-prev');
+        if (prevBtn && !isPrevDisabled) {
+          prevBtn.onclick = function() {
+            CURRENT_PAGE--;
+            renderLayoutMagazineExact();
+            window.scrollTo({ top: verticalList.offsetTop - 120, behavior: 'smooth' });
+          };
+        }
+
+        var nextBtn = document.getElementById('pag-btn-next');
+        if (nextBtn && !isNextDisabled) {
+          nextBtn.onclick = function() {
+            CURRENT_PAGE++;
+            renderLayoutMagazineExact();
+            window.scrollTo({ top: verticalList.offsetTop - 120, behavior: 'smooth' });
+          };
+        }
+
+        loadMoreContainer.querySelectorAll('.pag-number-trigger').forEach(function(btn) {
+          btn.onclick = function() {
+            CURRENT_PAGE = parseInt(this.getAttribute('data-page'));
+            renderLayoutMagazineExact();
+            window.scrollTo({ top: verticalList.offsetTop - 120, behavior: 'smooth' });
+          };
+        });
+
+      } else {
+        loadMoreContainer.className = "hidden";
+      }
+    }
+  }
+
+  function applyFilters() {
+    FILTERED_POSTS = MASTER_POSTS.filter(function(post) {
+      var info = getPostCategoryInfo(post);
+      
+      if (activeCategory === 'all') {
+        return (info.isThiTruong || info.isTienDo || info.displayName !== ""); 
+      }
+      if (activeCategory === 'thi-truong') {
+        return info.isThiTruong;
+      }
+      if (activeCategory === 'tien-do') {
+        return info.isTienDo;
+      }
+      return false;
+    });
+
+    CURRENT_PAGE = 1; 
+    updateBreadcrumbsUI(); 
+    renderLayoutMagazineExact();
+  }
+
+  async function loadAllPostsData() {
+    var skeleton = document.getElementById('posts-skeleton');
+    try {
+      var res = await fetch(BACKEND_URL + "/api/posts/public");
+      if (!res.ok) throw new Error("API lỗi kết nối dữ liệu");
+      var data = await res.json();
+
+      MASTER_POSTS = Array.isArray(data) ? data : (data.posts || data.data || []);
+      
+      // Sắp xếp bài viết theo mốc thời gian mới nhất lên đầu danh sách
+      MASTER_POSTS.sort(function(a, b) { 
+        var dateA = new Date(a.createdAt || a.created_at || 0).getTime() || 0;
+        var dateB = new Date(b.createdAt || b.created_at || 0).getTime() || 0;
+        return dateB - dateA; 
+      });
+
+      initMagazineTabs();
+
+      if (skeleton) skeleton.classList.add('hidden');
+      applyFilters();
+
+    } catch (e) {
+      console.error("Lỗi luồng hệ thống tin tức:", e);
+      if (skeleton) skeleton.classList.add('hidden');
+    }
+  }
+
+  loadAllPostsData();
+</script>
+
+<style is:global>
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>

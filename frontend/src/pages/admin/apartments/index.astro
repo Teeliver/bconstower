@@ -1,0 +1,448 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Quản lý căn hộ">
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-2xl font-black text-slate-900">Tất cả căn hộ</h1>
+        <p class="text-slate-500">Danh sách các căn hộ đang được đăng trên hệ thống</p>
+      </div>
+      <a href="/admin/apartments/add" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-orange-200">
+        + Đăng tin mới
+      </a>
+    </div>
+
+    <div class="bg-white p-6 rounded-[1.5rem] shadow-sm border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div class="relative dropdown-container" id="drop-project">
+        <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Dự án</label>
+        <button type="button" class="drop-btn w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-xl flex items-center justify-between text-sm font-medium hover:bg-slate-100 transition-all outline-none">
+          <span class="selected-text truncate">Tất cả dự án</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        <input type="hidden" id="filterProject" value="all">
+        <div class="drop-menu absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300 max-h-60 overflow-y-auto" id="projectFilterMenu">
+          <div class="p-2 space-y-1">
+             <div data-value="all" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm transition-colors">Tất cả dự án</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative dropdown-container" id="drop-price">
+        <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Tầm giá</label>
+        <button type="button" class="drop-btn w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-xl flex items-center justify-between text-sm font-medium hover:bg-slate-100 transition-all outline-none">
+          <span class="selected-text">Tất cả giá</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        <input type="hidden" id="filterPrice" value="all">
+        <div class="drop-menu absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+          <div class="p-2 space-y-1">
+            <div data-value="all" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">Tất cả giá</div>
+            <div data-value="0-2000000000" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">Dưới 2 tỷ</div>
+            <div data-value="2000000000-3500000000" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">2 tỷ - 3.5 tỷ</div>
+            <div data-value="3500000000-5000000000" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">3.5 tỷ - 5 tỷ</div>
+            <div data-value="5000000000-999999999999" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">Trên 5 tỷ</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative dropdown-container" id="drop-bed">
+        <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Phòng ngủ</label>
+        <button type="button" class="drop-btn w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-xl flex items-center justify-between text-sm font-medium hover:bg-slate-100 transition-all outline-none">
+          <span class="selected-text">Tất cả</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        <input type="hidden" id="filterBed" value="all">
+        <div class="drop-menu absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+          <div class="p-2 space-y-1">
+            <div data-value="all" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">Tất cả</div>
+            <div data-value="1" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">1 PN</div>
+            <div data-value="2" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">2 PN</div>
+            <div data-value="3" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">3+ PN</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative dropdown-container" id="drop-bath">
+        <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Vệ sinh</label>
+        <button type="button" class="drop-btn w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-xl flex items-center justify-between text-sm font-medium hover:bg-slate-100 transition-all outline-none">
+          <span class="selected-text">Tất cả</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        <input type="hidden" id="filterBath" value="all">
+        <div class="drop-menu absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+          <div class="p-2 space-y-1">
+            <div data-value="all" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">Tất cả</div>
+            <div data-value="1" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">1 WC</div>
+            <div data-value="2" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">2 WC</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative dropdown-container" id="drop-status">
+        <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Trạng thái</label>
+        <button type="button" class="drop-btn w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-xl flex items-center justify-between text-sm font-medium hover:bg-slate-100 transition-all outline-none">
+          <span class="selected-text">Tất cả trạng thái</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        <input type="hidden" id="filterStatus" value="all">
+        <div class="drop-menu absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+          <div class="p-2 space-y-1">
+            <div data-value="all" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">Tất cả trạng thái</div>
+            <div data-value="approved" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">✅ Đã duyệt</div>
+            <div data-value="pending" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">⏳ Chờ duyệt</div>
+            <div data-value="rejected" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm">❌ Từ chối</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-left">
+          <thead class="bg-slate-50 border-b border-slate-200">
+            <tr>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Thông tin căn hộ</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Vị trí</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Đặc điểm</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Giá & Diện tích</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Người đăng</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Trạng thái</th>
+              <th class="px-6 py-5 font-bold text-slate-600 text-sm text-center">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100" id="apartmentTableBody">
+            <tr>
+                <td colspan="7" class="p-20 text-center text-slate-400 italic">Đang tải danh sách căn hộ...</td>
+            </tr>
+          </tbody>
+        </table>
+        <div id="noResults" class="hidden p-20 text-center text-slate-400 italic bg-white">
+          Không tìm thấy căn hộ nào khớp với bộ lọc.
+        </div>
+    </div>
+</AdminLayout>
+
+<style>
+  .dropdown-container.active .drop-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+  .dropdown-container.active .drop-btn svg { transform: rotate(180deg); }
+  .dropdown-container.active .drop-btn { border-color: #f97316; background-color: #fff; }
+</style>
+
+<script>
+  import { checkAdminAuth } from '../../../lib/auth'
+  import Swal from 'sweetalert2';
+
+  checkAdminAuth();
+
+  const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  const token = localStorage.getItem('admin_token')?.replace(/['"]+/g, '').trim();
+
+  // 🔒 BẢO MẬT & ÉP KIỂU: Khử độc XSS an toàn tuyệt đối cho chuỗi và số
+  const escapeHTML = (val: any): string => {
+    if (val === null || val === undefined) return '';
+    const str = String(val); 
+    return str.replace(/[&<>"']/g, (match) => {
+      const map: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      };
+      return map[match] || match;
+    });
+  };
+
+  const formatPrice = (price: number) => {
+    if (!price || isNaN(price)) return "Liên hệ";
+    if (price >= 1000000000) return `${parseFloat((price / 1000000000).toFixed(2))} tỷ`;
+    if (price >= 1000000) return `${parseFloat((price / 1000000).toFixed(2))} triệu`;
+    return price.toLocaleString() + "đ";
+  };
+
+  async function initPage() {
+    const tbody = document.getElementById('apartmentTableBody');
+    if (!tbody) return;
+
+    if (!token) {
+      localStorage.clear();
+      window.location.replace('/admin');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/apartments`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.clear();
+        window.location.replace('/admin');
+        return;
+      }
+
+      const rawData = await res.json();
+      const apartments = Array.isArray(rawData) ? rawData : (rawData.data || []);
+
+      if (apartments.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-20 text-center text-slate-400 italic">Chưa có căn hộ nào được đăng.</td></tr>';
+        return;
+      }
+
+      updateProjectFilter(apartments);
+      renderTable(apartments);
+      setupFilters();
+
+    } catch (err) {
+      console.error("Lỗi kết nối API căn hộ:", err);
+      tbody.innerHTML = '<tr><td colspan="7" class="p-20 text-center text-red-500 italic">⚠️ Lỗi kết nối Server API hoặc phiên đăng nhập hết hạn.</td></tr>';
+    }
+  }
+
+  function renderTable(data: any[]) {
+    const tbody = document.getElementById('apartmentTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = data.map((item: any) => {
+        const currentName = item.name || '';
+        const currentSlug = item.slug || '';
+        const currentProjectName = item.project_name || item.projectName || 'N/A';
+        const currentBlock = item.block || 'N/A';
+        const currentFloor = item.floor || 'N/A';
+        const currentBedrooms = item.bedrooms || item.rooms || 0;
+        const currentBathrooms = item.bathrooms || 0;
+        const currentDirection = item.direction_balcony || item.directionBalcony || item.direction_main || item.directionMain || 'Chưa xác định';
+        const currentPrice = item.price || 0;
+        const currentArea = item.area || 0;
+        // 🔥 ĐỒNG BỘ: Nhận diện chính xác trường creator_name từ leftJoin Backend truyền sang
+        const currentCreatedBy = item.creator_name || item.created_by || item.createdBy || 'N/A';
+        const currentStatus = item.approval_status || item.approvalStatus || item.status || 'pending';
+        const rawImage = item.image || item.image_url;
+
+        let displayImage = 'https://placehold.co/400x400?text=No+Image';
+        if (rawImage) {
+            try {
+                const images = typeof rawImage === 'string' ? JSON.parse(rawImage) : rawImage;
+                if (Array.isArray(images) && images.length > 0) {
+                    displayImage = images[0].startsWith('http') ? images[0] : `${BACKEND_URL}${images[0]}`;
+                } else if (typeof rawImage === 'string') {
+                    displayImage = rawImage.startsWith('http') ? rawImage : `${BACKEND_URL}${rawImage.replace(/[\[\]"\\ ]/g, '').split(',')[0]}`;
+                }
+            } catch (e) {
+                displayImage = rawImage.startsWith('http') ? rawImage : `${BACKEND_URL}${rawImage.replace(/[\[\]"\\ ]/g, '').split(',')[0]}`;
+            }
+        }
+
+        return `
+            <tr class="apartment-row" 
+                data-project="${escapeHTML(currentProjectName)}"
+                data-price="${currentPrice}"
+                data-bed="${currentBedrooms}"
+                data-bath="${currentBathrooms}"
+                data-status="${escapeHTML(currentStatus)}">
+                <td class="px-6 py-5">
+                    <div class="flex items-center gap-4">
+                        <img src="${displayImage}" class="w-12 h-12 rounded-xl object-cover border border-slate-100 shadow-sm" onerror="this.src='https://placehold.co/400x400?text=Error'"/>
+                        <div>
+                            <div class="font-bold text-slate-800">${escapeHTML(currentName)}</div>
+                            <div class="text-[10px] text-slate-400 font-mono italic">/${escapeHTML(currentSlug)}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-5 text-sm text-slate-600">
+                    <div class="font-semibold text-slate-700">${escapeHTML(currentProjectName)}</div>
+                    <div class="text-xs text-slate-500">Block: ${escapeHTML(currentBlock)} - Tầng: ${escapeHTML(currentFloor)}</div>
+                </td>
+                <td class="px-6 py-5">
+                    <div class="text-xs space-y-1">
+                        <div class="text-slate-500">🧭 Hướng: <span class="text-slate-800 font-medium">${escapeHTML(currentDirection)}</span></div>
+                        <div class="text-slate-500">🛏️ ${currentBedrooms} PN - 🚽 ${currentBathrooms} WC</div>
+                    </div>
+                </td>
+                <td class="px-6 py-5">
+                    <div class="font-bold text-orange-600">${formatPrice(Number(currentPrice))}</div>
+                    <div class="text-sm text-slate-500">${currentArea} m²</div>
+                </td>
+                <td class="px-6 py-5 text-sm text-slate-700 font-medium">${escapeHTML(currentCreatedBy)}</td>
+                <td class="px-6 py-5">
+                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        currentStatus === 'approved' ? 'bg-green-100 text-green-600' : 
+                        currentStatus === 'rejected' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-600'
+                    }">
+                        ${currentStatus === 'approved' ? '✅ Đã duyệt' : 
+                          currentStatus === 'rejected' ? '❌ Từ chối' : '⏳ Chờ duyệt'}
+                    </span>
+                </td>
+                <td class="px-6 py-5 text-right">
+                    <div class="flex justify-end gap-2">
+                        ${currentStatus === 'pending' || currentStatus === 'con_trong' ? `
+                        <button class="approve-btn p-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition-all" data-id="${item.id}">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        </button>` : ''}
+                        <a href="/admin/apartments/edit?id=${item.id}" class="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        </a>
+                        <button class="delete-btn p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all" data-id="${item.id}">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
+    }).join('');
+
+    setupActionEvents();
+  }
+
+  function updateProjectFilter(apartments: any[]) {
+    const filterMenu = document.querySelector('#projectFilterMenu .p-2');
+    if (!filterMenu) return;
+    const projects = [...new Set(apartments.map(a => a.project_name || a.projectName))].filter(Boolean);
+    
+    let html = '<div data-value="all" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm transition-colors">Tất cả dự án</div>';
+    projects.forEach(p => {
+        html += `<div data-value="${escapeHTML(p)}" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm transition-colors">${escapeHTML(p)}</div>`;
+    });
+    filterMenu.innerHTML = html;
+  }
+
+  function setupFilters() {
+    ['drop-project', 'drop-price', 'drop-bed', 'drop-bath', 'drop-status'].forEach(id => {
+        const container = document.getElementById(id);
+        if (!container) return;
+        const btn = container.querySelector('.drop-btn') as HTMLButtonElement;
+        const hiddenInput = container.querySelector('input[type="hidden"]') as HTMLInputElement;
+        const selectedText = container.querySelector('.selected-text');
+
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.dropdown-container').forEach(el => el !== container && el.classList.remove('active'));
+            container.classList.toggle('active');
+        });
+
+        container.addEventListener('click', (e) => {
+            const optionItem = (e.target as HTMLElement).closest('.option-item');
+            if (optionItem) {
+                const val = optionItem.getAttribute('data-value');
+                if (val && hiddenInput) {
+                    hiddenInput.value = val;
+                    if (selectedText) selectedText.textContent = optionItem.textContent;
+                    container.classList.remove('active');
+                    filterData(); 
+                }
+            }
+        });
+    });
+
+    window.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-container').forEach(el => el.classList.remove('active'));
+    });
+  }
+
+  function filterData() {
+    const valProject = (document.getElementById('filterProject') as HTMLInputElement).value;
+    const valPriceRange = (document.getElementById('filterPrice') as HTMLInputElement).value;
+    const valBed = (document.getElementById('filterBed') as HTMLInputElement).value;
+    const valBath = (document.getElementById('filterBath') as HTMLInputElement).value;
+    const valStatus = (document.getElementById('filterStatus') as HTMLInputElement).value;
+
+    const rows = document.querySelectorAll('.apartment-row');
+    const noResults = document.getElementById('noResults');
+    let visibleCount = 0;
+
+    rows.forEach((row: any) => {
+      const p = row.dataset.project;
+      const price = parseFloat(row.dataset.price);
+      const bed = row.dataset.bed;
+      const bath = row.dataset.bath;
+      const status = row.dataset.status;
+
+      let passPrice = true;
+      if (valPriceRange !== 'all') {
+        const [min, max] = valPriceRange.split('-').map(Number);
+        passPrice = price >= min && price <= max;
+      }
+
+      const passProject = valProject === 'all' || p === valProject;
+      const passBed = valBed === 'all' || bed === valBed || (valBed === '3' && parseInt(bed) >= 3);
+      const passBath = valBath === 'all' || bath === valBath;
+      const passStatus = valStatus === 'all' || status === valStatus;
+
+      if (passProject && passPrice && passBed && passBath && passStatus) {
+        row.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        row.classList.add('hidden');
+      }
+    });
+
+    if (visibleCount === 0) noResults?.classList.remove('hidden');
+    else noResults?.classList.add('hidden');
+  }
+
+  function setupActionEvents() {
+    document.querySelectorAll('.approve-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const id = (e.currentTarget as HTMLElement).dataset.id;
+            if (!id) return;
+            const confirm = await Swal.fire({ title: 'Duyệt bài đăng này?', icon: 'question', showCancelButton: true, confirmButtonColor: '#10b981' });
+            if (confirm.isConfirmed) {
+                try {
+                    const formPayload = new FormData();
+                    formPayload.append('_method', 'PUT');
+                    formPayload.append('status', 'approved');
+
+                    const approveRes = await fetch(`${BACKEND_URL}/api/admin/apartments/${id}`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` },
+                        body: formPayload
+                    });
+                    const approveData = await approveRes.json();
+                    
+                    if (approveRes.ok) {
+                        await Swal.fire('Thành công', 'Căn hộ đã được duyệt hiển thị.', 'success');
+                        initPage();
+                    } else {
+                        Swal.fire('Thất bại', approveData.message || 'Lỗi xử lý.', 'error');
+                    }
+                } catch (err) {
+                    Swal.fire('Thất bại', 'Lỗi kết nối hệ thống', 'error');
+                }
+            }
+        });
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const id = (e.currentTarget as HTMLElement).dataset.id;
+            if (!id) return;
+            const confirm = await Swal.fire({ title: 'Xóa bài đăng?', text: 'Dữ liệu căn hộ sẽ mất vĩnh viễn!', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' });
+            if (confirm.isConfirmed) {
+                try {
+                    const deleteRes = await fetch(`${BACKEND_URL}/api/admin/apartments/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const deleteData = await deleteRes.json();
+
+                    if (deleteRes.ok) {
+                        await Swal.fire('Đã xóa', deleteData.message || 'Căn hộ đã được gỡ bỏ khỏi hệ thống.', 'success');
+                        initPage();
+                    } else {
+                        Swal.fire('Thất bại', deleteData.message || 'Lỗi thực thi.', 'error');
+                    }
+                } catch (err) {
+                    Swal.fire('Thất bại', 'Lỗi kết nối đường truyền', 'error');
+                }
+            }
+        });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initPage();
+  });
+</script>

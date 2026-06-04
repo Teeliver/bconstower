@@ -1,0 +1,158 @@
+---
+// src/components/Navbar.astro
+// 🔥 ĐỒNG BỘ HỆ THỐNG: Lấy biến cấu hình từ file .env của Trung Tín trên Server-side
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
+---
+
+<nav id="navbar-root" data-api-base={PUBLIC_API_BASE} class="fixed top-0 left-0 right-0 z-[100] bg-white backdrop-blur-md border-b border-slate-100 shadow-xl">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-20">
+      
+      <a href="/" class="flex items-center">
+        <div id="logoContainer" class="h-12 w-auto min-w-[48px] flex items-center justify-center overflow-hidden">
+          <div id="defaultLogo" class="w-10 h-10 bg-[#005043] rounded-xl flex items-center justify-center font-black text-[#FFC94A] text-xl shadow-lg">
+            B
+          </div>
+        </div>
+      </a>
+
+      <div class="hidden lg:flex items-center gap-8">
+        <a href="/gioi-thieu" class="text-sm font-bold text-slate-600 hover:text-[#005043] transition-colors uppercase tracking-widest">Giới thiệu</a>
+        <a href="/du-an" class="text-sm font-bold text-slate-600 hover:text-[#005043] transition-colors uppercase tracking-widest">Dự án</a>
+        <a href="/can-ho" class="text-sm font-bold text-slate-600 hover:text-[#005043] transition-colors uppercase tracking-widest">Căn hộ</a>
+        <a href="/tin-tuc" class="text-sm font-bold text-slate-600 hover:text-[#005043] transition-colors uppercase tracking-widest">Tin tức</a>
+        <a href="/vay-mua-nha" class="text-sm font-bold text-slate-600 hover:text-[#005043] transition-colors uppercase tracking-widest">Vay mua nhà</a>
+        <a href="/ky-gui" class="text-sm font-bold text-slate-600 hover:text-[#005043] transition-colors uppercase tracking-widest">Ký gửi</a>
+        <a href="/lien-he" class="text-sm font-bold text-slate-600 hover:text-[#005043] transition-colors uppercase tracking-widest">Liên hệ</a>
+      </div>
+
+      <button id="menuBtn" class="lg:hidden w-10 h-10 flex flex-col justify-center items-center gap-1.5 focus:outline-none cursor-pointer">
+        <span class="w-6 h-0.5 bg-[#005043] transition-all duration-300" id="line1"></span>
+        <span class="w-6 h-0.5 bg-[#005043] transition-all duration-300" id="line2"></span>
+        <span class="w-6 h-0.5 bg-[#005043] transition-all duration-300" id="line3"></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div 
+  id="mobileMenu" 
+  class="fixed top-20 left-0 right-0 bottom-0 translate-x-full transition-transform duration-500 lg:hidden shadow-2xl flex flex-col p-8 gap-6 z-[99]"
+  style="background-color: #005043 !important;"
+>
+  <a href="/gioi-thieu" class="text-xl font-bold font-heading text-white hover:text-[#FFC94A] border-b border-white/10 pb-4 uppercase tracking-wider transition-colors">Giới thiệu</a>
+  <a href="/du-an" class="text-xl font-bold font-heading text-white hover:text-[#FFC94A] border-b border-white/10 pb-4 uppercase tracking-wider transition-colors">Dự án</a>
+  <a href="/can-ho" class="text-xl font-bold font-heading text-white hover:text-[#FFC94A] border-b border-white/10 pb-4 uppercase tracking-wider transition-colors">Căn hộ</a>
+  <a href="/tin-tuc" class="text-xl font-bold font-heading text-white hover:text-[#FFC94A] border-b border-white/10 pb-4 uppercase tracking-wider transition-colors">Tin tức</a>
+  <a href="/vay-mua-nha" class="text-xl font-bold font-heading text-white hover:text-[#FFC94A] border-b border-white/10 pb-4 uppercase tracking-wider transition-colors">Vay mua nhà</a>
+  <a href="/ky-gui" class="text-xl font-bold font-heading text-white hover:text-[#FFC94A] border-b border-white/10 pb-4 uppercase tracking-wider transition-colors">Ký gửi</a>
+  <a href="/lien-he" class="text-xl font-bold font-heading text-white hover:text-[#FFC94A] border-b border-white/10 pb-4 uppercase tracking-wider transition-colors">Liên hệ</a>
+</div>
+
+<style>
+  @import "tailwindcss";
+
+  .nav-item {
+    @apply text-sm font-bold text-slate-600 hover:text-[#005043] transition-colors uppercase tracking-widest;
+  }
+</style>
+
+<script>
+  interface Settings {
+    hotline?: string;
+    phone?: string;
+    logo?: string;
+    site_logo?: string;
+    company_logo?: string;
+  }
+
+  async function initNavbar() {
+    try {
+      const navRoot = document.getElementById('navbar-root');
+      if (!navRoot) return;
+      const BACKEND_URL = navRoot.getAttribute('data-api-base') || 'http://localhost:8000';
+      
+      // 🔥 PHÒNG THỦ ĐA ENDPOINT: Thử gọi /api/settings trước, nếu fail hạ cấp về endpoint cũ
+      let res = await fetch(`${BACKEND_URL}/api/settings/info`);
+      if (!res.ok) res = await fetch(`${BACKEND_URL}/api/settings/info`);
+      if (!res.ok) return;
+      
+      const result = await res.json();
+      
+      // 🔥 GIẢI MÃ LAYER DỮ LIỆU: Tự động bóc tách vỏ .data của Laravel Resource
+      const data: Settings = result.data || result.settings || result;
+      
+      if (data) {
+        const hotline = data.hotline || data.phone || '0911 502 603';
+        const btn = document.getElementById('hotlineBtn');
+        const mBtn = document.getElementById('hotlineMobile');
+        const cleanPhone = hotline.replace(/\s/g, '');
+        
+        if (btn) {
+          btn.innerText = `Liên hệ: ${hotline}`;
+          btn.setAttribute('href', `tel:${cleanPhone}`);
+        }
+        if (mBtn) {
+          mBtn.innerText = `Gọi ngay: ${hotline}`;
+          mBtn.setAttribute('href', `tel:${cleanPhone}`);
+        }
+
+        // 🔥 XỬ LÝ LOGO AN TOÀN TUYỆT ĐỐI
+        const logoPath = data.logo || data.site_logo || data.company_logo;
+        if (logoPath) {
+          const container = document.getElementById('logoContainer');
+          if (container) {
+            // Kiểm tra xem chuỗi có bắt đầu bằng http không để nối URL chuẩn xác
+            const fullLogoUrl = logoPath.startsWith('http') ? logoPath : `${BACKEND_URL}${logoPath}`;
+            container.innerHTML = `<img src="${fullLogoUrl}" class="h-full w-auto object-contain" alt="Logo" />`;
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Lỗi kết nối đồng bộ Navbar Client:", e);
+    }
+  }
+
+  function setupMobileMenu() {
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    if (!menuBtn || !mobileMenu) return;
+
+    if (menuBtn.dataset.menuInitialized === 'true') return;
+    menuBtn.dataset.menuInitialized = 'true';
+
+    let isOpen = false;
+
+    menuBtn.addEventListener('click', () => {
+      const l1 = document.getElementById('line1');
+      const l2 = document.getElementById('line2');
+      const l3 = document.getElementById('line3');
+      
+      isOpen = !isOpen;
+      mobileMenu.classList.toggle('translate-x-full', !isOpen);
+      
+      if (isOpen) {
+        l1?.classList.add('rotate-45', 'translate-y-[8px]');
+        l2?.classList.add('opacity-0');
+        l3?.classList.add('-rotate-45', '-translate-y-[8px]');
+        document.body.style.overflow = 'hidden';
+      } else {
+        l1?.classList.remove('rotate-45', 'translate-y-[8px]');
+        l2?.classList.remove('opacity-0');
+        l3?.classList.remove('-rotate-45', '-translate-y-[8px]');
+        document.body.style.overflow = 'auto';
+      }
+    });
+  }
+
+  // Khởi chạy hệ thống điều phối
+  initNavbar();
+  setupMobileMenu();
+
+  // Đảm bảo tương thích khi chuyển trang qua Astro View Transitions
+  document.addEventListener('astro:page-load', () => {
+    initNavbar();
+    setupMobileMenu();
+  });
+</script>

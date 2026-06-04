@@ -1,0 +1,133 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Quản trị viên - Đăng nhập">
+  <div class="min-h-screen flex items-center justify-center bg-slate-950 font-sans text-slate-200">
+    <div class="w-full max-w-md p-8 bg-slate-900 rounded-2xl shadow-2xl border border-slate-800">
+      <div class="text-center mb-10">
+        <h1 class="text-4xl font-black text-white tracking-tighter">ADMIN <span class="text-orange-500 font-light">BĐS</span></h1>
+        <p class="text-slate-400 mt-2">Hệ thống quản lý tin đăng bất động sản</p>
+      </div>
+
+      <form id="adminLoginForm" class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium mb-2 text-slate-300">Email hệ thống</label>
+          <input type="email" id="email" required 
+            class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all text-white"
+            placeholder="admin@email.com" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-2 text-slate-300">Mật khẩu</label>
+          <input type="password" id="password" required 
+            class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all text-white"
+            placeholder="••••••••" />
+        </div>
+
+        <button type="submit" id="submitBtn"
+          class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-orange-900/20 active:scale-95">
+          Đăng Nhập Quản Trị
+        </button>
+
+        <p id="msg" class="text-center text-sm font-medium mt-4 p-3 rounded-lg hidden"></p>
+      </form>
+    </div>
+  </div>
+</MainLayout>
+
+<script>
+  const form = document.getElementById('adminLoginForm') as HTMLFormElement;
+  const msg = document.getElementById('msg') as HTMLParagraphElement;
+  const btn = document.getElementById('submitBtn') as HTMLButtonElement;
+
+  // 🔥 ĐÃ ĐỒNG BỘ: Tự động bốc URL phát của Laravel từ file .env (Herd hoặc Artisan Serve)
+  const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+
+  /**
+   * 1. KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP (Bảo vệ đầu vào)
+   * Sử dụng window.location.replace để thay thế lịch sử trình duyệt,
+   * ngăn chặn việc nhấn nút "Back" quay lại sau khi đã Logout.
+   */
+  const checkAuth = () => {
+    const token = localStorage.getItem('admin_token');
+    const userStr = localStorage.getItem('admin_user');
+
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        // 🔥 ĐÃ ĐỒNG BỘ: Kiểm tra quyền ADMIN hoặc EDITOR trùng khớp phân quyền AuthController của Laravel
+        if (user.role === 'ADMIN' || user.role === 'EDITOR' || user.role === 'admin') {
+          window.location.replace('/admin/dashboard');
+        }
+      } catch (e) {
+        // Dữ liệu rác/lỗi -> Xóa sạch để reset trạng thái
+        localStorage.clear();
+      }
+    }
+  };
+
+  // Chạy ngay khi tải trang
+  checkAuth();
+
+  /**
+   * 2. XỬ LÝ FORM ĐĂNG NHẬP
+   */
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Hiệu ứng Loading UI - GIỮ NGUYÊN VẸN LOGIC UX CỦA BẠN
+    btn.disabled = true;
+    btn.innerText = "Đang kiểm tra...";
+    msg.classList.add('hidden');
+
+    const email = (document.getElementById('email') as HTMLInputElement).value;
+    const password = (document.getElementById('password') as HTMLInputElement).value;
+
+    try {
+      // 🔥 ĐÃ ĐỒNG BỘ: Chuyển hướng endpoint trỏ thẳng sang cổng tiếp nhận dữ liệu của Laravel
+      const res = await fetch(`${BACKEND_URL}/api/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+
+      // Kiểm tra cờ trạng thái success trả về từ Laravel Controller
+      if (res.ok && data.success) {
+        // Đảm bảo dữ liệu phản hồi chứa cấu trúc thông tin User hợp lệ
+        if (data.user && (data.user.role === 'ADMIN' || data.user.role === 'EDITOR' || data.user.role === 'admin')) {
+          
+          // Lưu thông tin Token Stateless và User Profile đồng bộ vào bộ nhớ trình duyệt
+          localStorage.setItem('admin_token', data.token);
+          localStorage.setItem('admin_user', JSON.stringify(data.user));
+          
+          // Giữ nguyên vẹn thiết kế khung thông báo màu xanh thành công của bạn
+          msg.className = "text-center text-sm font-medium mt-4 p-3 rounded-lg bg-green-900/30 text-green-400 border border-green-800/50";
+          msg.innerText = data.message || "Xác thực thành công! Đang vào hệ thống...";
+          msg.classList.remove('hidden');
+
+          // Chuyển hướng sau 0.8 giây để người dùng kịp thấy thông báo thành công mịn màng
+          setTimeout(() => { 
+            window.location.replace('/admin/dashboard'); 
+          }, 800);
+          
+        } else {
+          throw new Error("Tài khoản này không có quyền truy cập quản trị!");
+        }
+      } else {
+        throw new Error(data.message || "Email hoặc mật khẩu không chính xác.");
+      }
+    } catch (err: any) {
+      // Giữ nguyên vẹn thiết kế khung thông báo màu đỏ báo lỗi của bạn
+      msg.className = "text-center text-sm font-medium mt-4 p-3 rounded-lg bg-red-900/30 text-red-400 border border-red-800/50";
+      msg.innerText = err.message;
+      msg.classList.remove('hidden');
+      
+      // Reset nút bấm về trạng thái ban đầu
+      btn.disabled = false;
+      btn.innerText = "Đăng Nhập Quản Trị";
+    }
+  });
+</script>

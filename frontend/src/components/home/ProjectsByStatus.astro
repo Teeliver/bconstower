@@ -1,0 +1,277 @@
+---
+// Hợp phần quản lý danh mục dự án theo trạng thái - Thiết kế Floating Tabs hệ Luxury chống lỗi cắt viền Mobile
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3000";
+
+interface ProjectItem {
+  id?: string | number;
+  title?: string;
+  name?: string;
+  status?: string;
+  address?: string;
+  location?: string;
+  image?: string;
+  slug?: string;
+}
+
+let allProjects: ProjectItem[] = [];
+
+try {
+  let res = await fetch(`${PUBLIC_API_BASE}/api/projects/public`);
+  if (!res.ok) res = await fetch(`${PUBLIC_API_BASE}/api/projects/public-list`);
+  if (!res.ok) res = await fetch(`${PUBLIC_API_BASE}/api/projects`);
+
+  if (res.ok) {
+    const result = await res.json();
+    allProjects = Array.isArray(result) ? result : (result.data || result.projects || result.rows || []);
+  }
+} catch (e) {
+  console.warn("⚠️ [PROJECTS STATUS NOTICE] Đang sử dụng dữ liệu dự phòng chuẩn BHOMES.");
+}
+
+if (allProjects.length === 0) {
+  allProjects = [
+    { title: "Bcons Polaris", status: "dang_xay_dung", address: "Mặt tiền Lê Trọng Tấn, An Bình, TP. Dĩ An", slug: "bcons-polaris", image: "" },
+    { title: "Bcons City - Tháp Park", status: "dang_xay_dung", address: "Mặt tiền Thống Nhất, Đông Hòa, TP. Dĩ An", slug: "bcons-city", image: "" },
+    { title: "Bcons Green Topaz", status: "da_ban_giao", address: "Khu phức hợp Bcons City, Đường Thống Nhất", slug: "bcons-green-topaz", image: "" },
+    { title: "Bcons Polygon", status: "da_ban_giao", address: "11A Bế Văn Đàn, Phường An Bình, TP. Dĩ An", slug: "bcons-polygon", image: "" },
+    { title: "Bcons Plaza", status: "da_ban_giao", address: "22A/6 Thống Nhất, Phường Đông Hòa, TP. Dĩ An", slug: "bcons-plaza", image: "" },
+    { title: "Bcons Sala", status: "da_ban_giao", address: "Đường Đông An, Phường Tân Đông Hiệp, TP. Dĩ An", slug: "bcons-sala", image: "" },
+    { title: "Bcons Avenue", status: "dang_mo_ban", address: "Mặt tiền Xa Lộ Hà Nội, Bình Thắng, TP. Dĩ An", slug: "bcons-avenue", image: "" }
+  ];
+}
+---
+
+<section id="projects-status-section" data-api-base={PUBLIC_API_BASE} class="w-full py-16 bg-slate-50 border-t border-b border-slate-100 animate-fadeIn overflow-hidden">
+  <div class="max-w-7xl mx-auto px-5 relative">
+    
+    <div class="w-full flex flex-col items-center text-center mb-10">
+      <span class="text-[10px] font-black uppercase tracking-widest text-[#005043] bg-[#FFC94A]/30 px-3 py-1 rounded-md mb-2">
+        Phân Loại Giỏ Hàng
+      </span>
+      <h3 class="text-xl sm:text-2xl font-bold font-heading text-[#005043] uppercase tracking-tight">
+        Quỹ Dự Án Theo Trạng Thái
+      </h3>
+      <div class="w-12 h-1 bg-[#F48223] rounded-full mt-2.5"></div>
+    </div>
+
+    <div class="w-full flex md:justify-center mb-8 relative">
+      <div 
+        id="project-status-tabs" 
+        class="flex items-center gap-3 overflow-x-auto max-w-full no-scrollbar py-2 px-1 snap-x whitespace-nowrap scroll-smooth"
+      >
+        <button type="button" data-status="dang_mo_ban" class="proj-tab-btn snap-start px-5 py-2.5 rounded-full border border-[#E1E7E7] bg-white text-[#686B6B] font-heading font-bold text-xs uppercase tracking-wider cursor-pointer shadow-sm focus:outline-none transition-all duration-300">
+          Đang mở bán
+        </button>
+        <button type="button" data-status="dang_xay_dung" class="proj-tab-btn snap-start px-5 py-2.5 rounded-full border border-[#E1E7E7] bg-white text-[#686B6B] font-heading font-bold text-xs uppercase tracking-wider cursor-pointer shadow-sm focus:outline-none transition-all duration-300">
+          Đang xây dựng
+        </button>
+        <button type="button" data-status="da_ban_giao" class="proj-tab-btn snap-start px-5 py-2.5 rounded-full border border-[#005043] bg-[#005043] text-white font-heading font-bold text-xs uppercase tracking-wider cursor-pointer shadow-md focus:outline-none transition-all duration-300">
+          Đã bàn giao
+        </button>
+        <button type="button" data-status="sap_mo_ban" class="proj-tab-btn snap-start px-5 py-2.5 rounded-full border border-[#E1E7E7] bg-white text-[#686B6B] font-heading font-bold text-xs uppercase tracking-wider cursor-pointer shadow-sm focus:outline-none transition-all duration-300">
+          Sắp mở bán
+        </button>
+      </div>
+    </div>
+
+    <div class="relative group/slider w-full">
+      
+      <button 
+        id="slide-arrow-left" 
+        type="button" 
+        class="absolute -left-4 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white border border-[#E1E7E7] text-[#005043] shadow-lg flex items-center justify-center hover:bg-[#005043] hover:text-[#FFC94A] active:scale-95 transition-all duration-300 cursor-pointer disabled:opacity-30 disabled:pointer-events-none md:flex hidden"
+        aria-label="Slide Left"
+      >
+        <svg class="w-5 h-5 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+
+      <button 
+        id="slide-arrow-right" 
+        type="button" 
+        class="absolute -right-4 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white border border-[#E1E7E7] text-[#005043] shadow-lg flex items-center justify-center hover:bg-[#005043] hover:text-[#FFC94A] active:scale-95 transition-all duration-300 cursor-pointer disabled:opacity-30 disabled:pointer-events-none md:flex hidden"
+        aria-label="Slide Right"
+      >
+        <svg class="w-5 h-5 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </button>
+
+      <div 
+        id="projects-status-grid" 
+        class="flex w-full gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory py-4 px-2 no-scrollbar"
+      >
+        </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
+
+<script is:inline define:vars={{ allProjects }}>
+  (function initProjectsStatusSlider() {
+    const root = document.getElementById('projects-status-section');
+    if (!root) return;
+    const BACKEND_URL = root.getAttribute('data-api-base') || 'http://localhost:3000';
+    const grid = document.getElementById('projects-status-grid');
+    const tabsContainer = document.getElementById('project-status-tabs');
+    
+    const btnLeft = document.getElementById('slide-arrow-left');
+    const btnRight = document.getElementById('slide-arrow-right');
+    const defaultImage = '/images/no-photo.jpg';
+
+    let currentStatusTab = 'da_ban_giao';
+
+    function getStatusDetails(status) {
+      const cleanStatus = String(status || '').trim().toLowerCase();
+      if (cleanStatus === 'da_ban_giao' || cleanStatus === 'đã bàn giao') {
+        return { text: 'Đã bàn giao', bg: 'bg-[#FFC94A] text-[#005043] border-[#005043]/10' };
+      }
+      if (cleanStatus === 'sap_mo_ban' || cleanStatus === 'sắp mở bán') {
+        return { text: 'Sắp mở bán', bg: 'bg-blue-50 text-blue-600 border-blue-100' };
+      }
+      if (cleanStatus === 'dang_xay_dung' || cleanStatus === 'đang xây dựng' || cleanStatus === 'construction' || cleanStatus === 'dang_thi_cong') {
+        return { text: 'Đang xây dựng', bg: 'bg-orange-50 text-orange-600 border-orange-200' };
+      }
+      return { text: 'Đang mở bán', bg: 'bg-red-50 text-red-600 border-red-100' };
+    }
+
+    function filterProjectsByTab(status) {
+      return allProjects.filter(p => {
+        const pStatus = String(p.status || '').trim().toLowerCase();
+        if (status === 'da_ban_giao') return pStatus === 'da_ban_giao' || pStatus === 'đã bàn giao';
+        if (status === 'sap_mo_ban') return pStatus === 'sap_mo_ban' || pStatus === 'sắp mở bán';
+        if (status === 'dang_xay_dung') return pStatus === 'dang_xay_dung' || pStatus === 'đang xây dựng' || pStatus === 'construction' || pStatus === 'dang_thi_cong';
+        if (status === 'dang_mo_ban') return pStatus === 'dang_mo_ban' || pStatus === 'đang mở bán' || pStatus === '';
+        return false;
+      });
+    }
+
+    function updateArrowStatus() {
+      if (!grid || !btnLeft || !btnRight) return;
+      const scrollLeft = grid.scrollLeft;
+      const maxScrollLeft = grid.scrollWidth - grid.clientWidth;
+
+      btnLeft.disabled = scrollLeft <= 2;
+      btnRight.disabled = scrollLeft >= maxScrollLeft - 2;
+    }
+
+    // HÀM ĐỔI LỚP TABS CHUYỂN TRẠNG THÁI FLOATING ĐỘC LẬP
+    function renderTabsUI() {
+      if (!tabsContainer) return;
+      const buttons = tabsContainer.querySelectorAll('.proj-tab-btn');
+      
+      buttons.forEach(btn => {
+        const status = btn.getAttribute('data-status');
+        if (status === currentStatusTab) {
+          // Nút được chọn (Active) - Đổ bóng nổi khối sang trọng
+          btn.className = "proj-tab-btn snap-start px-5 py-2.5 rounded-full border border-[#005043] bg-[#005043] text-white font-heading font-bold text-xs uppercase tracking-wider cursor-pointer shadow-md focus:outline-none transition-all duration-300";
+          // Tự động cuộn căn lề Tab được chọn ra giữa màn hình trên mobile
+          // btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        } else {
+          // Nút chờ (Inactive) - Viền mảnh tinh sạch
+          btn.className = "proj-tab-btn snap-start px-5 py-2.5 rounded-full border border-[#E1E7E7] bg-white text-[#686B6B] font-heading font-bold text-xs uppercase tracking-wider cursor-pointer shadow-sm focus:outline-none transition-all duration-300 hover:border-[#005043] hover:text-[#005043]";
+        }
+      });
+    }
+
+    function renderProjects() {
+      if (!grid) return;
+      const filtered = filterProjectsByTab(currentStatusTab);
+
+      grid.scrollLeft = 0;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="w-full text-center py-16 bg-white rounded-2xl border border-dashed border-slate-200 animate-fadeIn">
+            <p class="text-xs font-bold text-slate-400">Hiện tại chưa có dự án nào thuộc trạng thái này.</p>
+          </div>
+        `;
+        if (btnLeft && btnRight) {
+          btnLeft.classList.add('hidden');
+          btnRight.classList.add('hidden');
+        }
+        return;
+      }
+
+      if (btnLeft && btnRight) {
+        btnLeft.classList.remove('hidden');
+        btnRight.classList.remove('hidden');
+      }
+
+      grid.innerHTML = filtered.map(proj => {
+        const pTitle = proj.title || proj.name || "Dự án Bcons";
+        const pAddress = proj.address || proj.location || "Dĩ An, Bình Dương";
+        const pSlug = proj.slug || "";
+        const statusMeta = getStatusDetails(proj.status);
+        
+        let thumb = defaultImage;
+        if (proj.image) {
+          thumb = proj.image.startsWith('http') ? proj.image : (BACKEND_URL + proj.image);
+        }
+
+        // Card khóa cứng 3 cột Desktop 'calc(33.333% - 16px)' và 82vw lộ mép trên Mobile cực thoáng mắt
+        return `
+          <a href="/du-an/${pSlug}" class="w-[82vw] sm:w-[45vw] md:w-[calc(33.333%-16px)] lg:w-[calc(33.333%-16px)] shrink-0 snap-start block bg-white rounded-2xl border border-slate-100 hover:border-[#005043]/20 overflow-hidden hover:shadow-md transition-all duration-300 animate-fadeIn">
+            <div class="relative aspect-[16/10] bg-slate-50 overflow-hidden">
+              <img src="${thumb}" onerror="this.src='${defaultImage}'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="${pTitle}" />
+              <span class="absolute top-3 left-3 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md border backdrop-blur-sm shadow-sm ${statusMeta.bg}">
+                ${statusMeta.text}
+              </span>
+            </div>
+            
+            <div class="p-4 space-y-1">
+              <h4 class="font-heading font-bold text-sm text-[#1E1E1E] line-clamp-1 group-hover:text-[#005043] transition-colors uppercase tracking-tight">
+                ${pTitle}
+              </h4>
+              <p class="font-body text-xs text-[#686B6B] line-clamp-1 flex items-center gap-1 font-medium">
+                <svg class="w-3.5 h-3.5 opacity-50 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                ${pAddress}
+              </p>
+            </div>
+          </a>
+        `;
+      }).join('');
+
+      setTimeout(updateArrowStatus, 100);
+    }
+
+    if (btnLeft && btnRight && grid) {
+      btnLeft.addEventListener('click', () => {
+        const firstCard = grid.querySelector('a');
+        const scrollAmount = firstCard ? firstCard.clientWidth + 24 : 320;
+        grid.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      });
+
+      btnRight.addEventListener('click', () => {
+        const firstCard = grid.querySelector('a');
+        const scrollAmount = firstCard ? firstCard.clientWidth + 24 : 320;
+        grid.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      });
+
+      grid.addEventListener('scroll', updateArrowStatus);
+      window.addEventListener('resize', updateArrowStatus);
+    }
+
+    if (tabsContainer) {
+      const buttons = tabsContainer.querySelectorAll('.proj-tab-btn');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          currentStatusTab = this.getAttribute('data-status') || 'da_ban_giao';
+          renderTabsUI();
+          renderProjects();
+        });
+      });
+    }
+
+    // Khởi chạy đồng bộ giao diện
+    renderTabsUI();
+    renderProjects();
+  })();
+</script>

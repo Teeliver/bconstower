@@ -1,0 +1,264 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Thêm người dùng mới">
+  <script is:inline src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <div class="max-w-full mx-auto p-2">
+    <div class="mb-8 flex justify-between items-end">
+      <div>
+        <a href="/admin/users" class="text-slate-400 hover:text-blue-600 flex items-center gap-2 mb-4 transition-all group">
+          <div class="p-2 rounded-lg group-hover:bg-blue-50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          </div>
+          <span class="font-bold text-sm">Danh sách thành viên</span>
+        </a>
+        <h1 class="text-3xl font-black text-slate-900">Tạo tài khoản mới</h1>
+      </div>
+      <div class="px-4 py-2 rounded-full bg-blue-100 text-blue-600 text-xs font-bold uppercase tracking-widest">
+        Chế độ: Thêm mới
+      </div>
+    </div>
+
+    <form id="addUserForm" class="grid grid-cols-1 lg:grid-cols-12 gap-8" enctype="multipart/form-data">
+      <div class="lg:col-span-4 space-y-6">
+        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm text-center">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 block">Ảnh đại diện</label>
+          <div class="relative group mx-auto w-40 h-40 mb-6">
+            <div class="absolute inset-0 rounded-full border-4 border-slate-50 shadow-inner overflow-hidden bg-slate-100">
+                <img id="previewAvatar" src="https://ui-avatars.com/api/?name=New+User&background=random" class="w-full h-full object-cover" />
+            </div>
+            <label class="absolute bottom-2 right-2 w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center cursor-pointer shadow-lg hover:bg-blue-700 transition-all">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+              <input type="file" name="avatar" id="avatarInput" class="hidden" accept="image/*" />
+            </label>
+          </div>
+
+          <h3 id="displayFullname" class="font-black text-slate-800 text-xl italic text-slate-300">Thành viên mới</h3>
+          <p id="displayEmail" class="text-sm text-slate-400 mb-6 italic">Thông tin chưa xác định</p>
+          
+          <div class="text-left space-y-2">
+            <label class="text-xs font-bold text-slate-500 ml-1">Vai trò hệ thống</label>
+            <select name="role" id="roleSelect" class="w-full bg-slate-50 border-none rounded-xl py-3 px-4 font-bold text-slate-700 outline-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-500 transition-all">
+                <option value="USER">USER</option>
+                <option value="BROKER">BROKER</option>
+                <option value="ADMIN">ADMIN</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-8 space-y-6">
+        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+          <h2 class="text-lg font-black text-slate-800 mb-6 flex items-center gap-3">
+            <span class="w-2 h-6 bg-blue-600 rounded-full"></span>
+            Thông tin đăng ký
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-500 uppercase ml-1">Họ và tên *</label>
+              <input type="text" name="fullname" id="fullname" required placeholder="Nguyễn Văn A" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-500 uppercase ml-1">Email (Tên đăng nhập) *</label>
+              <input type="email" name="email" id="email" required placeholder="example@gmail.com" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-500 uppercase ml-1">Mật khẩu *</label>
+              <input type="password" name="password" id="password" required placeholder="••••••••" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-500 uppercase ml-1">Số điện thoại</label>
+              <input type="text" name="phone" id="phone" placeholder="090..." class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+            </div>
+            <div class="md:col-span-2 space-y-2">
+              <label class="text-xs font-bold text-slate-500 uppercase ml-1">Địa chỉ</label>
+              <input type="text" name="address" id="address" placeholder="Số nhà, đường, phường/xã..." class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+            </div>
+          </div>
+        </div>
+
+        <div id="brokerFields" class="hidden bg-blue-50/50 p-8 rounded-[2.5rem] border border-blue-100 space-y-6 animate-in fade-in duration-300">
+          <h2 class="text-lg font-black text-blue-700 flex items-center gap-3">
+            <span class="w-2 h-6 bg-blue-500 rounded-full"></span>
+            Hồ sơ kinh doanh / Môi giới
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+               <label class="text-xs font-bold text-blue-600 ml-1">Tên công ty</label>
+               <input type="text" name="companyName" id="companyName" class="w-full px-5 py-4 bg-white border-none rounded-2xl outline-none shadow-sm focus:ring-2 focus:ring-blue-400 transition-all" />
+            </div>
+            <div class="space-y-2">
+               <label class="text-xs font-bold text-blue-600 ml-1">Số chứng chỉ</label>
+               <input type="text" name="licenseNumber" id="licenseNumber" class="w-full px-5 py-4 bg-white border-none rounded-2xl outline-none shadow-sm focus:ring-2 focus:ring-blue-400 transition-all" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-blue-600 ml-1">Khu vực hoạt động</label>
+              <input type="text" name="areaFocus" id="areaFocus" placeholder="VD: TP. HCM, Bình Dương..." class="w-full px-5 py-4 bg-white border-none rounded-2xl outline-none shadow-sm focus:ring-2 focus:ring-blue-400 transition-all" />
+           </div>
+           <div class="space-y-2">
+              <label class="text-xs font-bold text-blue-600 ml-1">Năm kinh nghiệm</label>
+              <input type="number" name="experienceYears" id="experienceYears" class="w-full px-5 py-4 bg-white border-none rounded-2xl outline-none shadow-sm focus:ring-2 focus:ring-blue-400 transition-all" />
+           </div>
+           <div class="md:col-span-2 space-y-2">
+              <label class="text-xs font-bold text-blue-600 ml-1">Giới thiệu bản thân</label>
+              <textarea name="bio" id="bio" rows="4" class="w-full px-5 py-4 bg-white border-none rounded-2xl outline-none shadow-sm focus:ring-2 focus:ring-blue-400 resize-none transition-all"></textarea>
+           </div>
+            <div class="md:col-span-2 flex items-center justify-between p-5 bg-white rounded-2xl shadow-sm border border-blue-100">
+                <div>
+                    <label for="verified" class="text-sm font-black text-blue-900">Xác minh tài khoản ngay</label>
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Kích hoạt quyền môi giới sau khi tạo</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="verified" id="verified" value="1" class="sr-only peer">
+                    <div class="w-14 h-7 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-5 after:w-6 after:transition-all transition-all"></div>
+                </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-4">
+            <button type="button" onclick="history.back()" class="px-8 py-4 font-bold text-slate-400 hover:text-slate-600 transition-all">Hủy</button>
+            <button type="submit" id="submitBtn" class="px-12 py-4 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50">
+              Tạo tài khoản
+            </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</AdminLayout>
+
+<script>
+  import { checkAdminAuth } from '../../../lib/auth';
+  import Swal from 'sweetalert2';
+
+  checkAdminAuth();
+
+  // ĐỒNG BỘ: Cổng máy chủ API chuẩn bảo mật của Backend Laravel
+  const BACKEND_URL = 'http://127.0.0.1:8000';
+  const form = document.getElementById('addUserForm') as HTMLFormElement;
+  const roleSelect = document.getElementById('roleSelect') as HTMLSelectElement;
+  const brokerFields = document.getElementById('brokerFields') as HTMLElement;
+  const previewAvatar = document.getElementById('previewAvatar') as HTMLImageElement;
+  const fullnameInput = document.getElementById('fullname') as HTMLInputElement;
+  const emailInput = document.getElementById('email') as HTMLInputElement;
+  const avatarInput = document.getElementById('avatarInput') as HTMLInputElement;
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+
+  // 🔒 BẢO MẬT: Loại bỏ hoàn toàn ký tự nháy đơn/kép rác nếu có từ localStorage trước khi gửi
+  function getToken() {
+    const rawToken = localStorage.getItem('admin_token') || localStorage.getItem('token');
+    return rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
+  }
+
+  // Live Preview bên cột trái (Giữ nguyên trải nghiệm của Trung Tín)
+  fullnameInput.addEventListener('input', (e: any) => {
+    const val = e.target.value;
+    const el = document.getElementById('displayFullname') as HTMLElement;
+    el.textContent = val || 'Thành viên mới';
+    el.className = val ? "font-black text-slate-800 text-xl" : "font-black text-slate-800 text-xl italic text-slate-300";
+  });
+
+  emailInput.addEventListener('input', (e: any) => {
+    const el = document.getElementById('displayEmail') as HTMLElement;
+    el.textContent = e.target.value || 'Thông tin chưa xác định';
+  });
+
+  // Hiện/ẩn Broker fields
+  roleSelect.addEventListener('change', (e: any) => {
+    const role = e.target.value;
+    if (role === 'BROKER' || role === 'ADMIN') {
+      brokerFields.classList.remove('hidden');
+    } else {
+      brokerFields.classList.add('hidden');
+    }
+  });
+
+  // Preview ảnh
+  avatarInput.addEventListener('change', function(e: any) {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (event: any) => { previewAvatar.src = event.target.result; };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  });
+
+  // Gửi Form (Tích hợp xử lý phòng thủ)
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    
+    const token = getToken();
+    const formData = new FormData(form);
+
+    // 🔥 CHIẾN LƯỢC PHÒNG THỦ KÉP: Đóng gói thêm định dạng snake_case để tương thích hoàn toàn với Validator Laravel
+    const compName = (document.getElementById('companyName') as HTMLInputElement).value;
+    formData.append('company_name', compName);
+
+    const licNum = (document.getElementById('licenseNumber') as HTMLInputElement).value;
+    formData.append('license_number', licNum);
+
+    const areaFoc = (document.getElementById('areaFocus') as HTMLInputElement).value;
+    formData.append('area_focus', areaFoc);
+
+    const expYear = (document.getElementById('experienceYears') as HTMLInputElement).value;
+    formData.append('experience_years', expYear);
+
+    formData.append('verified', (document.getElementById('verified') as HTMLInputElement).checked ? '1' : '0');
+
+    Swal.fire({ 
+      title: 'Đang tạo tài khoản...', 
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); } 
+    });
+
+    try {
+      // ĐỒNG BỘ: Gọi chuẩn xác endpoint nhóm API quản lý người dùng độc lập (/api/admin/users)
+      const res = await fetch(`${BACKEND_URL}/api/admin/users`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json' // Ép trả về lỗi cấu trúc dạng JSON thuần
+        },
+        body: formData
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok && data.success) {
+        await Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Tài khoản người dùng mới đã được tạo!',
+          timer: 1500,
+          showConfirmButton: false
+        });
+        window.location.href = '/admin/users';
+      } else {
+        // 🔒 BẢO MẬT ĐA TẦNG: Trích xuất và bóc tách toàn bộ lỗi mảng từ Validator Laravel (Email trùng, mật khẩu yếu...)
+        if (data.errors) {
+          const errorMsgs = Object.values(data.errors).flat().join('<br>');
+          Swal.fire({
+            icon: 'error',
+            title: 'Lỗi xác thực dữ liệu',
+            html: errorMsgs,
+            confirmButtonColor: '#2563eb'
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Lỗi hệ thống',
+            text: data.message || 'Không thể tiến hành đăng ký tài khoản mới.',
+            confirmButtonColor: '#2563eb'
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Lỗi gửi dữ liệu tạo User:", err);
+      Swal.fire('Lỗi kết nối', 'Không thể kết nối đến máy chủ API Laravel. Vui lòng kiểm tra lại terminal.', 'error');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+</script>

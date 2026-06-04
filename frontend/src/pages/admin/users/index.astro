@@ -1,0 +1,329 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Quản lý người dùng">
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-2xl font-black text-slate-900 uppercase tracking-tight">Quản lý người dùng</h1>
+        <p class="text-slate-500">Hệ thống quản trị thành viên Bcons Portal</p>
+      </div>
+      <div class="flex gap-3">
+        <a href="/admin/users/add" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-blue-200 active:scale-95">
+            + Thêm người dùng
+        </a>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-[1.5rem] shadow-sm border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="relative dropdown-container" id="drop-role">
+        <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Vai trò</label>
+        <button type="button" class="drop-btn w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-xl flex items-center justify-between text-sm font-medium hover:bg-slate-100 transition-all outline-none">
+          <span class="selected-text">Tất cả vai trò</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        <input type="hidden" id="filterRole" value="all">
+        <div class="drop-menu absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+          <div class="p-2 space-y-1">
+            <div data-value="all" class="option-item px-4 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 cursor-pointer text-sm font-medium">Tất cả vai trò</div>
+            <div data-value="ADMIN" class="option-item px-4 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 cursor-pointer text-sm font-medium">ADMIN</div>
+            <div data-value="BROKER" class="option-item px-4 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 cursor-pointer text-sm font-medium">BROKER</div>
+            <div data-value="USER" class="option-item px-4 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 cursor-pointer text-sm font-medium">USER</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative dropdown-container" id="drop-verify">
+        <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Xác minh</label>
+        <button type="button" class="drop-btn w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-xl flex items-center justify-between text-sm font-medium hover:bg-slate-100 transition-all outline-none">
+          <span class="selected-text">Tất cả trạng thái</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        <input type="hidden" id="filterVerify" value="all">
+        <div class="drop-menu absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+          <div class="p-2 space-y-1">
+            <div data-value="all" class="option-item px-4 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 cursor-pointer text-sm font-medium">Tất cả trạng thái</div>
+            <div data-value="1" class="option-item px-4 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 cursor-pointer text-sm font-medium">✅ Đã xác minh</div>
+            <div data-value="0" class="option-item px-4 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 cursor-pointer text-sm font-medium">⏳ Chưa xác minh</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Tìm kiếm</label>
+        <input type="text" id="searchUser" placeholder="Nhập tên hoặc email..." class="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-xl text-sm focus:bg-white focus:border-blue-500 transition-all outline-none font-medium" />
+      </div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b border-slate-200">
+                <tr>
+                    <th class="px-6 py-4 font-bold text-slate-600 text-sm">Thành viên</th>
+                    <th class="px-6 py-4 font-bold text-slate-600 text-sm text-center">Vai trò</th>
+                    <th class="px-6 py-4 font-bold text-slate-600 text-sm">Môi giới</th>
+                    <th class="px-6 py-4 font-bold text-slate-600 text-sm text-center">Ngày tham gia</th>
+                    <th class="px-6 py-4 font-bold text-slate-600 text-sm text-center">Xác minh</th>
+                    <th class="px-6 py-5 font-bold text-slate-600 text-sm text-right">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100" id="userTableBody">
+                <tr>
+                    <td colspan="6" class="p-20 text-center">
+                        <div class="flex flex-col items-center gap-3 text-slate-400 animate-pulse">
+                            <span class="font-bold italic">Đang đồng bộ danh sách (Error 401 Fix)...</span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div id="noResults" class="hidden p-20 text-center text-slate-400 italic bg-white font-medium border-t border-slate-100">
+          Không tìm thấy thành viên nào phù hợp.
+        </div>
+    </div>
+</AdminLayout>
+
+<style>
+  .dropdown-container.active .drop-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+  .dropdown-container.active .drop-btn { border-color: #2563eb; background-color: #fff; }
+  .dropdown-container.active .drop-btn svg { transform: rotate(180deg); }
+</style>
+
+<script>
+  import Swal from 'sweetalert2';
+  import { checkAdminAuth } from '../../../lib/auth'
+
+  checkAdminAuth();
+
+  const BACKEND_URL = 'http://127.0.0.1:8000';
+  
+  const escapeHTML = (val: any): string => {
+    if (val === null || val === undefined) return '';
+    return String(val).replace(/[&<>"']/g, (m) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[m] || m));
+  };
+
+  const getToken = () => {
+    const rawToken = localStorage.getItem('admin_token') || localStorage.getItem('token');
+    return rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
+  }
+
+  async function fetchUsers() {
+    const tbody = document.getElementById('userTableBody');
+    if (!tbody) return;
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/users`, {
+        headers: { 
+          'Authorization': `Bearer ${getToken()}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (res.status === 401) {
+          window.location.href = '/admin';
+          return;
+      }
+
+      if (!res.ok) throw new Error("Máy chủ trả về mã lỗi hệ thống.");
+
+      const users = await res.json();
+      renderUsers(users);
+    } catch (err: any) {
+      tbody.innerHTML = `
+        <tr>
+            <td colspan="6" class="p-16 text-center">
+                <div class="bg-red-50 p-6 rounded-3xl inline-block">
+                    <p class="text-red-500 font-bold mb-2">Lỗi kết nối: ${escapeHTML(err.message)}</p>
+                    <p class="text-slate-400 text-xs mb-4 italic">Vui lòng kiểm tra lại trạng thái Backend (Port 8000)</p>
+                    <button id="reloadTableBtn" class="bg-slate-900 text-white px-6 py-2 rounded-xl text-xs font-bold transition-all active:scale-95">Thử lại ngay</button>
+                </div>
+            </td>
+        </tr>
+      `;
+      document.getElementById('reloadTableBtn')?.addEventListener('click', () => location.reload());
+    }
+  }
+
+  function renderUsers(users: any[]) {
+    const tbody = document.getElementById('userTableBody');
+    if (!tbody) return;
+
+    if (users.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="p-20 text-center text-slate-400 italic">Dữ liệu trống.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = users.map((item: any) => {
+        const fullname = item.fullname || 'Không tên';
+        const email = item.email || '';
+        const role = item.role || 'USER';
+        const broker = item.profile;
+        
+        const isBrokerRole = role === 'BROKER' || role === 'ADMIN';
+        
+        // 🔥 ĐÃ CẬP NHẬT: Tự động dò tìm và lấy ảnh avatar thật từ Database, nếu trống mới dùng placeholder chữ cái đầu
+        const avatarUrl = item.avatar 
+          ? (item.avatar.startsWith('http') ? item.avatar : `${BACKEND_URL}${item.avatar}`)
+          : 'https://placehold.co/100x100?text=' + encodeURIComponent(fullname.charAt(0).toUpperCase());
+
+        const joinDate = item.createdAt ? new Date(item.createdAt).toLocaleDateString('vi-VN') : 'N/A';
+        const searchStr = `${fullname} ${email}`.toLowerCase();
+        const isVerified = broker && (broker.verified === true || broker.verified === 1);
+
+        return `
+            <tr class="user-row group hover:bg-slate-50/50 transition-colors" 
+                data-role="${escapeHTML(role)}"
+                data-verify="${isVerified ? "1" : "0"}"
+                data-search="${escapeHTML(searchStr)}">
+                <td class="px-6 py-5">
+                    <div class="flex items-center gap-4">
+                        <img src="${avatarUrl}" class="w-10 h-10 rounded-full object-cover border border-slate-100 shadow-sm" />
+                        <div>
+                            <div class="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">${escapeHTML(fullname)}</div>
+                            <div class="text-[11px] text-slate-400 font-medium">${escapeHTML(email)}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-5 text-center">
+                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                        role === 'ADMIN' ? 'bg-purple-100 text-purple-600' : 
+                        role === 'BROKER' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'
+                    }">
+                        ${escapeHTML(role)}
+                    </span>
+                </td>
+                <td class="px-6 py-5 text-sm">
+                    ${isBrokerRole && broker ? `
+                        <div class="space-y-1">
+                            <div class="font-bold text-slate-700 text-xs">${escapeHTML(broker.companyName || 'Môi giới tự do')}</div>
+                            <div class="text-[10px] text-slate-400">Khu vực: <span class="text-blue-600">${escapeHTML(broker.areaFocus || 'Chưa rõ')}</span></div>
+                        </div>
+                    ` : '<div class="text-slate-200 italic text-xs">Thành viên phổ thông</div>'}
+                </td>
+                <td class="px-6 py-5 text-center text-xs text-slate-500 font-medium">
+                    ${joinDate}
+                </td>
+                <td class="px-6 py-5 text-center">
+                    ${isBrokerRole && broker ? `
+                        <span class="text-[11px] font-bold ${isVerified ? 'text-green-500' : 'text-slate-300'}">
+                            ${isVerified ? '✅ Đã duyệt' : '⏳ Chờ duyệt'}
+                        </span>
+                    ` : '-'}
+                </td>
+                <td class="px-6 py-5 text-right">
+                    <div class="flex justify-end gap-2">
+                        <a href="/admin/users/edit?id=${item.id}" class="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        </a>
+                        <!-- 🔥 ĐÃ SỬA BIẾN: Thay đổi từ escapeHTML(name) thành escapeHTML(fullname) để đồng bộ chống lỗi Console -->
+                        <button class="delete-btn p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm" data-id="${item.id}" data-name="${escapeHTML(fullname)}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    setupFilters();
+    setupActions();
+  }
+
+  function setupFilters() {
+    ['drop-role', 'drop-verify'].forEach(id => {
+      const container = document.getElementById(id);
+      if (!container) return;
+      const btn = container.querySelector('.drop-btn') as HTMLButtonElement;
+      const hiddenInput = container.querySelector('input[type="hidden"]') as HTMLInputElement;
+      const selectedText = container.querySelector('.selected-text');
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.dropdown-container').forEach(el => el !== container && el.classList.remove('active'));
+        container.classList.toggle('active');
+      });
+
+      container.addEventListener('click', (e) => {
+        const optionItem = (e.target as HTMLElement).closest('.option-item');
+        if (optionItem) {
+          const val = optionItem.getAttribute('data-value');
+          if (val && hiddenInput) {
+            hiddenInput.value = val;
+            if (selectedText) selectedText.textContent = optionItem.textContent;
+            container.classList.remove('active');
+            runFilter();
+          }
+        }
+      });
+    });
+    document.getElementById('searchUser')?.addEventListener('input', runFilter);
+    window.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-container').forEach(el => el.classList.remove('active'));
+    });
+  }
+
+  function runFilter() {
+    const roleVal = (document.getElementById('filterRole') as HTMLInputElement).value;
+    const verifyVal = (document.getElementById('filterVerify') as HTMLInputElement).value;
+    const searchVal = (document.getElementById('searchUser') as HTMLInputElement).value.toLowerCase();
+    const rows = document.querySelectorAll('.user-row');
+    let visibleCount = 0;
+    rows.forEach((row: any) => {
+      const passRole = roleVal === 'all' || row.dataset.role === roleVal;
+      const passVerify = verifyVal === 'all' || row.dataset.verify === verifyVal;
+      const passSearch = row.dataset.search.includes(searchVal);
+      if (passRole && passVerify && passSearch) {
+        row.classList.remove('hidden'); visibleCount++;
+      } else row.classList.add('hidden');
+    });
+    document.getElementById('noResults')?.classList.toggle('hidden', visibleCount !== 0);
+  }
+
+  function setupActions() {
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const target = e.currentTarget as HTMLElement;
+        const userId = target.dataset.id;
+        const userName = target.dataset.name;
+
+        if (!userId) return;
+
+        const result = await Swal.fire({ 
+            title: 'Xác nhận xóa?', 
+            text: `Hành động này sẽ xóa tài khoản: "${userName}" và toàn bộ hồ sơ môi giới liên quan!`, 
+            icon: 'warning', 
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'Đồng ý xóa',
+            cancelButtonText: 'Hủy'
+        });
+
+        if (result.isConfirmed) {
+          Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+          try {
+            const res = await fetch(`${BACKEND_URL}/api/admin/users/${userId}`, {
+              method: 'DELETE', 
+              headers: { 
+                'Authorization': `Bearer ${getToken()}`,
+                'Accept': 'application/json'
+              }
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) { 
+                await Swal.fire('Thành công', 'Đã xóa thành viên khỏi hệ thống.', 'success'); 
+                fetchUsers(); 
+            } else {
+                throw new Error(data.message || 'Xóa tài khoản thất bại.');
+            }
+          } catch (err: any) { 
+              Swal.fire('Thất bại', err.message || 'Lỗi kết nối máy chủ API.', 'error'); 
+          }
+        }
+      });
+    });
+  }
+
+  fetchUsers();
+</script>

@@ -1,0 +1,317 @@
+---
+// src/pages/admin/users/edit.astro
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+// Chạy hoàn toàn ở chế độ tĩnh tĩnh tĩnh, bóc data động qua query string ?id=...
+---
+
+<AdminLayout title="Chỉnh sửa người dùng">
+  <script is:inline src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <div class="max-w-full mx-auto p-2">
+    <div class="mb-8 flex justify-between items-end">
+      <div>
+        <a href="/admin/users" class="text-slate-400 hover:text-blue-600 flex items-center gap-2 mb-4 transition-all group">
+          <div class="p-2 rounded-lg group-hover:bg-blue-50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          </div>
+          <span class="font-bold text-sm">Danh sách thành viên</span>
+        </a>
+        <h1 class="text-3xl font-black text-slate-900 uppercase">Cập nhật tài khoản</h1>
+      </div>
+      <div id="statusBadge" class="px-4 py-2 rounded-full bg-slate-100 text-slate-500 text-xs font-bold uppercase">
+        Đang tải...
+      </div>
+    </div>
+
+    <form id="editUserForm" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div class="lg:col-span-4 space-y-6">
+        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm text-center">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 block">Ảnh đại diện</label>
+          <div class="relative group mx-auto w-40 h-40 mb-6">
+            <div class="absolute inset-0 rounded-full border-4 border-slate-50 shadow-inner overflow-hidden bg-slate-100">
+                <img id="previewAvatar" src="https://placehold.co/200x200?text=Avatar" class="w-full h-full object-cover" />
+            </div>
+            <label class="absolute bottom-2 right-2 w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center cursor-pointer shadow-lg hover:bg-blue-700 transition-all active:scale-90">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+              <input type="file" name="avatar" id="avatarInput" class="hidden" accept="image/*" />
+            </label>
+          </div>
+
+          <div id="verifyIndicator" class="hidden mb-4 flex justify-center">
+             <span class="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold ring-1 ring-blue-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                XÁC THỰC
+             </span>
+          </div>
+
+          <h3 id="displayFullname" class="font-black text-slate-800 text-xl">---</h3>
+          <p id="displayEmail" class="text-sm text-slate-400 mb-6 font-medium">---</p>
+          
+          <div class="text-left space-y-2">
+            <label class="text-xs font-bold text-slate-500 ml-1 uppercase tracking-tighter">Vai trò hệ thống</label>
+            <select name="role" id="roleSelect" class="w-full bg-slate-50 border-none rounded-xl py-3 px-4 font-bold text-slate-700 outline-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer">
+                <option value="USER">USER (Thành viên)</option>
+                <option value="BROKER">BROKER (Môi giới)</option>
+                <option value="ADMIN">ADMIN (Quản trị)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-8 space-y-6">
+        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+          <h2 class="text-lg font-black text-slate-800 mb-6 flex items-center gap-3">
+            <span class="w-2 h-6 bg-blue-600 rounded-full"></span>
+            Thông tin cá nhân
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-500 uppercase ml-1">Họ và tên</label>
+              <input type="text" name="fullname" id="fullname" required class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-bold" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-500 uppercase ml-1">Số điện thoại</label>
+              <input type="text" name="phone" id="phone" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-bold" />
+            </div>
+            <div class="md:col-span-2 space-y-2">
+              <label class="text-xs font-bold text-slate-500 uppercase ml-1">Địa chỉ thường trú</label>
+              <input type="text" name="address" id="address" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-medium" />
+            </div>
+          </div>
+        </div>
+
+        <div id="brokerFields" class="hidden bg-blue-50/50 p-8 rounded-[2.5rem] border border-blue-100 space-y-6 animate-fadeIn">
+          <h2 class="text-lg font-black text-blue-700 flex items-center gap-3">
+            <span class="w-2 h-6 bg-blue-500 rounded-full"></span>
+            Hồ sơ kinh doanh / Môi giới
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+               <label class="text-xs font-bold text-blue-600 ml-1 uppercase">Tên công ty</label>
+               <input type="text" name="companyName" id="companyName" class="w-full px-5 py-4 bg-white border-none rounded-2xl outline-none shadow-sm focus:ring-2 focus:ring-blue-400 font-bold" />
+            </div>
+            <div class="space-y-2">
+               <label class="text-xs font-bold text-blue-600 ml-1 uppercase">Số chứng chỉ</label>
+               <input type="text" name="licenseNumber" id="licenseNumber" class="w-full px-5 py-4 bg-white border-none rounded-2xl outline-none shadow-sm focus:ring-2 focus:ring-blue-400 font-bold" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-blue-600 ml-1 uppercase">Khu vực hoạt động</label>
+              <input type="text" name="areaFocus" id="areaFocus" class="w-full px-5 py-4 bg-white border-none rounded-2xl outline-none shadow-sm focus:ring-2 focus:ring-blue-400 font-bold" />
+           </div>
+           <div class="space-y-2">
+              <label class="text-xs font-bold text-blue-600 ml-1 uppercase">Năm kinh nghiệm</label>
+              <input type="number" name="experienceYears" id="experienceYears" class="w-full px-5 py-4 bg-white border-none rounded-2xl outline-none shadow-sm focus:ring-2 focus:ring-blue-400 font-bold" />
+           </div>
+           <div class="md:col-span-2 space-y-2">
+              <label class="text-xs font-bold text-blue-600 ml-1 uppercase">Giới thiệu bản thân</label>
+              <textarea name="bio" id="bio" rows="4" class="w-full px-5 py-4 bg-white border-none rounded-2xl outline-none shadow-sm focus:ring-2 focus:ring-blue-400 resize-none font-medium"></textarea>
+           </div>
+            <div class="md:col-span-2 flex items-center justify-between p-5 bg-white rounded-2xl shadow-sm border border-blue-100">
+                <div class="flex items-center gap-3">
+                    <label for="verified" class="text-sm font-black text-blue-900 uppercase">Trạng thái xác minh</label>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="verified" id="verified" value="1" class="sr-only peer">
+                    <div class="w-14 h-7 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-5 after:w-6 after:transition-all"></div>
+                </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-4">
+            <button type="button" onclick="history.back()" class="px-8 py-4 font-bold text-slate-400 hover:text-slate-600">Hủy</button>
+            <button type="submit" id="submitBtn" class="px-12 py-4 bg-slate-900 text-white rounded-2xl font-black shadow-xl hover:bg-blue-600 transition-all active:scale-95 disabled:opacity-50">
+              Lưu thay đổi người dùng
+            </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</AdminLayout>
+
+<style>
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+</style>
+
+<script>
+  // 🔒 CHỐT CHẶN BẢO MẬT TUYỆT ĐỐI: Import và kích hoạt middleware kiểm quyền Admin dạng ESM Module
+  import { checkAdminAuth } from '../../../lib/auth'
+  checkAdminAuth();
+
+  declare var Swal: any;
+
+  const BACKEND_URL = 'http://127.0.0.1:8000';
+  const form = document.getElementById('editUserForm') as HTMLFormElement;
+  const roleSelect = document.getElementById('roleSelect') as HTMLSelectElement;
+  const brokerFields = document.getElementById('brokerFields') as HTMLDivElement;
+  const previewAvatar = document.getElementById('previewAvatar') as HTMLImageElement;
+  const verifyIndicator = document.getElementById('verifyIndicator') as HTMLDivElement;
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+  const displayEmailEl = document.getElementById('displayEmail') as HTMLParagraphElement;
+  let currentAvatarPath = '';
+
+  // Bóc tách mã ID tài khoản từ URL Query string (?id=...)
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get('id');
+
+  if (!id || id === 'undefined' || id === 'null') {
+    window.location.replace('/admin/users');
+  }
+
+  function getToken() {
+    const rawToken = localStorage.getItem('admin_token') || localStorage.getItem('token') || localStorage.getItem('auth_token');
+    return rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
+  }
+
+  function toggleBrokerFields(role: string) {
+    if (role === 'BROKER' || role === 'ADMIN') {
+      brokerFields.classList.remove('hidden');
+    } else {
+      brokerFields.classList.add('hidden');
+    }
+  }
+
+  document.getElementById('avatarInput')?.addEventListener('change', function(e: any) {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (event: any) => { previewAvatar.src = event.target.result; };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  });
+
+  async function loadData() {
+    if (!id) return;
+    const token = getToken();
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/users/${id}`, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (res.status === 401 || res.status === 403) { window.location.href = '/admin'; return; }
+      if (!res.ok) throw new Error("Không thể nạp thông tin tài khoản.");
+
+      const user = await res.json();
+
+      const nameValue = user.fullname || user.name || '';
+      const emailValue = user.email || '';
+      const roleValue = user.role || 'USER';
+      
+      (document.getElementById('fullname') as HTMLInputElement).value = nameValue;
+      document.getElementById('displayFullname')!.textContent = nameValue || '---';
+      displayEmailEl.textContent = emailValue || '---';
+      (document.getElementById('phone') as HTMLInputElement).value = user.phone || '';
+      (document.getElementById('address') as HTMLInputElement).value = user.address || '';
+      roleSelect.value = roleValue;
+
+      toggleBrokerFields(roleValue);
+
+      const broker = user.profile || user.brokerProfiles || user.brokerInfo;
+      if (broker) {
+        (document.getElementById('companyName') as HTMLInputElement).value = broker.company_name || broker.companyName || '';
+        (document.getElementById('licenseNumber') as HTMLInputElement).value = broker.license_number || broker.licenseNumber || '';
+        (document.getElementById('areaFocus') as HTMLInputElement).value = broker.area_focus || broker.areaFocus || '';
+        (document.getElementById('experienceYears') as HTMLInputElement).value = broker.experience_years || broker.experienceYears || '';
+        (document.getElementById('bio') as HTMLTextAreaElement).value = broker.bio || '';
+        
+        const isVerified = broker.verified === 1 || broker.verified === true;
+        (document.getElementById('verified') as HTMLInputElement).checked = isVerified;
+        if (isVerified) verifyIndicator.classList.remove('hidden');
+      }
+
+      if (user.avatar) {
+        currentAvatarPath = user.avatar;
+        previewAvatar.src = user.avatar.startsWith('http') ? user.avatar : `${BACKEND_URL}${user.avatar}`;
+      } else {
+        previewAvatar.src = 'https://placehold.co/200x200?text=' + encodeURIComponent(nameValue.charAt(0).toUpperCase());
+      }
+
+      document.getElementById('statusBadge')!.textContent = "SẴN SÀNG";
+      document.getElementById('statusBadge')!.className = "px-4 py-2 rounded-full bg-green-100 text-green-600 text-xs font-bold uppercase";
+    } catch (e) {
+      console.error("Lỗi tải thông tin:", e);
+      document.getElementById('statusBadge')!.textContent = "LỖI TẢI DỮ LIỆU";
+      document.getElementById('statusBadge')!.className = "px-4 py-2 rounded-full bg-red-100 text-red-600 text-xs font-bold uppercase";
+    }
+  }
+
+  loadData();
+
+  roleSelect.addEventListener('change', (e: any) => toggleBrokerFields(e.target.value));
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = getToken();
+    submitBtn.disabled = true;
+
+    const formData = new FormData();
+    formData.append('_method', 'PUT');
+
+    const inputFullname = (document.getElementById('fullname') as HTMLInputElement).value;
+    
+    formData.append('name', inputFullname);
+    formData.append('fullname', inputFullname); 
+    
+    formData.append('email', displayEmailEl.textContent ? displayEmailEl.textContent.trim() : '');
+    formData.append('phone', (document.getElementById('phone') as HTMLInputElement).value);
+    formData.append('address', (document.getElementById('address') as HTMLInputElement).value);
+    formData.append('role', roleSelect.value);
+    formData.append('currentAvatar', currentAvatarPath);
+    
+    const compName = (document.getElementById('companyName') as HTMLInputElement).value;
+    formData.append('company_name', compName);
+    formData.append('companyName', compName);
+
+    const licNum = (document.getElementById('licenseNumber') as HTMLInputElement).value;
+    formData.append('license_number', licNum);
+    formData.append('licenseNumber', licNum);
+
+    const areaFoc = (document.getElementById('areaFocus') as HTMLInputElement).value;
+    formData.append('area_focus', areaFoc);
+    formData.append('areaFocus', areaFoc);
+
+    const expYear = (document.getElementById('experienceYears') as HTMLInputElement).value;
+    formData.append('experience_years', expYear);
+    formData.append('experienceYears', expYear);
+
+    formData.append('bio', (document.getElementById('bio') as HTMLTextAreaElement).value);
+    formData.append('verified', (document.getElementById('verified') as HTMLInputElement).checked ? '1' : '0');
+
+    const avatarFileInput = document.getElementById('avatarInput') as HTMLInputElement;
+    const avatarFile = avatarFileInput?.files ? avatarFileInput.files[0] : null;
+    if (avatarFile) formData.append('avatar', avatarFile);
+
+    Swal.fire({ title: 'Đang lưu...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/users/${id}`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        body: formData
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok && data.success) {
+        await Swal.fire({ icon: 'success', title: 'Thành công', text: 'Hồ sơ đã được cập nhật!', timer: 1500, showConfirmButton: false });
+        window.location.href = '/admin/users';
+      } else {
+        if (data.errors) {
+          const errorMsgs = Object.values(data.errors).flat().join('<br>');
+          throw new Error(errorMsgs);
+        }
+        throw new Error(data.message || 'Cập nhật thất bại');
+      }
+    } catch (err: any) {
+      console.error("Submit error:", err);
+      Swal.fire({ icon: 'error', title: 'Thất bại', html: err.message || 'Không thể kết nối đến máy chủ API.' });
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+</script>

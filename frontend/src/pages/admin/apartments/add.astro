@@ -1,0 +1,402 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Thêm Căn Hộ Mới">
+  <script is:inline src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <div class="max-w-full mx-auto py-2 px-2">
+    <div class="mb-8">
+      <h1 class="text-3xl font-black text-slate-900">Đăng Tin Căn Hộ</h1>
+      <p class="text-slate-500">Vui lòng điền đầy đủ thông tin bên dưới để đăng tin lên hệ thống.</p>
+    </div>
+
+    <form id="addApartmentForm" class="grid grid-cols-1 lg:grid-cols-3 gap-8" enctype="multipart/form-data">
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
+          <h3 class="text-xl font-bold text-slate-800 border-b pb-4">1. Thông tin cơ bản</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-bold text-slate-700 mb-2">Tên căn hộ/Mã căn <span class="text-red-500">*</span></label>
+              <input type="text" name="name" id="nameInput" required class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-orange-500 focus:bg-white outline-none transition" placeholder="VD: Bcons City - Tháp A - 15.02">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-slate-700 mb-2">Slug SEO</label>
+              <input type="text" name="slug" id="slugInput" readonly class="w-full px-5 py-4 bg-slate-100 border-2 border-transparent rounded-2xl text-slate-400 outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">Mô tả ngắn</label>
+            <textarea name="description" rows="4" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none transition" placeholder="Mô tả về view, hướng, tiện ích..."></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-sm font-bold text-slate-700 mb-2">Diện tích (m²)</label>
+              <input type="text" name="area" placeholder="56.5" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none transition">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-slate-700 mb-2">Số Tầng</label>
+              <input type="number" name="floor" placeholder="15" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none transition">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-slate-700 mb-2">Block/Tháp</label>
+              <input type="text" name="block" placeholder="Tháp A" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none transition">
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
+          <h3 class="text-xl font-bold text-slate-800 border-b pb-4">2. Đặc điểm kỹ thuật</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-bold text-slate-700 mb-2">Phòng Ngủ</label>
+              <input type="number" name="bedrooms" placeholder="2" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none transition">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-slate-700 mb-2">Phòng Vệ Sinh</label>
+              <input type="number" name="bathrooms" placeholder="2" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none transition">
+            </div>
+
+            <div class="relative dropdown-container" id="dropdown-directionMain">
+              <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Hướng cửa chính</label>
+              <input type="hidden" name="directionMain" id="directionMainInput" value="Đông">
+              <button type="button" class="drop-btn w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl flex items-center justify-between font-medium hover:bg-slate-100 transition-all focus:border-orange-500 outline-none shadow-sm">
+                <span class="selected-text">Đông</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div class="drop-menu absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+                <div class="p-2 space-y-1">
+                  {["Đông", "Tây", "Nam", "Bắc", "Đông Nam", "Đông Bắc", "Tây Nam", "Tây Bắc"].map((dir) => (
+                    <div data-value={dir} class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                      <span>{dir}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div class="relative dropdown-container" id="dropdown-directionBalcony">
+              <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Hướng ban công</label>
+              <input type="hidden" name="directionBalcony" id="directionBalconyInput" value="Nam">
+              <button type="button" class="drop-btn w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl flex items-center justify-between font-medium hover:bg-slate-100 transition-all focus:border-orange-500 outline-none shadow-sm">
+                <span class="selected-text">Nam</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div class="drop-menu absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+                <div class="p-2 space-y-1">
+                  {["Nam", "Bắc", "Đông", "Tây"].map((dir) => (
+                    <div data-value={dir} class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                      <span>{dir}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
+          <h3 class="text-xl font-bold text-slate-800 border-b pb-4">3. Phân loại</h3>
+          
+          <div class="relative dropdown-container" id="dropdown-project">
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Thuộc Dự Án <span class="text-red-500">*</span></label>
+            <input type="hidden" name="projectId" id="projectIdInput" required>
+            <button type="button" class="drop-btn w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl flex items-center justify-between font-medium hover:bg-slate-100 transition-all focus:border-orange-500 outline-none shadow-sm">
+              <span class="selected-text">-- Chọn dự án --</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="drop-menu absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300 max-h-64 overflow-y-auto">
+              <div class="p-2 space-y-1" id="projectOptionsList">
+                <div class="px-4 py-3 text-slate-400 text-sm italic">Đang tải dự án...</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Giá bán (VNĐ) <span class="text-red-500">*</span></label>
+            <input type="number" name="price" required placeholder="2500000000" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none transition font-bold text-orange-600">
+          </div>
+
+          <div class="relative dropdown-container" id="dropdown-furniture">
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Tình trạng nội thất</label>
+            <input type="hidden" name="furniture" id="furnitureInput" value="Cơ bản">
+            <button type="button" class="drop-btn w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl flex items-center justify-between font-medium hover:bg-slate-100 transition-all focus:border-orange-500 outline-none shadow-sm">
+              <span class="selected-text">Bàn giao cơ bản</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="drop-menu absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+              <div class="p-2 space-y-1">
+                <div data-value="Cơ bản" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                  <span>Bàn giao cơ bản</span>
+                </div>
+                <div data-value="Đầy đủ" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                  <span>Đầy đủ nội thất</span>
+                </div>
+                <div data-value="Thô" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                  <span>Giao thô</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Hình ảnh thực tế (Nhiều ảnh) <span class="text-red-500">*</span></label>
+            <div class="relative group border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center hover:border-orange-500 transition-all bg-slate-50">
+              <input type="file" name="images[]" id="imageInput" multiple required accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+              <div class="space-y-1">
+                <div class="text-2xl">📸</div>
+                <p class="text-xs text-slate-500 font-medium">Nhấp để chọn nhiều ảnh</p>
+              </div>
+            </div>
+            <div id="imagePreview" class="grid grid-cols-4 gap-2 mt-3"></div>
+          </div>
+
+          <button type="submit" id="submitBtn" class="w-full bg-slate-900 hover:bg-orange-600 text-white font-black py-5 rounded-2xl shadow-xl transition-all active:scale-95 disabled:opacity-50">
+            LƯU & ĐĂNG TIN
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</AdminLayout>
+
+<style>
+  .dropdown-container.active .drop-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .dropdown-container.active .drop-btn svg {
+    transform: rotate(180deg);
+  }
+</style>
+
+<script>
+  import Swal from 'sweetalert2';
+  import { checkAdminAuth } from '../../../lib/auth';
+
+  checkAdminAuth();
+
+  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+
+  const escapeHTML = (val: any): string => {
+    if (val === null || val === undefined) return '';
+    const str = String(val);
+    return str.replace(/[&<>"']/g, (match) => {
+      const map: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      };
+      return map[match] || match;
+    });
+  };
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const nameInput = document.getElementById('nameInput') as HTMLInputElement;
+    const slugInput = document.getElementById('slugInput') as HTMLInputElement;
+    const form = document.getElementById('addApartmentForm') as HTMLFormElement;
+    const imageInput = document.getElementById('imageInput') as HTMLInputElement;
+    const imagePreview = document.getElementById('imagePreview');
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+
+    function setupCustomDropdown(containerId: string) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const dropBtn = container.querySelector('.drop-btn') as HTMLButtonElement;
+      const hiddenInput = container.querySelector('input[type="hidden"]') as HTMLInputElement;
+      const selectedText = container.querySelector('.selected-text');
+
+      dropBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.dropdown-container').forEach(el => {
+          if (el !== container) el.classList.remove('active');
+        });
+        container.classList.toggle('active');
+      });
+
+      container.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const optionItem = target.closest('.option-item');
+        if (optionItem) {
+          const val = optionItem.getAttribute('data-value');
+          if (val && hiddenInput) hiddenInput.value = val;
+          if (selectedText) selectedText.innerHTML = optionItem.innerHTML;
+          container.classList.remove('active');
+        }
+      });
+    }
+
+    async function loadProjects() {
+      const optionsList = document.getElementById('projectOptionsList');
+      const selectedText = document.querySelector('#dropdown-project .selected-text');
+      const projectIdInput = document.getElementById('projectIdInput') as HTMLInputElement;
+      const container = document.getElementById('dropdown-project');
+      const token = localStorage.getItem('admin_token')?.replace(/['"]+/g, '').trim();
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/projects`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        });
+        const data = await res.json();
+        const projectArray = Array.isArray(data) ? data : (data.data || []);
+
+        if (Array.isArray(projectArray) && optionsList) {
+          optionsList.innerHTML = '';
+          projectArray.forEach((p) => {
+            const optItem = document.createElement('div');
+            optItem.className = "option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer transition-all font-medium";
+            optItem.setAttribute('data-value', p.id.toString());
+            optItem.innerHTML = `<span>${escapeHTML(p.title || p.name)}</span>`;
+            optItem.addEventListener('click', () => {
+              projectIdInput.value = p.id.toString();
+              if (selectedText) selectedText.textContent = p.title || p.name;
+              container?.classList.remove('active');
+            });
+            optionsList.appendChild(optItem);
+          });
+        }
+      } catch (err) {
+        if (optionsList) optionsList.innerHTML = '<div class="px-4 py-3 text-red-500 text-sm italic">Lỗi đồng bộ danh mục dự án!</div>';
+      }
+    }
+
+    imageInput?.addEventListener('change', () => {
+      if (!imagePreview) return;
+      imagePreview.innerHTML = '';
+      if (imageInput.files) {
+        Array.from(imageInput.files).forEach(file => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const div = document.createElement('div');
+            div.className = "aspect-square rounded-lg border border-slate-200 overflow-hidden shadow-sm";
+            div.innerHTML = `<img src="${e.target?.result}" class="w-full h-full object-cover" />`;
+            imagePreview.appendChild(div);
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+    });
+
+    // 🔥 ĐÃ SỬA: Ép chuyển đ/Đ thành d trước khi normalize để bảo toàn chữ "Đẹp" cho ông 
+    nameInput?.addEventListener('input', () => {
+      let value = nameInput.value.toLowerCase();
+      value = value.replace(/đ/g, 'd'); // Đổi chữ đ thành chữ d thủ công
+      
+      slugInput.value = value.normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Khử sạch dấu tiếng Việt lẻ
+        .replace(/[^\w\s-]/g, '')        // Chỉ cho phép ký tự la-tinh, số và khoảng trắng
+        .replace(/\s+/g, '-')            // Chuyển khoảng trắng thành gạch ngang
+        .replace(/-+/g, '-')             // Gom các dấu gạch ngang liền nhau thành 1
+        .trim();
+    });
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (imageInput.files && imageInput.files.length > 0) {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+        for (let i = 0; i < imageInput.files.length; i++) {
+          const file = imageInput.files[i];
+          if (file.size > 5 * 1024 * 1024) {
+            Swal.fire({ icon: 'error', title: 'Tệp quá lớn', text: `Kích thước ảnh "${file.name}" vượt quá hạn mức 5MB!`, confirmButtonColor: '#ef4444' });
+            return;
+          }
+          if (!allowedTypes.includes(file.type)) {
+            Swal.fire({ icon: 'error', title: 'Sai định dạng', text: `Tệp "${file.name}" không đúng định dạng ảnh cho phép (JPG, PNG, WEBP)!`, confirmButtonColor: '#ef4444' });
+            return;
+          }
+        }
+      }
+      
+      const formData = new FormData(form);
+
+      formData.delete('images');
+      formData.delete('images[]');
+      formData.delete('image');
+
+      if (imageInput.files && imageInput.files.length > 0) {
+        Array.from(imageInput.files).forEach(file => {
+          formData.append('images[]', file);
+        });
+      }
+
+      const projectIdVal = (document.getElementById('projectIdInput') as HTMLInputElement).value;
+      formData.append('project_id', projectIdVal);
+      formData.append('direction_main', (document.getElementById('directionMainInput') as HTMLInputElement).value);
+      formData.append('direction_balcony', (document.getElementById('directionBalconyInput') as HTMLInputElement).value);
+
+      const token = localStorage.getItem('admin_token')?.replace(/['"]+/g, '').trim();
+
+      Swal.fire({
+        title: 'Đang đăng tin...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/apartments`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          },
+          body: formData
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          localStorage.clear();
+          window.location.replace('/admin');
+          return;
+        }
+
+        const result = await res.json();
+
+        if (res.ok && result.success) {
+          await Swal.fire({ icon: 'success', title: 'Thành công!', text: result.message || 'Căn hộ mới đã được lưu vào hệ thống.', timer: 2000, showConfirmButton: false });
+          window.location.href = '/admin/apartments';
+        } else {
+          Swal.fire({
+            icon: res.status === 400 ? 'warning' : 'error',
+            title: res.status === 400 ? 'Thông báo' : 'Thất bại',
+            text: result.message || 'Lỗi xử lý dữ liệu từ hệ thống Laravel.',
+            confirmButtonColor: '#ea580c'
+          });
+        }
+      } catch (err) {
+        Swal.fire('Lỗi kết nối', 'Không thể kết nối đến cổng API Laravel máy chủ.', 'error');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    window.addEventListener('click', () => document.querySelectorAll('.dropdown-container').forEach(el => el.classList.remove('active')));
+
+    setupCustomDropdown('dropdown-directionMain');
+    setupCustomDropdown('dropdown-directionBalcony');
+    setupCustomDropdown('dropdown-furniture');
+    setupCustomDropdown('dropdown-project');
+    loadProjects();
+  });
+</script>

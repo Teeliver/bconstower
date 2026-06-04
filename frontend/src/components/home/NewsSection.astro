@@ -1,0 +1,183 @@
+---
+// src/components/home/NewsSection.astro
+// 🔥 ĐỒNG BỘ HỆ THỐNG: Lấy biến cấu hình URL Server từ file .env của Trung Tín
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
+---
+<section class="max-w-7xl mx-auto py-16 px-4 grid grid-cols-1 lg:grid-cols-2 gap-12" id="news-section" data-api-base={PUBLIC_API_BASE}>
+  <div class="order-2 lg:order-1">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+      <div class="flex gap-6 border-b border-emerald-50 w-full sm:w-auto">
+        <button 
+          data-category="thi-truong" 
+          class="news-tab-btn pb-2 text-sm font-black uppercase tracking-widest text-[#064e3b] border-b-2 border-[#064e3b] transition-all cursor-pointer"
+        >
+          Tin thị trường
+        </button>
+        <button 
+          data-category="tien-do" 
+          class="news-tab-btn pb-2 text-sm font-black uppercase tracking-widest text-slate-400 border-b-2 border-transparent hover:text-[#064e3b] transition-all cursor-pointer"
+        >
+          Tiến độ dự án
+        </button>
+      </div>
+      <a href="/posts" class="text-emerald-700 font-bold text-xs uppercase tracking-tighter hover:text-[#fac72e] transition-colors shrink-0">Xem tất cả →</a>
+    </div>
+    
+    <div id="news-list-container" class="space-y-8 min-h-[400px]">
+        <div class="animate-pulse space-y-8">
+            {[1,2,3].map(() => (
+                <div class="flex gap-6">
+                    <div class="w-32 h-24 bg-slate-100 rounded-2xl"></div>
+                    <div class="flex-1 space-y-3">
+                        <div class="h-4 bg-slate-100 rounded w-3/4"></div>
+                        <div class="h-4 bg-slate-50 rounded w-full"></div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+  </div>
+
+  <div id="featured-post-container" class="order-1 lg:order-2">
+      <div class="w-full h-[500px] bg-slate-100 rounded-[3rem] animate-pulse"></div>
+  </div>
+</section>
+
+<script>
+  async function fetchNews(category: string) {
+    const section = document.getElementById('news-section');
+    const listContainer = document.getElementById('news-list-container');
+    const featuredContainer = document.getElementById('featured-post-container');
+    if (!listContainer || !featuredContainer || !section) return;
+
+    const BACKEND_URL = section.getAttribute('data-api-base') || 'http://localhost:8000';
+    listContainer.style.opacity = '0.5';
+
+    try {
+      // Gọi trực tiếp đến API Public của Laravel Controller
+      const res = await fetch(`${BACKEND_URL}/api/posts/public/new-section?category=${category}&limit=4`);
+      
+      if (!res.ok) throw new Error("Lỗi kết nối API Laravel");
+      
+      const posts = await res.json();
+      listContainer.style.opacity = '1';
+
+      if (!Array.isArray(posts) || posts.length === 0) {
+        featuredContainer.innerHTML = `
+            <div class="bg-slate-50 rounded-[3rem] h-[500px] flex items-center justify-center border-2 border-dashed border-slate-200">
+                <p class="text-slate-400 italic font-medium text-sm">Chưa có bài viết mới nhất cho mục này.</p>
+            </div>
+        `;
+        listContainer.innerHTML = `<div class="py-10 text-center text-slate-400 italic text-sm">Danh sách tin tức đang được cập nhật...</div>`;
+        return;
+      }
+
+      // 1. HIỂN THỊ BÀI MỚI NHẤT BÊN PHẢI (Vị trí số 0)
+      const latest = posts[0];
+      
+      // Kiểm tra xem thumbnail có chứa sẵn domain chưa, nếu chưa thì tự bồi BACKEND_URL vào
+      const featuredImg = latest.thumbnail && latest.thumbnail.startsWith('http') 
+        ? latest.thumbnail 
+        : `${BACKEND_URL}${latest.thumbnail || ''}`;
+
+      featuredContainer.innerHTML = `
+        <div class="relative bg-[#064e3b] rounded-[3rem] p-12 overflow-hidden flex flex-col justify-end min-h-[500px] shadow-2xl group cursor-pointer animate-fadeIn">
+            <div class="absolute inset-0 opacity-40 group-hover:scale-105 transition-transform duration-1000">
+                <img src="${featuredImg}" class="w-full h-full object-cover" onerror="this.src='/images/no-image.jpg'" />
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#064e3b] via-[#064e3b]/40 to-transparent"></div>
+
+            <div class="relative z-10">
+                <div class="inline-block px-4 py-1 bg-[#fac72e] text-[#064e3b] rounded-lg font-black text-[10px] uppercase mb-4 shadow-lg tracking-widest">Tin mới nhất</div>
+                <h2 class="text-3xl md:text-4xl font-black text-white mb-4 leading-tight uppercase group-hover:text-[#fac72e] transition-colors">
+                    ${latest.title}
+                </h2>
+                <p class="text-emerald-100/90 text-sm mb-8 max-w-md font-medium line-clamp-3 leading-relaxed">
+                    ${latest.summary || 'Cập nhật tin tức mới nhất về các dự án Bcons và tình hình thị trường bất động sản khu vực.'}
+                </p>
+                <a href="/tin-tuc/${latest.slug}" class="inline-block bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-[#fac72e] hover:text-[#064e3b] px-8 py-3 rounded-xl font-bold uppercase text-xs transition-all tracking-widest">
+                    Xem chi tiết
+                </a>
+            </div>
+        </div>
+      `;
+
+      // 2. HIỂN THỊ DANH SÁCH BÀI TIẾP THEO BÊN TRÁI (Lấy các bài từ vị trí số 1 trở đi)
+      const otherPosts = posts.slice(1);
+      if (otherPosts.length === 0) {
+          listContainer.innerHTML = `<p class="text-slate-400 italic text-sm py-5 text-center">Không còn tin cũ hơn.</p>`;
+      } else {
+          listContainer.innerHTML = otherPosts.map((post: any) => {
+            const thumbImg = post.thumbnail && post.thumbnail.startsWith('http') 
+              ? post.thumbnail 
+              : `${BACKEND_URL}${post.thumbnail || ''}`;
+
+            return `
+              <a href="/tin-tuc/${post.slug}" class="flex gap-6 group border-b border-emerald-50/50 pb-8 last:border-0 block animate-fadeIn">
+                <div class="w-32 h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 shadow-sm border border-slate-100">
+                  <img src="${thumbImg}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='/images/no-image.jpg'" />
+                </div>
+                <div class="flex-1">
+                  <h3 class="font-bold text-slate-800 group-hover:text-[#064e3b] line-clamp-2 mb-2 transition-colors leading-snug">
+                    ${post.title}
+                  </h3>
+                  <p class="text-slate-500 text-xs line-clamp-2 mb-3 leading-relaxed">
+                      ${post.summary || 'Thông tin chi tiết về sự kiện và chính sách mới từ tập đoàn Bcons...'}
+                  </p>
+                  <div class="flex items-center gap-3 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                    <span>${new Date(post.created_at).toLocaleDateString('vi-VN')}</span>
+                    <span class="w-1 h-1 bg-[#fac72e] rounded-full"></span>
+                    <span class="text-[#fac72e] font-black">${post.category === 'thi-truong' ? 'Thị trường' : 'Tiến độ'}</span>
+                  </div>
+                </div>
+              </a>
+            `;
+          }).join('');
+      }
+
+    } catch (err: any) {
+      console.error("News Error:", err);
+      listContainer.innerHTML = `<p class="text-red-400 text-sm py-10 text-center font-bold">⚠️ Không thể kết nối với máy chủ tin tức Laravel.</p>`;
+    }
+  }
+
+  function initNewsTabs() {
+    const tabs = document.querySelectorAll('.news-tab-btn');
+    tabs.forEach(tab => {
+      // Gỡ toàn bộ event cũ tránh trùng lặp listeners khi lật trang
+      tab.removeAttribute('data-has-listener');
+      
+      tab.addEventListener('click', (e: any) => {
+        const target = e.currentTarget;
+        const category = target.dataset.category;
+        
+        tabs.forEach(t => {
+            t.classList.remove('text-[#064e3b]', 'border-[#064e3b]');
+            t.classList.add('text-slate-400', 'border-transparent');
+        });
+        
+        target.classList.add('text-[#064e3b]', 'border-[#064e3b]');
+        target.classList.remove('text-slate-400', 'border-transparent');
+
+        fetchNews(category);
+      });
+    });
+  }
+
+  // Khởi chạy đồng bộ mượt mà ở cả lượt tải đầu tiên và khi đổi trang qua View Transitions
+  function initNewsSection() {
+    initNewsTabs();
+    fetchNews('thi-truong');
+  }
+
+  initNewsSection();
+  document.addEventListener('astro:page-load', initNewsSection);
+</script>
+
+<style>
+  @keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(10px); } 
+    to { opacity: 1; transform: translateY(0); } 
+  }
+  .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+</style>

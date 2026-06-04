@@ -1,0 +1,401 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Thống Kê | Bảng Điều Khiển Admin">
+  <!-- 📊 KHỐI THỐNG KÊ SỐ LIỆU TỔNG QUAN -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+      <h3 class="text-slate-500 text-sm font-bold uppercase">Đang bán</h3>
+      <p id="total-selling" class="text-3xl font-black text-slate-800">...</p>
+    </div>
+    
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+      <h3 class="text-slate-500 text-sm font-bold uppercase">Đã giao dịch</h3>
+      <p id="total-sold" class="text-3xl font-black text-green-600">...</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+      <h3 class="text-slate-500 text-sm font-bold uppercase">Doanh thu tháng</h3>
+      <p id="monthly-revenue" class="text-3xl font-black text-orange-500">...</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+      <h3 class="text-slate-500 text-sm font-bold uppercase">Tổng thu năm</h3>
+      <p id="yearly-revenue" class="text-3xl font-black text-blue-600">...</p>
+    </div>
+  </div>
+
+  <!-- 📈 KHỐI ĐỒ THỊ XU HƯỚNG VÀ PHÂN BỔ GIỎ HÀNG -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+    <div class="lg:col-span-2 bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-bold text-slate-800">Xu hướng doanh thu</h3>
+            <span class="text-xs font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full">6 tháng gần nhất</span>
+        </div>
+        <div class="relative h-[300px]">
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+
+    <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col">
+        <h3 class="text-lg font-bold text-slate-800 mb-6">Phân bổ giỏ hàng</h3>
+        <div class="flex-1 flex items-center justify-center relative">
+            <canvas id="statusChart"></canvas>
+            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span class="text-2xl font-black text-slate-800" id="chart-inner-count">0</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase">Căn hộ</span>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- 🏢 KHỐI BIỂU ĐỒ DỰ ÁN VÀ CHIẾN THẦN CHỐT DEAL -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+    <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
+        <h3 class="text-lg font-bold text-slate-800 mb-6 uppercase text-[12px] tracking-widest text-slate-400">Hiệu suất theo dự án</h3>
+        <div class="h-[350px]">
+            <canvas id="projectChart"></canvas>
+        </div>
+    </div>
+    <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
+        <h3 class="text-lg font-bold text-slate-800 mb-6 uppercase text-[12px] tracking-widest text-slate-400">Chiến thần chốt deal</h3>
+        <div id="topSellersList" class="space-y-4">
+            <p class="text-slate-400 italic text-sm">Đang tính toán hiệu suất...</p>
+        </div>
+    </div>
+  </div>
+
+  <!-- 📜 MỚI: KHỐI LỊCH SỬ HOẠT ĐỘNG THỜI GIAN THỰC CHUẨN UI/UX SAAS ĐÃ FIX VỠ DÒNG -->
+  <div class="mt-10 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
+      <div>
+        <h2 class="text-base font-bold text-slate-900">Lịch sử hoạt động gần đây</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Theo dõi vết các thao tác thay đổi dữ liệu và tiến trình chốt deal hệ thống</p>
+      </div>
+      <span class="px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-600 rounded-lg">Thời gian thực</span>
+    </div>
+
+    <div class="overflow-x-auto w-full">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50/75 border-b border-slate-100 text-slate-500 font-bold text-xs uppercase tracking-wider">
+            <th class="px-6 py-4 w-44 whitespace-nowrap">Thời gian</th>
+            <th class="px-6 py-4 w-48 whitespace-nowrap">Người thực hiện</th>
+            <th class="px-6 py-4 w-40 whitespace-nowrap">Hành động</th>
+            <th class="px-6 py-4">Nội dung đối tượng thay đổi</th>
+          </tr>
+        </thead>
+        <tbody id="activity-history" class="divide-y divide-slate-100 text-sm">
+          <tr><td colspan="4" class="px-6 py-8 text-center text-slate-400">Đang tải dữ liệu lịch sử...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="p-6 flex justify-between items-center border-t border-slate-100 bg-white">
+      <p class="text-sm text-slate-500 font-medium">Hiển thị 10 dòng mỗi trang</p>
+      <div id="pagination-controls" class="flex gap-2"></div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+// @ts-ignore
+import { Chart, registerables } from 'chart.js';
+import { checkAdminAuth } from '../../lib/auth';
+
+if (registerables) {
+    Chart.register(...registerables);
+}
+
+checkAdminAuth();
+
+let charts: any = {};
+
+const escapeHTML = (str: string): string => {
+  if (!str) return '';
+  return str.replace(/[&<>"']/g, (match) => {
+    const map: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+    return map[match] || match;
+  });
+};
+
+const formatMoney = (n: number) => {
+  if (!n) return "0đ";
+  if (n >= 1000000000) return (n / 1000000000).toFixed(2) + ' Tỷ';
+  if (n >= 1000000) return (n / 1000000).toFixed(0) + ' Tr';
+  return n.toLocaleString() + 'đ';
+};
+
+const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+
+async function loadDashboardStats(page = 1) {
+  try {
+    const adminToken = localStorage.getItem('admin_token');
+    
+    if (!adminToken) {
+      localStorage.clear();
+      window.location.replace('/admin');
+      return;
+    }
+
+    const response = await fetch(`${API_BASE}/api/admin/stats?page=${page}`, {
+      headers: {
+        'Authorization': `Bearer ${adminToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      localStorage.clear();
+      window.location.replace('/admin');
+      return;
+    }
+
+    const data = await response.json();
+
+    const totalSelling = data.totalSelling ?? data.total_selling ?? 0;
+    const totalSold = data.totalSold ?? data.total_sold ?? 0;
+    const monthlyRevenue = data.monthlyRevenue ?? data.monthly_revenue ?? 0;
+    const yearlyRevenue = data.yearlyRevenue ?? data.yearly_revenue ?? 0;
+    const topSellers = data.topSellers ?? data.top_sellers ?? [];
+
+    const elSelling = document.getElementById('total-selling');
+    const elSold = document.getElementById('total-sold');
+    const elInnerCount = document.getElementById('chart-inner-count');
+    const elMonthly = document.getElementById('monthly-revenue');
+    const elYearly = document.getElementById('yearly-revenue');
+
+    if (elSelling) elSelling.innerText = String(totalSelling);
+    if (elSold) elSold.innerText = String(totalSold);
+    if (elInnerCount) elInnerCount.innerText = String(Number(totalSelling) + Number(totalSold));
+    if (elMonthly) elMonthly.innerText = formatMoney(Number(monthlyRevenue));
+    if (elYearly) elYearly.innerText = formatMoney(Number(yearlyRevenue));
+
+    if (page === 1) {
+        renderCharts(totalSelling, totalSold, data.chartData || data.chart_data, data.projectStats || data.project_stats);
+        renderTopSellers(topSellers);
+    }
+
+    renderHistory(data);
+
+  } catch (error) {
+    console.error('Lỗi sập kết nối cổng Dashboard Laravel API:', error);
+  }
+}
+
+function renderCharts(selling: number, sold: number, chartData: any[], projectStats: any[]) {
+    const ctxRev = document.getElementById('revenueChart') as HTMLCanvasElement;
+    if (ctxRev) {
+        if (charts.rev) charts.rev.destroy();
+        charts.rev = new Chart(ctxRev, {
+            type: 'line',
+            data: {
+                labels: chartData ? chartData.map((d: any) => d.month) : [],
+                datasets: [{
+                    data: chartData ? chartData.map((d: any) => d.revenue) : [],
+                    borderColor: '#f97316',
+                    backgroundColor: 'rgba(249, 115, 22, 0.05)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
+            }
+        });
+    }
+
+    const ctxStatus = document.getElementById('statusChart') as HTMLCanvasElement;
+    if (ctxStatus) {
+        if (charts.status) charts.status.destroy();
+        charts.status = new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: {
+                labels: ['Đang bán', 'Đã chốt'],
+                datasets: [{
+                    data: [selling, sold],
+                    backgroundColor: ['#1e293b', '#f97316'],
+                    borderWidth: 0,
+                    hoverOffset: 15
+                }]
+            },
+            options: { cutout: '85%', plugins: { legend: { display: false } } }
+        });
+    }
+
+    const ctxProject = document.getElementById('projectChart') as HTMLCanvasElement;
+    if (ctxProject) {
+        if (charts.project) charts.project.destroy();
+        charts.project = new Chart(ctxProject, {
+            type: 'bar',
+            data: {
+                labels: projectStats ? projectStats.map((p: any) => p.name || 'N/A') : [],
+                datasets: [{
+                    label: 'Căn hộ đã chốt',
+                    data: projectStats ? projectStats.map((p: any) => p.value) : [],
+                    backgroundColor: '#1e293b',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true, grid: { display: false } }, y: { grid: { display: false } } }
+            }
+        });
+    }
+}
+
+function renderTopSellers(sellers: any[]) {
+    const container = document.getElementById('topSellersList');
+    if (!container) return;
+    
+    if (!sellers || sellers.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 italic text-sm">Chưa có dữ liệu chốt deal.</p>';
+        return;
+    }
+
+    container.innerHTML = sellers.map((s, idx) => {
+        const safeStaffName = escapeHTML(s.staffName || s.staff_name || 'Thành viên hệ thống');
+        const totalDeals = s.totalDeals ?? s.total_deals ?? 0;
+        const totalRevenue = s.totalRevenue ?? s.total_revenue ?? 0;
+
+        return `
+            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-transparent hover:border-orange-100 hover:bg-orange-50/30 transition-all relative overflow-hidden group">
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        ${idx === 0 ? `
+                        <div class="absolute -top-3 -left-1 -rotate-25 z-10 animate-bounce">
+                            <span class="text-xl">👑</span>
+                        </div>
+                        ` : ''}
+                        
+                        <div class="w-10 h-10 rounded-full ${idx === 0 ? 'bg-gradient-to-tr from-orange-600 to-yellow-400' : 'bg-slate-200'} flex items-center justify-center text-white font-black text-sm shadow-sm relative z-0">
+                            ${idx + 1}
+                        </div>
+                    </div>
+                    <div>
+                        <p class="font-black text-slate-800 text-sm">${safeStaffName}</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">${totalDeals} căn đã chốt</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-black text-slate-900">${formatMoney(Number(totalRevenue))}</p>
+                    <p class="text-[8px] text-slate-400 font-bold uppercase">Doanh số</p>
+                </div>
+                
+                ${idx === 0 ? `
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]"></div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+function renderHistory(data: any) {
+    const historyTable = document.getElementById('activity-history');
+    const paginationControls = document.getElementById('pagination-controls');
+    if (!historyTable) return;
+
+    const historyList = data.history || data.data || [];
+    const pagination = data.pagination || {};
+    const totalPages = pagination.totalPages ?? pagination.total_pages ?? 1;
+    const currentPage = pagination.currentPage ?? pagination.current_page ?? 1;
+
+    if (historyList && historyList.length > 0) {
+        historyTable.innerHTML = historyList.map((item: any) => {
+          const rawDate = item.createdAt || item.created_at;
+          const dateObj = new Date(rawDate);
+          const hh = String(dateObj.getHours()).padStart(2, '0');
+          const mm = String(dateObj.getMinutes()).padStart(2, '0');
+          const d = String(dateObj.getDate()).padStart(2, '0');
+          const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+          
+          const uName = item.userName || item.user_name || 'Hệ thống';
+          const shortLetter = uName.charAt(0).toUpperCase();
+
+          // 🔥 UX CAO CẤP: Phân bổ màu sắc Badge động dựa trên từ khóa hành động
+          let badgeClass = "bg-slate-50 text-slate-700 border-slate-200/60";
+          if (item.action.includes("Thêm")) badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200/60";
+          else if (item.action.includes("Chỉnh sửa")) badgeClass = "bg-blue-50 text-blue-700 border-blue-200/60";
+          else if (item.action.includes("Xóa")) badgeClass = "bg-rose-50 text-rose-700 border-rose-200/60";
+          else if (item.action.includes("Chốt deal") || item.action.includes("👑")) badgeClass = "bg-amber-50 text-amber-700 border-amber-200/60";
+          else if (item.action.includes("Phê duyệt") || item.action.includes("✅")) badgeClass = "bg-teal-50 text-teal-700 border-teal-200/60";
+
+          // 🔥 UX KHỬ LẶP: Dọn sạch các chuỗi mô tả trùng lặp thông tin với cột Người thực hiện
+          let cleanTarget = item.target || '';
+          const replacePattern = new RegExp(`— tài khoản \\[${uName}\\] đã (chỉnh sửa và cập nhật nội dung bài viết|cập nhật lại hồ sơ thông tin và phân quyền|cập nhật lại các chỉ số tài chính và lãi suất|cập nhật lại thông số kỹ thuật của căn hộ|tiến hành thay đổi và cập nhật lại cấu hình)`, "i");
+          cleanTarget = cleanTarget.replace(replacePattern, '—');
+          cleanTarget = cleanTarget.replace(new RegExp(`— tài khoản \\[${uName}\\] đã gỡ bỏ hoàn toàn`, "i"), '— Đã gỡ bỏ');
+
+          const safeUserName = escapeHTML(uName);
+          const safeAction = escapeHTML(item.action || 'Thao tác');
+          const safeTarget = escapeHTML(cleanTarget);
+
+          return `
+            <tr class="hover:bg-slate-50/50 transition-colors duration-150">
+              <!-- Cố định dòng thời gian phẳng, không xuống dòng -->
+              <td class="px-6 py-4 whitespace-nowrap font-medium text-slate-500 font-mono">
+                ${hh}:${mm} ${d}-${m}
+              </td>
+              <!-- Cột người thực hiện kèm Avatar viết tắt -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-7 h-7 rounded-full bg-orange-600/10 text-orange-700 font-black text-xs flex items-center justify-center">
+                    ${shortLetter}
+                  </div>
+                  <span class="font-semibold text-slate-800">${safeUserName}</span>
+                </div>
+              </td>
+              <!-- Badge Hành động phân loại màu sắc -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${badgeClass}">
+                  ${safeAction}
+                </span>
+              </td>
+              <!-- Nội dung chi tiết rút gọn bằng truncate -->
+              <td class="px-6 py-4 text-slate-600 font-medium max-w-xs md:max-w-md lg:max-w-2xl truncate" title="${safeTarget}">
+                ${safeTarget}
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        if (paginationControls) {
+          let buttonsHtml = '';
+          for (let i = 1; i <= totalPages; i++) {
+            buttonsHtml += `<button class="page-btn px-4 py-2 rounded-xl text-sm font-bold transition-all ${i === currentPage ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}" data-page="${i}">${i}</button>`;
+          }
+          paginationControls.innerHTML = buttonsHtml;
+          
+          document.querySelectorAll('.page-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const targetPage = (e.currentTarget as HTMLElement).dataset.page;
+              if (targetPage) loadDashboardStats(parseInt(targetPage));
+            });
+          });
+        }
+    } else {
+        historyTable.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-slate-400 italic">Không có nhật ký hoạt động gần đây.</td></tr>';
+    }
+}
+
+window.addEventListener('load', () => {
+    loadDashboardStats(1);
+});
+</script>

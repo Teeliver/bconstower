@@ -1,0 +1,729 @@
+---
+// src/pages/[projectSlug]/[apartmentSlug].astro
+import MainLayout from "../../layouts/MainLayout.astro";
+import Navbar from '../../components/Navbar.astro';
+
+export async function getStaticPaths() {
+  const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
+  try {
+    const res = await fetch(`${PUBLIC_API_BASE}/api/apartments/public-paths`, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    
+    if (!res.ok) return [];
+    const data = await res.json();
+    const paths = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
+    
+    return paths.map((p: any) => {
+      const pSlug = String(p.projectSlug || p.project_slug || p.projectSlugPath || '').trim();
+      const aSlug = String(p.apartmentSlug || p.apartment_slug || p.slug || '').trim();
+      
+      return {
+        params: { projectSlug: pSlug, apartmentSlug: aSlug }
+      };
+    }).filter((item: any) => {
+      return item.params.projectSlug && 
+             item.params.apartmentSlug && 
+             item.params.projectSlug !== 'undefined' &&
+             item.params.projectSlug !== 'images' &&
+             item.params.projectSlug !== 'assets' &&
+             item.params.projectSlug !== 'favicon.ico';
+    });
+  } catch (e) {
+    console.error("Lỗi đồng bộ danh sách đường dẫn căn hộ chi tiết:", e);
+    return [];
+  }
+}
+
+const { projectSlug, apartmentSlug } = Astro.params;
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
+
+let serverData = null;
+let priceDisplay = "Liên hệ";
+let pricePerM2Display = "Đang cập nhật";
+let seoTitle = "Chi tiết căn hộ Bcons";
+let seoDescription = "Bảng giá rổ hàng chi tiết căn hộ dự án Bcons cập nhật mới nhất từ phòng kinh doanh.";
+let seoImage = "https://placehold.co/800x450?text=Bcons+Apartment";
+let itemImages: string[] = [];
+
+try {
+  const res = await fetch(`${PUBLIC_API_BASE}/api/apartments/public-detail?project=${projectSlug}&slug=${apartmentSlug}`);
+  if (res.ok) {
+    serverData = await res.json();
+    if (serverData) {
+      seoTitle = serverData.name ? `${serverData.name} - Dự án ${serverData.projectName || 'Bcons'}` : seoTitle;
+      seoDescription = serverData.summary || serverData.description?.substring(0, 160) || seoDescription;
+      
+      if (serverData.price) {
+        priceDisplay = (serverData.price / 1000000000).toFixed(2).replace('.', ',') + " tỷ";
+        if (serverData.area) {
+          pricePerM2Display = Math.round(serverData.price / serverData.area / 1000000) + " tr/m²";
+        }
+      }
+      
+      if (serverData.image) {
+        if (typeof serverData.image === 'string') {
+          try { itemImages = JSON.parse(serverData.image); } catch { itemImages = [serverData.image]; }
+        } else if (Array.isArray(serverData.image)) { itemImages = serverData.image; }
+      }
+      if (itemImages.length > 0) {
+        seoImage = itemImages[0].startsWith('http') ? itemImages[0] : `${PUBLIC_API_BASE}/${itemImages[0].replace(/^\//, '')}`;
+      }
+    }
+  }
+} catch (e) {
+  console.error("Lỗi nạp SEO tĩnh tầng Server:", e);
+}
+
+// 🔥 CẤU HÌNH JSON-LD SCHEMA: Khai báo cấu trúc dữ liệu cho thuật toán Google Index Rich Snippet
+const schemaData = {
+  "@context": "https://schema.org",
+  "@type": "SingleFamilyResidence",
+  "name": serverData?.name || seoTitle,
+  "description": seoDescription,
+  "image": seoImage,
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": serverData?.projectAddress || "Đang cập nhật"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": serverData?.price || "0",
+    "priceCurrency": "VND",
+    "availability": "https://schema.org/InStoreOnly"
+  }
+};
+---
+
+<MainLayout title={seoTitle} description={seoDescription} image={seoImage}>
+  
+  <script type="application/ld+json" set:html={JSON.stringify(schemaData)}></script>
+
+  <div 
+    id="apartment-detail-root"
+    class="bg-[#F4F7F6] w-full overflow-x-hidden break-words min-h-screen pb-20 font-sans mt-20"
+    data-project-id={serverData?.projectId || serverData?.project_id || ''}
+    data-apartment-id={serverData?.id || ''}
+    data-lat={serverData?.lat || ''}
+    data-lng={serverData?.lng || ''}
+    data-project-name={serverData?.projectName || 'Dự án Bcons'}
+    data-images={JSON.stringify(itemImages)}
+    data-backend={PUBLIC_API_BASE}
+    data-project-slug={projectSlug}
+    data-apartment-title={serverData?.name || ''}
+    data-bedroom-count={serverData?.bedrooms || 2}
+    data-bathroom-count={serverData?.bathrooms || 2}
+  >
+    <div class="max-w-7xl mx-auto px-4 pt-4">
+      
+      <div id="main-content" class="animate-fadeIn space-y-4">
+        
+        <nav class="flex text-[12px] text-slate-400 font-medium">
+          <a href="/" class="hover:text-emerald-700">Trang chủ</a>
+          <span class="mx-2">/</span>
+          <span id="breadcrumb-project" class="text-slate-600">{serverData?.projectName || "Dự án Bcons"}</span>
+        </nav>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          <div class="lg:col-span-2 space-y-4">
+            
+            <div class="bg-white p-1 rounded-2xl shadow-sm border border-slate-50">
+              <div class="relative aspect-[16/9] rounded-xl overflow-hidden bg-slate-100">
+                <img id="main-gallery-img" src={seoImage} alt={serverData?.name || "Hình ảnh căn hộ Bcons"} onerror="this.src='https://placehold.co/800x450?text=No+Image'" class="w-full h-full object-cover" />
+                <div id="gallery-counter" class="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-lg text-[10px] font-bold">1 / {itemImages.length} Ảnh</div>
+              </div>
+              <div id="thumb-gallery-container" class="flex gap-2 p-2 overflow-x-auto scrollbar-hide">
+                {itemImages.map((img, idx) => {
+                  const fullThumbUrl = img.startsWith('http') ? img : `${PUBLIC_API_BASE}/${img.replace(/^\//, '')}`;
+                  return (
+                    <div class={`thumb-gallery-item w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 ${idx === 0 ? 'border-emerald-600' : 'border-transparent'} hover:border-emerald-600 transition-all cursor-pointer`} data-index={idx} data-url={fullThumbUrl}>
+                      <img src={fullThumbUrl} alt={`Thumbnail ${idx + 1}`} class="w-full h-full object-cover" />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-50">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex-shrink-0">
+                  <div class="flex flex-row items-center gap-x-2">
+                      <span id="apartment-price" class="text-2xl font-extrabold text-emerald-700">{priceDisplay}</span>
+                  </div>
+                  <span id="apartment-price-per-m2" class="pt-1 font-bold text-emerald-700">{pricePerM2Display}</span>
+                </div>
+                <div class="rounded-xl">
+                  <ul class="flex flex-row items-center gap-x-3">
+                    <li class="flex h-14 w-14 flex-col items-center justify-between rounded-md bg-neutral-100 py-1.5 px-2">
+                      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0 text-neutral-600"><path opacity="0.2" d="M7 5h6.5a2 2 0 012 2v3.5H7V5z" fill="currentColor"></path><path d="M7 10.5V5h6.5a2 2 0 012 2v3.5M1.5 13V3M1.5 10.5h14V13M7 5H1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                      <span id="badge-beds" class="whitespace-nowrap text-sm font-semibold text-neutral-700">{serverData?.bedrooms || "--"} PN</span>
+                    </li>
+                    <li class="flex h-14 w-14 flex-col items-center justify-between rounded-md bg-neutral-100 py-1.5 px-2">
+                      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0 text-neutral-600"><g clip-path="url(#clip0_1135_13499)"><path opacity="0.2" d="M12.5 6.5V9h-4V6.5H1V9a3 3 0 003 3h8a3 3 0 003-3V6.5h-2.5z" fill="currentColor"></path><path d="M4.5 12v1.5M11.5 12v1.5M12.5 6h-4v3h4V6z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12.5 6.5H15V9a3 3 0 01-3 3H4a3 3 0 01-3-3V6.5h7.5M3.5 6.5V3.25A1.25 1.25 0 014.75 2 1.278 1.278 0 016 3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></g><defs><clipPath id="clip0_1135_13499"><path fill="#fff" d="M0 0H16V16H0z"></path></clipPath></defs></svg>
+                      <span id="badge-baths" class="whitespace-nowrap text-sm font-semibold text-neutral-700">{serverData?.bathrooms || "--"} WC</span>
+                    </li>
+                    <li class="flex h-14 w-14 flex-col items-center justify-between rounded-md bg-neutral-100 py-1.5 px-2">
+                      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0 text-neutral-600"><path opacity="0.2" fill="currentColor" d="M2.96094 2.95996H13.040939999999999V13.03996H2.96094z"></path><path d="M13.041 2.96l-3.94 3.955M9.098 2.96h3.94v3.955M2.963 13.04l3.94-3.955M6.906 13.04H2.963V9.084M13.037 9.085v3.395a.56.56 0 01-.56.56H9.099M6.902 2.96H3.521a.56.56 0 00-.56.56v3.395" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                      <span id="badge-area" class="whitespace-nowrap text-sm font-semibold text-neutral-700">{serverData?.area || "--"} m²</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <h1 id="apartment-title" class="text-xl font-bold text-slate-800 leading-tight mb-3 uppercase tracking-tight">{serverData?.name || "..."}</h1>
+              <p class="text-[16px] text-slate-500 flex items-center gap-2 font-medium">
+                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                <span id="project-address-text">{serverData?.projectAddress || "..."}</span>
+              </p>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-50 space-y-12">
+              <section>
+                <div class="flex items-center gap-3 mb-12">
+                  <div class="w-1.5 h-6 bg-[#fac72e] rounded-full"></div>
+                  <h2 class="text-md font-bold text-slate-800 uppercase tracking-tight">Khoảng giá phổ biến khu vực <span id="text-header-khuvuc" class="text-orange-600">...</span></h2>
+                </div>
+        
+                <div class="relative mb-6 pt-10 w-full max-w-[448px] mx-auto lg:mx-0">
+                  <div id="price-tooltip" class="absolute -translate-x-1/2 top-0" style="left: 50%;">
+                    <div class="bg-[#006B5D] text-white px-3 py-1.5 rounded-lg font-bold text-sm relative whitespace-nowrap shadow-md">
+                      <span id="tooltip-current-meter">{pricePerM2Display.replace(" tr/m²", "")}</span> tr/m²
+                      <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#006B5D] rotate-45"></div>
+                    </div>
+                  </div>
+
+                  <div class="flex h-1.5 w-full rounded-full overflow-hidden bg-slate-100">
+                    <div class="w-1/4 bg-slate-300 mr-1 rounded-full"></div>
+                    <div class="w-2/4 bg-[#006B5D] mr-1 rounded-full"></div>
+                    <div class="w-1/4 bg-slate-300 mr-1 rounded-full"></div>
+                  </div>
+
+                  <div class="relative w-full mt-4 h-10">
+                    <div class="absolute text-center" style="left: 25%; transform: translateX(-50%);">
+                      <div class="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-[#006B5D] mx-auto mb-1"></div>
+                      <p class="text-[#006B5D] font-bold text-[13px] whitespace-nowrap"><span id="range-low-meter">--</span> tr/m²</p>
+                    </div>
+                    <div class="absolute text-center" style="left: 75%; transform: translateX(-50%);">
+                      <div class="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-[#006B5D] mx-auto mb-1"></div>
+                      <p class="text-[#006B5D] font-bold text-[13px] whitespace-nowrap"><span id="range-high-meter">--</span> tr/m²</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex w-full items-start gap-4 p-4 border border-slate-100 bg-slate-50/50 rounded-2xl">
+                  <div class="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                    <div class="w-6 h-6 bg-[#006B5D] rounded-full flex items-center justify-center text-white">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                  </div>
+                  <div>
+                    <p id="text-price-status-title" class="text-sm font-bold text-slate-800">Đang phân tích mức giá so với khu vực...</p>
+                    <p class="text-slate-500 font-medium text-sm"><span id="price-status-sub">Căn hộ dự án {serverData?.projectName || "Bcons"}</span></p>
+                  </div>
+                </div>
+
+                <div class="mt-4 p-4 rounded-xl bg-orange-50/40 border border-orange-100/70">
+                  <p class="text-[11px] font-black text-orange-700 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                    <span class="text-md">💡</span> Yếu tố ảnh hưởng & Điều kiện giá thị trường
+                  </p>
+                  <ul id="market-notes-container" class="space-y-2 text-xs text-slate-500 font-medium list-none pl-0">
+                    <li class="italic text-slate-400">Đang phân tích dữ liệu phòng kinh doanh...</li>
+                  </ul>
+                </div>
+              </section>
+
+              <section class="pt-8 border-t border-slate-100" id="desc-section">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="w-1.5 h-6 bg-[#fac72e] rounded-full"></div>
+                  <h2 class="text-md font-bold text-slate-800 uppercase tracking-tight">Mô tả</h2>
+                </div>
+                <div class="inline-block w-full">
+                  <p class="inline whitespace-pre-line text-sm leading-6 text-slate-600 font-medium text-justify [overflow-wrap:anywhere]" id="desc-text">
+                    {serverData?.description || "Đang nạp mô tả chi tiết..."}
+                  </p>
+                  <button type="button" id="btn-desc-toggle" class="focus:outline-none focus:ring-0 focus:ring-offset-0 inline px-1 text-sm font-semibold text-emerald-800 underline select-none hidden">
+                    Xem thêm
+                  </button>
+                </div>
+              </section>
+
+              <section class="pt-8 border-t border-slate-100">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="w-1.5 h-6 bg-[#fac72e] rounded-full"></div>
+                  <h2 class="text-md font-bold text-slate-800 uppercase tracking-tight">Chi tiết thông số</h2>
+                </div>
+                <div class="flex flex-col pt-1">
+                  <div class="w-full">
+                    <div class="grid w-full grid-cols-2 gap-6 sm:grid-cols-3 sm:gap-8">
+                      <div class="flex flex-col gap-y-1">
+                        <h6 class="text-sm font-medium text-neutral-500">Phòng ngủ</h6>
+                        <div class="flex flex-row items-center gap-x-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-6 w-6 flex-shrink-0 text-emerald-700"><path d="M248,112v56H112V80H216A32,32,0,0,1,248,112Z" opacity="0.2"></path><path d="M216,72H32V48a8,8,0,0,0-16,0V208a8,8,0,0,0,16,0V176H240v32a8,8,0,0,0,16,0V112A40,40,0,0,0,216,72ZM32,88h72v72H32Zm88,72V88h96a24,24,0,0,1,24,24v48Z"></path></svg>
+                          <b id="detail-beds" class="font-bold text-neutral-900">{serverData?.bedrooms || "--"} PN</b>
+                        </div>
+                      </div>
+                      <div class="flex flex-col gap-y-1">
+                        <h6 class="text-sm font-medium text-neutral-500">Phòng tắm / WC</h6>
+                        <div class="flex flex-row items-center gap-x-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-6 w-6 flex-shrink-0 text-emerald-700"><path d="M240,104v40a48,48,0,0,1-48,48H64a48,48,0,0,1-48-48V104H136v40h64V104Z" opacity="0.2"></path><path d="M240,96H208a8,8,0,0,0-8-8H136a8,8,0,0,0-8,8H64V52A12,12,0,0,1,76,40a12.44,12.44,0,0,1,12.16,9.59,8,8,0,0,0,15.68-3.18A28.32,28.32,0,0,0,76,24,28,28,0,0,0,48,52V96H16a8,8,0,0,0-8,8v40a56.06,56.06,0,0,0,56,56v16a8,8,0,0,0,16,0V200h96v16a8,8,0,0,0,16,0V200a56.06,56.06,0,0,0,56-56V104A8,8,0,0,0,240,96Zm-48,8v32H144V104Zm40,40a40,40,0,0,1-40,40H64a40,40,0,0,1-40-40V112H128v32a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V112h24Z"></path></svg>
+                          <b id="detail-baths" class="font-bold text-neutral-900">{serverData?.bathrooms || "--"} WC</b>
+                        </div>
+                      </div>
+                      <div class="flex flex-col gap-y-1">
+                        <h6 class="text-sm font-medium text-neutral-500">Diện tích sử dụng</h6>
+                        <div class="flex flex-row items-center gap-x-2">
+                          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0 text-emerald-700"><path opacity="0.2" fill="currentColor" d="M3.69922 3.69995H16.29922V16.29995H3.69922z"></path><path d="M16.3 3.7l-4.925 4.944M11.371 3.7h4.925v4.944M3.7 16.3l4.925-4.944M8.633 16.3H3.704v-4.944M16.294 11.356V15.6a.7.7 0 01-.7.7h-4.222M8.626 3.7H4.399a.7.7 0 00-.7.7v4.244" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                          <b id="detail-area" class="font-bold text-neutral-900">{serverData?.area || "--"} m²</b>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="w-full">
+                    <div class="h-px my-6 w-full" style="background-image: linear-gradient(to right, rgb(168, 162, 158) 30%, rgba(255, 255, 255, 0) 20%); background-position: center bottom; background-repeat: repeat-x; background-size: 4px 1px;"></div>
+                    <div class="grid w-full grid-cols-2 gap-6 sm:grid-cols-3 sm:gap-8">
+                      <div class="flex flex-col gap-y-1">
+                        <h6 class="text-sm font-medium text-neutral-500">Vị trí tầng</h6>
+                        <div class="flex flex-row items-center gap-x-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-6 w-6 flex-shrink-0 text-emerald-700"><path d="M224,80l-96,56L32,80l96-56Z" opacity="0.2"></path><path d="M230.91,172xA8,8,0,0,1,228,182.91l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,36,169.09l92,53.65,92-53.65A8,8,0,0,1,230.91,172ZM220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm23.88,0L128,126.74,208.12,80,128,33.26Z"></path></svg>
+                          <b id="detail-floor" class="font-bold text-neutral-900">{serverData?.floor || "--"}</b>
+                        </div>
+                      </div>
+                      <div class="flex flex-col gap-y-1">
+                        <h6 class="text-sm font-medium text-neutral-500">Hướng cửa chính</h6>
+                        <div class="flex flex-row items-center gap-x-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256" class="h-6 w-6 flex-shrink-0 text-emerald-700">
+                            <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-88a8,8,0,0,1-8,8H136v40a8,8,0,0,1-16,0V136H80a8,8,0,0,1,0-16h40V80a8,8,0,0,1,16,0v40h40A8,8,0,0,1,168,128Z"></path>
+                          </svg>
+                          <b id="detail-dir-main" class="font-bold text-neutral-900">{serverData?.direction_main || "--"}</b>
+                        </div>
+                      </div>
+                      <div class="flex flex-col gap-y-1">
+                        <h6 class="text-sm font-medium text-neutral-500">Hướng ban công</h6>
+                        <div class="flex flex-row items-center gap-x-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256" class="h-6 w-6 flex-shrink-0 text-emerald-700">
+                            <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-88a8,8,0,0,1-8,8H136v40a8,8,0,0,1-16,0V136H80a8,8,0,0,1,0-16h40V80a8,8,0,0,1,16,0v40h40A8,8,0,0,1,168,128Z"></path>
+                          </svg>
+                          <b id="detail-dir-balcony" class="font-bold text-neutral-900">{serverData?.direction_balcony || "--"}</b>
+                        </div>
+                      </div>
+                      <div class="flex flex-col gap-y-1">
+                        <h6 class="text-sm font-medium text-neutral-500">Tình trạng nội thất</h6>
+                        <div class="flex flex-row items-center gap-x-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-6 w-6 flex-shrink-0 text-emerald-700"><path d="M240,120v48a8,8,0,0,1-8,8H24a8,8,0,0,1-8-8V120a8,8,0,0,1,8-8V72a8,8,0,0,1,8-8H224a8,8,0,0,1,8,8v40A8,8,0,0,1,240,120Z" opacity="0.2"></path><path d="M240,106.17V72a16,16,0,0,0-16-16H32A16,16,0,0,0,16,72v34.17A16,16,0,0,0,8,120v48a16,16,0,0,0,16,16h8v16a8,8,0,0,0,16,0V184H208v16a8,8,0,0,0,16,0V184h8a16,16,0,0,0,16-16V120A16,16,0,0,0,240,106.17ZM224,104h-8a16,16,0,0,0-16,16v16H136V72h88ZM120,72v64H56V120a16,16,0,0,0-16-16H32V72Zm112,96H24V120H40v24a8,8,0,0,0,8,8H208a8,8,0,0,0,8-8V120h16Z"></path></svg>
+                          <b id="detail-furniture" class="font-bold text-neutral-900">{serverData?.furniture || "--"}</b>
+                        </div>
+                      </div>
+                      <div class="flex flex-col gap-y-1">
+                        <h6 class="text-sm font-medium text-neutral-500">Toà / Tháp</h6>
+                        <div class="flex flex-row items-center gap-x-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-6 w-6 flex-shrink-0 text-emerald-700"><path d="M136,32V216H40V85.35a8,8,0,0,1-3.56-6.66l80-53.33A8,8,0,0,1,136,32Z" opacity="0.2"></path><path d="M240,208H224V96a16,16,0,0,0-16-16H144V32a16,16,0,0,0-24.88-13.32L39.12,72A16,16,0,0,0,32,85.34V208H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM208,96V208H144V96ZM48,85.34,128,32V208H48ZM112,112v16a8,8,0,0,1-16,0V112a8,8,0,1,1,16,0Zm-32,0v16a8,8,0,0,1-16,0V112a8,8,0,1,1,16,0Zm0,56v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Zm32,0v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Z"></path></svg>
+                          <b id="detail-block" class="font-bold text-neutral-900">{serverData?.block || "--"}</b>
+                        </div>
+                      </div>
+                      <div class="flex flex-col gap-y-1">
+                        <h6 class="text-sm font-medium text-neutral-500">Trạng thái xây dựng</h6>
+                        <div class="flex flex-row items-center gap-x-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-6 w-6 flex-shrink-0 text-emerald-700"><path d="M216,116.69V216H152V152H104v64H40V116.69l82.34-82.35a8,8,0,0,1,11.32,0Z" opacity="0.2"></path><path d="M240,208H224V136l2.34,2.34A8,8,0,0,0,237.66,127L139.31,28.68a16,16,0,0,0-22.62,0L18.34,127a8,8,0,0,0,11.32,11.31L32,136v72H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM48,120l80-80,80,80v88H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48Zm96,88H112V160h32Z"></path></svg>
+                          <b id="detail-status" class="font-bold text-neutral-900">{serverData?.projectStatus === 'da_ban_giao' ? 'Đã bàn giao' : 'Đang xây dựng'}</b>
+                        </div>
+                      </div>
+                      <div class="flex flex-col gap-y-1">
+                        <h6 class="text-sm font-medium text-neutral-500">Tình trạng pháp lý</h6>
+                        <div class="flex flex-row items-center gap-x-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-6 w-6 flex-shrink-0 text-emerald-700"><path d="M200,176H104s8,6,8,16a24,24,0,0,1-48,0V64A24,24,0,0,0,40,40H176a24,24,0,0,1,24,24Z" opacity="0.2"></path><path d="M232,192ZM96.26,173.48 Harg8.07,8.07,0,0,1,104,168h88V64a16,16,0,0,0-16-16H67.69A31.71,31.71,0,0,1,72,64V192a16,16,0,0,0,32,0c0-5.74-4.83-9.62-4.88-9.66A7.82,7.82,0,0,1,96.26,173.48ZM216,192a12.58,12.58,0,0,0-3.23-8h-94a26.92,26.92,0,0,1,1.21,8,31.82,31.82,0,0,1-4.29,16H200A16,16,0,0,0,216,192Z"></path></svg>
+                          <b id="detail-legal" class="font-bold text-neutral-900">
+                            {serverData?.projectLegal === 'so_hong' ? 'Đã có sổ hồng' : serverData?.projectLegal === 'booking' ? 'Booking tư vấn' : 'Hợp đồng mua bán'}
+                          </b>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <section class="pt-8 border-t border-slate-100 mt-7">
+                    <div class="flex items-center gap-3">
+                      <div class="w-1.5 h-6 bg-[#fac72e] rounded-full"></div>
+                      <h2 class="text-md font-bold text-slate-800 uppercase tracking-tight">Vị trí dự án Bcons</h2>
+                    </div>
+                    <div class="p-2 text-sm text-slate-600 font-medium" id="bottom-address-text">{serverData?.projectAddress || "Chưa cập nhật"}</div>
+                    <div id="map" class="w-full h-[450px] mt-6 bg-slate-100 rounded-xl overflow-hidden border border-slate-50 relative"></div>
+                  </section>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <div class="max-w-[440px] lg:max-w-full w-full">
+            <div class="overflow-hidden rounded-2xl border border-white shadow-[0_10px_24px_-5px_rgba(0,0,0,0.10)] bg-white">
+              <div class="relative h-[100px] w-full overflow-hidden bg-[#fac72e]">
+                <div class="absolute top-10 left-24 z-[1]">
+                  <span id="contact-staff-name-top" class="font-black text-slate-900 text-md">{serverData?.user_name || "Thành viên hệ thống"}</span>
+                </div>
+              </div>
+
+              <div class="relative z-[2] -mt-8 w-full px-6 pb-6 pt-12 backdrop-blur-md border-t-2 border-white bg-white/95">
+                <div class="absolute top-0 z-[1] -translate-y-1/2">
+                  <div class="flex flex-row items-end gap-x-2">
+                    <div class="relative box-content h-16 w-16 overflow-hidden rounded-full border-2 border-white bg-slate-100 shadow-sm">
+                      <img id="contact-staff-avatar" src={serverData?.user_avatar ? (serverData.user_avatar.startsWith('http') ? serverData.user_avatar : `${PUBLIC_API_BASE}/${serverData.user_avatar.replace(/^\//, '')}`) : "https://placehold.co/150x150?text=Avatar"} alt="Avatar môi giới" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex flex-row items-center gap-x-1 mb-1">
+                      <b class="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md">Môi giới chuyên nghiệp</b>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex w-full flex-col gap-y-3 mt-6">
+                  <ul class="flex w-full flex-col gap-y-4">
+                    {serverData?.companyName && (
+                      <li id="contact-company-row" class="flex flex-row items-start gap-x-3 animate-fadeIn">
+                        <svg viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5 flex-shrink-0 text-neutral-500"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 14h2v2H9v-2zm0-8h2v6H9V6z" fill="currentColor"></path></svg>
+                        <span class="text-sm text-neutral-900 font-bold" id="contact-company-text">{serverData.companyName}</span>
+                      </li>
+                    )}
+                    {serverData?.areaFocus && (
+                      <li id="contact-area-row" class="flex flex-row items-start gap-x-3 animate-fadeIn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5 flex-shrink-0 text-neutral-400"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span class="text-sm text-neutral-900"><span class="text-slate-400 font-medium">Khu vực:</span> <span class="font-bold" id="contact-area-text">{serverData.areaFocus}</span></span>
+                      </li>
+                    )}
+                    {serverData?.licenseNumber && (
+                      <li id="contact-license-row" class="flex flex-row items-start gap-x-3 animate-fadeIn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5 flex-shrink-0 text-neutral-400"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        <span class="text-sm text-neutral-900"><span class="text-slate-400 font-medium">Chứng chỉ:</span> <span class="font-bold" id="contact-license-text">{serverData.licenseNumber}</span></span>
+                      </li>
+                    )}
+                    {serverData?.experienceYears && serverData.experienceYears > 0 && (
+                      <li id="contact-exp-row" class="flex flex-row items-start gap-x-3 animate-fadeIn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5 flex-shrink-0 text-neutral-400"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="text-sm text-neutral-900"><span class="text-slate-400 font-medium">Kinh nghiệm:</span> <span class="font-bold" id="contact-exp-text">{serverData.experienceYears} năm</span></span>
+                      </li>
+                    )}
+                  </ul>
+
+                  {serverData?.bio && (
+                    <div class="inline-block mt-2" id="bio-container">
+                      <p class="inline whitespace-pre-line text-sm leading-6 text-neutral-600 [overflow-wrap:anywhere]" id="bio-text">
+                        {serverData.bio.split(/\s+/).length <= 15 ? serverData.bio : serverData.bio.split(/\s+/).slice(0, 15).join(' ') + '... '}
+                      </p>
+                      {serverData.bio.split(/\s+/).length > 15 && (
+                        <button type="button" id="btn-bio-toggle" class="focus:outline-none focus:ring-0 focus:ring-offset-0 inline px-1 text-sm font-semibold text-emerald-800 underline" data-full-bio={serverData.bio}>Xem thêm</button>
+                      )}
+                    </div>
+                  )}
+
+                  <div class="flex w-full flex-col gap-y-3 pt-6">
+                    <div class="inline-flex items-center flex-row gap-x-2 justify-center rounded-xl font-bold text-white h-12 bg-[#fac72e] hover:bg-[#fac72e]/90 transition">
+                      <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 text-black"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 4.5C1.5 2.84315 2.84315 1.5 4.5 1.5H5.87163C6.732 1.5 7.48197 2.08556 7.69064 2.92025L8.79644 7.34343C8.97941 8.0753 8.70594 8.84555 8.10242 9.29818L6.8088 10.2684C6.67447 10.3691 6.64527 10.5167 6.683 10.6197C7.81851 13.7195 10.2805 16.1815 13.3803 17.317C13.4833 17.3547 13.6309 17.3255 13.7316 17.1912L14.7018 15.8976C15.1545 15.2941 15.9247 15.0206 16.6566 15.2036L21.0798 16.3094C21.9144 16.518 22.5 17.268 22.5 18.1284V19.5C22.5 21.1569 21.1569 22.5 19.5 22.5H17.25C8.55151 22.5 1.5 15.4485 1.5 6.75V4.5Z"></path></svg>
+                      <a id="contact-phone-link" href={`tel:${serverData?.user_phone || ''}`} class="text-black">{serverData?.user_phone || "Đang cập nhật"}</a>
+                    </div>
+
+                    <button type="button" id="btn-consult-trigger" class="inline-flex items-center flex-row gap-x-2 justify-center rounded-xl font-bold h-12 bg-[#EFF6FF] text-blue-800 hover:bg-[#EFF6FF]/90 transition w-full cursor-pointer focus:outline-none select-none">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.3" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" /></svg>
+                      <span>Đăng ký tư vấn</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <section id="similar-section" class="mt-2 pt-12 border-t border-slate-100">
+          <div class="flex items-center gap-3 mb-8">
+             <div class="w-1.5 h-6 bg-[#064e3b] rounded-full"></div>
+             <h2 id="similar-title" class="text-xl font-bold text-slate-800 uppercase tracking-tight">Căn hộ khác tại dự án {serverData?.projectName || ''}</h2>
+          </div>
+          <div id="similar-apartments-grid" class="grid grid-cols-1 md:grid-cols-4 gap-6"></div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</MainLayout>
+
+<script is:inline>
+  // TRÍCH XUẤT BIẾN TỪ DATASET TẦNG GỐC CỦA SERVER ĐỂ HYDRATE CLIENT
+  const root = document.getElementById('apartment-detail-root');
+  const BACKEND_URL = root.dataset.backend;
+  const projectSlug = root.dataset.projectSlug;
+  const projectId = root.dataset.projectId;
+  const apartmentId = root.dataset.apartmentId;
+  const lat = root.dataset.lat;
+  const lng = root.dataset.lng;
+  const projectName = root.dataset.projectName;
+  const images = JSON.parse(root.dataset.images || '[]');
+
+  // Khởi chạy CDN SweetAlert2
+  if (!window.Swal && !document.getElementById('sweetalert-js')) {
+    const script = document.createElement('script');
+    script.id = 'sweetalert-js';
+    script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+    document.head.appendChild(script);
+  }
+
+  const escapeHTML = (str) => {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, (match) => {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+      return map[match] || match;
+    });
+  };
+
+  // Nạp tài nguyên MapLibre
+  if (!document.getElementById('maplibre-css')) {
+    const link = document.createElement('link');
+    link.id = 'maplibre-css';
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css';
+    document.head.appendChild(link);
+  }
+  if (!document.getElementById('maplibre-js')) {
+    const script = document.createElement('script');
+    script.id = 'maplibre-js';
+    script.src = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js';
+    document.head.appendChild(script);
+  }
+
+  function initMap(containerId, lat, lng, name) {
+    if (!document.getElementById(containerId) || !lat || !lng) return;
+    const checkAndInit = () => {
+      if (typeof window.maplibregl === 'undefined') {
+        setTimeout(checkAndInit, 50);
+        return;
+      }
+      try {
+        const map = new window.maplibregl.Map({
+          container: containerId,
+          style: {
+            "version": 8,
+            "sources": { "osm": { "type": "raster", "tiles": ["https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"], "tileSize": 256 } },
+            "layers": [{ "id": "osm-tiles", "type": "raster", "source": "osm", "maxzoom": 19 }]
+          },
+          center: [Number(lng), Number(lat)],
+          zoom: 15,
+          scrollZoom: false
+        });
+        map.on('load', () => {
+          map.addControl(new window.maplibregl.NavigationControl(), 'top-right');
+          const marker = new window.maplibregl.Marker({ color: '#006B5D' }).setLngLat([Number(lng), Number(lat)]).addTo(map);
+          marker.setPopup(new window.maplibregl.Popup({ offset: 25 }).setHTML("<div class='font-sans font-bold text-xs p-1'>" + escapeHTML(name) + "</div>"));
+        });
+      } catch (e) { console.error("Lỗi dựng bản đồ:", e); }
+    };
+    checkAndInit();
+  }
+
+  function timeAgo(dateString) {
+    if (!dateString) return "Mới đăng";
+    const pastTime = new Date(dateString).getTime();
+    if (isNaN(pastTime)) return "Mới đăng";
+    const seconds = Math.floor((new Date().getTime() - pastTime) / 1000);
+    if (seconds < 5) return "Vừa xong";
+    let interval = seconds / 31536000;
+    if (interval >= 1) return Math.floor(interval) + " năm trước";
+    interval = seconds / 2592000;
+    if (interval >= 1) return Math.floor(interval) + " tháng trước";
+    interval = seconds / 86400;
+    if (interval >= 1) return Math.floor(interval) + " ngày trước";
+    interval = seconds / 3600;
+    if (interval >= 1) return Math.floor(interval) + " giờ trước";
+    interval = seconds / 60;
+    if (interval >= 1) return Math.floor(interval) + " phút trước";
+    return "Vừa xong";
+  }
+
+  // Tải rổ hàng căn hộ tương tự biệt lập
+  async function loadSimilarApartments() {
+    const grid = document.getElementById('similar-apartments-grid');
+    const section = document.getElementById('similar-section');
+    if (!grid || !projectId || !apartmentId) return;
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/similar-apartments?projectId=${projectId}&excludeId=${apartmentId}&projectSlug=${projectSlug}`);
+      const data = await res.json();
+      if (!data || data.length === 0) {
+        if (section) section.classList.add('hidden');
+        return;
+      }
+      grid.innerHTML = data.map(apt => {
+        let itemImages = [];
+        if (apt.image) {
+          if (typeof apt.image === 'string' && apt.image.trim().startsWith('[')) {
+            try { itemImages = JSON.parse(apt.image); } catch { itemImages = [apt.image]; }
+          } else { itemImages = [apt.image]; }
+        }
+        const thumb = itemImages[0] ? (itemImages[0].startsWith('http') ? itemImages[0] : `${BACKEND_URL.replace(/\/$/, '')}/${itemImages[0].replace(/^\//, '')}`) : 'https://placehold.co/600x450?text=No+Image';
+        return `
+          <a href="/${escapeHTML(apt.project_slug || projectSlug)}/${escapeHTML(apt.slug)}" class="group block transition-all duration-300">
+            <div class="relative aspect-[4/3] rounded-2xl overflow-hidden mb-3 shadow-sm border border-slate-50">
+              <img src="${thumb}" alt="${escapeHTML(apt.name)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <div class="absolute bottom-2 right-2 bg-black/40 backdrop-blur-sm px-2 py-1 rounded-lg text-white text-[10px] font-bold">1/${itemImages.length} Ảnh</div>
+            </div>
+            <div class="space-y-1.5 px-1">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-1">
+                  <span class="text-[15px] font-bold text-[#064e3b]">${(apt.price / 1000000000).toFixed(2).replace('.', ',')} tỷ</span>
+                  <span class="text-slate-400 text-sm">·</span>
+                  <span class="text-[13px] font-bold text-[#064e3b]">${Math.round(apt.price / apt.area / 1000000)} tr/m²</span>
+                </div>
+                <span class="text-[10px] text-slate-400 font-medium">${timeAgo(apt.created_at || apt.createdAt)}</span>
+              </div>
+              <h3 class="text-[14px] font-bold text-slate-900 line-clamp-1 uppercase group-hover:text-[#064e3b] transition-colors">${escapeHTML(apt.name)}</h3>
+              <p class="text-[13px] text-slate-500 line-clamp-2">${escapeHTML(apt.project_address || "Đang cập nhật")}</p>
+            </div>
+          </a>`;
+      }).join('');
+    } catch (e) { console.error("Lỗi nạp căn hộ tương tự:", e); }
+  }
+
+  // Tải dữ liệu phân tích khoảng giá thị trường bất đồng bộ
+  async function loadMarketStats() {
+    if (!apartmentId) return;
+    try {
+      const statsRes = await fetch(`${BACKEND_URL}/api/apartments/${apartmentId}/price-range-m2`);
+      if (statsRes.ok) {
+        const statsData = await statsRes.json();
+        if (statsData.success) {
+          const minMeter = parseFloat(statsData.minPricePerMeter);
+          const maxMeter = parseFloat(statsData.maxPricePerMeter);
+          const currentMeter = parseFloat(statsData.currentPricePerMeter);
+
+          document.getElementById('text-header-khuvuc').textContent = statsData.khuVuc || "Dĩ An";
+          document.getElementById('range-low-meter').textContent = String(Math.round(minMeter));
+          document.getElementById('range-high-meter').textContent = String(Math.round(maxMeter));
+
+          let finalPercent = 50;
+          if (maxMeter > minMeter) {
+            const baseRatio = (currentMeter - minMeter) / (maxMeter - minMeter);
+            finalPercent = 15 + (baseRatio * 70);
+            if (currentMeter < minMeter) finalPercent = Math.max(5, 15 - ((minMeter - currentMeter) / minMeter * 100));
+            else if (currentMeter > maxMeter) finalPercent = Math.min(95, 85 + ((currentMeter - maxMeter) / maxMeter * 100));
+          }
+          if (document.getElementById('price-tooltip')) document.getElementById('price-tooltip').style.left = finalPercent.toFixed(2) + "%";
+
+          const textStatusTitle = document.getElementById('text-price-status-title');
+          if (textStatusTitle) {
+            if (currentMeter < minMeter) {
+              textStatusTitle.textContent = "Mức giá siêu hời, thấp hơn mặt bằng chung khu vực!";
+              textStatusTitle.className = "text-sm font-bold text-emerald-600";
+            } else if (currentMeter > maxMeter) {
+              textStatusTitle.textContent = "Mức giá cao hơn trung bình (Do vị trí tầng hoặc nội thất cao cấp)";
+              textStatusTitle.className = "text-sm font-bold text-orange-600";
+            } else {
+              textStatusTitle.textContent = "Mức giá rất tốt, nằm đúng trong khoảng phổ biến ổn định.";
+              textStatusTitle.className = "text-sm font-bold text-slate-800";
+            }
+          }
+          const notesContainer = document.getElementById('market-notes-container');
+          if (notesContainer && statsData.marketNotes) {
+            notesContainer.innerHTML = statsData.marketNotes.map(note => `<li class="flex items-start gap-2 leading-relaxed text-justify"><span class="text-orange-400 mt-0.5">•</span><span class="flex-1">${escapeHTML(note)}</span></li>`).join('');
+          }
+        }
+      }
+    } catch (errStats) { console.error("Lỗi đồng bộ khoảng giá stats:", errStats); }
+  }
+
+  // Khởi tạo các tương tác đổi ảnh Gallery
+  const thumbItems = document.querySelectorAll('.thumb-gallery-item');
+  thumbItems.forEach(item => {
+    item.addEventListener('click', function() {
+      const clickedUrl = this.getAttribute('data-url');
+      const clickedIndex = parseInt(this.getAttribute('data-index')) + 1;
+      document.getElementById('main-gallery-img').setAttribute('src', clickedUrl);
+      document.getElementById('gallery-counter').textContent = `${clickedIndex} / ${thumbItems.length} Ảnh`;
+      thumbItems.forEach(el => el.classList.replace('border-emerald-600', 'border-transparent'));
+      this.classList.replace('border-transparent', 'border-emerald-600');
+    });
+  });
+
+  // Toggle thu gọn/mở rộng mô tả
+  const descText = document.getElementById('desc-text');
+  const btnDescToggle = document.getElementById('btn-desc-toggle');
+  if (descText) {
+    const fullDesc = descText.textContent.trim();
+    const words = fullDesc.split(/\s+/);
+    if (words.length > 40) {
+      const shortened = words.slice(0, 40).join(' ') + '... ';
+      descText.textContent = shortened;
+      if (btnDescToggle) {
+        btnDescToggle.classList.remove('hidden');
+        let isExpanded = false;
+        btnDescToggle.addEventListener('click', () => {
+          isExpanded = !isExpanded;
+          descText.textContent = isExpanded ? (fullDesc + ' ') : shortened;
+          btnDescToggle.textContent = isExpanded ? 'Rút gọn' : 'Xem thêm';
+        });
+      }
+    }
+  }
+
+  // Toggle thu gọn/mở rộng bio môi giới
+  const btnBioToggle = document.getElementById('btn-bio-toggle');
+  const bioText = document.getElementById('bio-text');
+  if (btnBioToggle && bioText) {
+    const fullBio = btnBioToggle.getAttribute('data-full-bio');
+    let isBioExpanded = false;
+    btnBioToggle.addEventListener('click', () => {
+      isBioExpanded = !isBioExpanded;
+      bioText.textContent = isBioExpanded ? fullBio : fullBio.split(/\s+/).slice(0, 15).join(' ') + '... ';
+      btnBioToggle.textContent = isBioExpanded ? 'Rút gọn' : 'Xem thêm';
+    });
+  }
+
+  // Chạy các tác vụ Client phụ trợ không ảnh hưởng đến SEO text
+  initMap('map', lat, lng, projectName);
+  loadSimilarApartments();
+  loadMarketStats();
+
+  // Sự kiện Pop-up Form Leads
+  const btnConsult = document.getElementById('btn-consult-trigger');
+  if (btnConsult) {
+    btnConsult.addEventListener('click', () => {
+      const Swal = window.Swal;
+      if (!Swal) return;
+      const apartmentTitle = root.dataset.apartmentTitle;
+      Swal.fire({
+        title: '<span class="text-lg font-bold text-slate-800 uppercase tracking-tight">Đăng ký nhận tư vấn</span><br><span class="text-[10px] md:text-[12px]">* Cam kết tuyệt đối bảo mật thông tin khách hàng 100%.</span>',
+        width: '600px', padding: '1rem',
+        html: `
+          <div class="space-y-4 text-left pt-2 font-sans">
+            <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1.5 tracking-wide">Căn hộ quan tâm</label><input type="text" class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-500 font-bold text-sm focus:outline-none" value="${escapeHTML(apartmentTitle)}" disabled /></div>
+            <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1.5 tracking-wide">Họ và tên khách hàng <span class="text-red-500">*</span></label><input type="text" id="swal-cust-name" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-800 text-sm font-semibold focus:outline-none" placeholder="Ví dụ: Nguyễn Văn Tín" /></div>
+            <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1.5 tracking-wide">Số điện thoại liên hệ <span class="text-red-500">*</span></label><input type="tel" id="swal-cust-phone" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-800 text-sm font-semibold focus:outline-none" placeholder="Ví dụ: 0911502603" /></div>
+            <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1.5 tracking-wide">Ghi chú yêu cầu thêm</label><textarea id="swal-cust-note" rows="3" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-800 text-sm font-medium focus:outline-none" placeholder="Cần tư vấn giá, lịch xem nhà..."></textarea></div>
+          </div>`,
+        showCancelButton: true, confirmButtonText: 'Gửi yêu cầu ngay', cancelButtonText: 'Hủy bỏ', confirmButtonColor: '#006B5D', cancelButtonColor: '#94a3b8',
+        preConfirm: () => {
+          const name = document.getElementById('swal-cust-name').value.trim();
+          const phone = document.getElementById('swal-cust-phone').value.trim();
+          const note = document.getElementById('swal-cust-note').value.trim();
+          if (!name) { Swal.showValidationMessage('Vui lòng nhập họ và tên.'); return false; }
+          if (!phone || !/^(0|84)\d{9,10}$/.test(phone)) { Swal.showValidationMessage('Số điện thoại không hợp lệ.'); return false; }
+          return { name, phone, project: projectName, source: apartmentTitle + (note ? " | Ghi chú: " + note : "") };
+        }
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          Swal.fire({ title: 'Đang gửi thông tin...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+          try {
+            const response = await fetch(`${BACKEND_URL}/api/leads`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+              body: JSON.stringify(result.value)
+            });
+            if (response.ok) Swal.fire({ icon: 'success', title: 'Đăng ký thành công!', text: 'Thông tin đã được ghi nhận vào danh sách Lead tư vấn.', confirmButtonColor: '#006B5D' });
+            else throw new Error();
+          } catch { Swal.fire({ icon: 'error', title: 'Thất bại', text: 'Không thể gửi yêu cầu tư vấn!', confirmButtonColor: '#006B5D' }); }
+        }
+      });
+    });
+  }
+</script>
+
+<style is:global>
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  #map { width: 100% !important; display: block !important; }
+  .maplibregl-popup-content { padding: 8px 12px !important; border-radius: 8px !important; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important; }
+</style>

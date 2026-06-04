@@ -1,0 +1,343 @@
+---
+// src/pages/admin/projects/edit.astro
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+// 🔥 ĐÃ BỎ: Không dùng Astro.params nữa để cấu hình chạy tĩnh hoàn toàn theo dạng ?id=...
+---
+
+<AdminLayout title="Sửa Dự Án">
+  <script is:inline src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <div class="max-w-full mx-auto px-4 py-8">
+    <div class="mb-8">
+      <a href="/admin/projects" id="backBtn" class="text-slate-400 hover:text-slate-800 transition-colors flex items-center gap-2 font-medium">
+        <span>←</span> Hủy bỏ
+      </a>
+      <h1 class="text-3xl font-bold text-slate-800 mt-2">Cập nhật dự án</h1>
+    </div>
+
+    <form id="editProjectForm" class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-50">
+      <input type="hidden" name="currentImage" id="currentImage" />
+
+      <div class="md:col-span-2">
+        <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Tên dự án</label>
+        <input type="text" name="title" id="title" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none font-medium transition-all" />
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Địa chỉ</label>
+        <input type="text" name="address" id="address" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none font-medium transition-all" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 w-full">
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Lat</label>
+          <input type="text" name="lat" id="edit-lat" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" placeholder="Ví dụ: 10.885348" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Lng</label>
+          <input type="text" name="lng" id="edit-lng" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" placeholder="Ví dụ: 106.783637" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 w-full mb-4">
+        <div class="relative dropdown-container" id="dropdown-status">
+          <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Tình trạng</label>
+          <input type="hidden" name="status" id="status" value="dang_xay_dung">
+          <button type="button" class="drop-btn w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl flex items-center justify-between font-medium hover:bg-slate-100 transition-all focus:border-orange-500 outline-none shadow-sm">
+            <span class="selected-text">🏗️ Đang xây dựng</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="drop-menu absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+            <div class="p-2 space-y-1">
+              <div data-value="dang_xay_dung" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                <span>Đang xây dựng</span>
+              </div>
+              <div data-value="da_ban_giao" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                <span>Đã bàn giao</span>
+              </div>
+              <div data-value="dang_mo_ban" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                <span>Đang mở bán</span>
+              </div>
+              <div data-value="sap_mo_ban" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                <span>Sắp mở bán</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative dropdown-container" id="dropdown-legal">
+          <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Pháp lý</label>
+          <input type="hidden" name="legal" id="legal" value="hdmb">
+          <button type="button" class="drop-btn w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl flex items-center justify-between font-medium hover:bg-slate-100 transition-all focus:border-orange-500 outline-none shadow-sm">
+            <span class="selected-text">📄 Hợp đồng mua bán</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="drop-menu absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+            <div class="p-2 space-y-1">
+              <div data-value="hdmb" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                <span>Hợp đồng mua bán</span>
+              </div>
+              <div data-value="so_hong" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                <span>Đã có sổ hồng</span>
+              </div>
+              <div data-value="booking" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
+                <span>Booking tư vấn</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Hình ảnh dự án</label>
+        <input type="file" id="imageInput" name="image" accept="image/*" class="w-full mb-4 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer" />
+        
+        <div class="flex justify-center bg-slate-50 rounded-3xl p-6 border-2 border-dashed border-slate-200">
+          <div class="relative group">
+            <img id="imgPreview" src="" class="w-48 h-48 object-cover rounded-2xl shadow-md border-4 border-white transition-transform group-hover:scale-105" onerror="this.src='https://placehold.co/200x200?text=No+Image'" />
+          </div>
+        </div>
+      </div>
+
+      <div class="md:col-span-2 pt-4">
+        <button type="submit" id="submitBtn" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-5 rounded-2xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50">
+          Lưu thay đổi
+        </button>
+      </div>
+    </form>
+  </div>
+</AdminLayout>
+
+<style>
+  .dropdown-container.active .drop-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .dropdown-container.active .drop-btn svg {
+    transform: rotate(180deg);
+  }
+</style>
+
+<script>
+  import { checkAdminAuth } from '../../../lib/auth'
+
+  checkAdminAuth();
+  declare var Swal: any;
+
+  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  
+  // 🔥 ĐÃ SỬA CHUẨN: Bốc mã ID trực tiếp từ tham số URL (?id=...) giống hệt bên trang bài viết (Posts)
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get('id');
+
+  const form = document.getElementById('editProjectForm') as HTMLFormElement;
+  const imgPreview = document.getElementById('imgPreview') as HTMLImageElement;
+  const currentImageHidden = document.getElementById('currentImage') as HTMLInputElement;
+
+  function setupCustomDropdown(containerId: string) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const btn = container.querySelector('.drop-btn') as HTMLButtonElement;
+    const input = container.querySelector('input[type="hidden"]') as HTMLInputElement;
+    const options = container.querySelectorAll('.option-item');
+    const selectedText = container.querySelector('.selected-text');
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.dropdown-container').forEach(el => {
+        if (el !== container) el.classList.remove('active');
+      });
+      container.classList.toggle('active');
+    });
+
+    options.forEach(opt => {
+      opt.addEventListener('click', () => {
+        const val = opt.getAttribute('data-value');
+        const content = opt.innerHTML;
+        if (val && input) input.value = val;
+        if (selectedText) selectedText.innerHTML = content;
+        container.classList.remove('active');
+      });
+    });
+  }
+
+  setupCustomDropdown('dropdown-status');
+  setupCustomDropdown('dropdown-legal');
+
+  window.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-container').forEach(el => el.classList.remove('active'));
+  });
+
+  async function loadData() {
+    // Nếu không có ID trên URL, đá ngược user về trang danh sách dự án ngay lập tức
+    if (!id || id === 'undefined' || id === 'null') {
+      window.location.replace('/admin/projects');
+      return;
+    }
+    
+    const token = localStorage.getItem('admin_token')?.replace(/['"]+/g, '').trim();
+    if (!token) {
+      localStorage.clear();
+      window.location.replace('/admin');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/projects/${id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.clear();
+        window.location.replace('/admin');
+        return;
+      }
+
+      if (!res.ok) throw new Error("Không thể bóc tách dữ liệu từ hệ thống Laravel.");
+      
+      const data = await res.json();
+
+      (document.getElementById('title') as HTMLInputElement).value = data.title || '';
+      (document.getElementById('address') as HTMLInputElement).value = data.address || data.location || '';
+      currentImageHidden.value = data.image_url || data.image || '';
+
+      const statusInput = document.getElementById('status') as HTMLInputElement;
+      const inputLat = document.getElementById('edit-lat') as HTMLInputElement;
+      const inputLng = document.getElementById('edit-lng') as HTMLInputElement;
+      
+      statusInput.value = data.status || 'dang_xay_dung';
+
+      if (inputLat) inputLat.value = data.lat || '';
+      if (inputLng) inputLng.value = data.lng || '';
+
+      const statusText = document.querySelector(`#dropdown-status [data-value="${statusInput.value}"]`)?.innerHTML;
+      if (statusText) document.querySelector('#dropdown-status .selected-text')!.innerHTML = statusText;
+
+      const legalInput = document.getElementById('legal') as HTMLInputElement;
+      legalInput.value = data.legal || 'hdmb';
+      const legalText = document.querySelector(`#dropdown-legal [data-value="${legalInput.value}"]`)?.innerHTML;
+      if (legalText) document.querySelector('#dropdown-legal .selected-text')!.innerHTML = legalText;
+
+      const currentImgPath = data.image_url || data.image;
+      if (currentImgPath) {
+        imgPreview.src = currentImgPath.startsWith('http') ? currentImgPath : `${API_BASE}${currentImgPath}`;
+      }
+    } catch (err: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi nạp dữ liệu',
+        text: err.message || 'Không thể đồng bộ thông tin từ API Laravel',
+        confirmButtonColor: '#ea580c'
+      });
+    }
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const imageInput = document.getElementById('imageInput') as HTMLInputElement;
+    if (imageInput && imageInput.files && imageInput.files.length > 0) {
+      const file = imageInput.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({ icon: 'error', title: 'Tệp quá lớn', text: 'Kích thước hình ảnh dự án tối đa là 5MB!', confirmButtonColor: '#ef4444' });
+        return;
+      }
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+      if (!allowedTypes.includes(file.type)) {
+        Swal.fire({ icon: 'error', title: 'Sai định dạng', text: 'Chỉ chấp nhận các file ảnh định dạng JPG, PNG hoặc WEBP!', confirmButtonColor: '#ef4444' });
+        return;
+      }
+    }
+
+    Swal.fire({
+      title: 'Đang xử lý...',
+      text: 'Vui lòng chờ trong giây lát',
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    const btn = document.getElementById('submitBtn') as HTMLButtonElement;
+    btn.disabled = true;
+
+    const formData = new FormData(form);
+    formData.append('_method', 'PUT');
+    formData.append('location', (document.getElementById('address') as HTMLInputElement).value.trim());
+
+    const token = localStorage.getItem('admin_token')?.replace(/['"]+/g, '').trim();
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/projects/${id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        body: formData
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        throw new Error("Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.");
+      }
+
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công!',
+          text: result.message || 'Dự án đã được cập nhật.',
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => {
+          window.location.href = '/admin/projects';
+        });
+      } else {
+        throw new Error(result.message || "Có lỗi xảy ra trong quá trình cập nhật dữ liệu.");
+      }
+    } catch (err: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Thất bại',
+        text: err.message || 'Lỗi kết nối API Laravel đường truyền.',
+        confirmButtonColor: '#ef4444'
+      });
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('backBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    Swal.fire({
+      title: 'Hủy bỏ chỉnh sửa?',
+      text: "Các thông tin vừa nhập sẽ không được lưu lại.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#ea580c',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Đúng, hủy bỏ',
+      cancelButtonText: 'Tiếp tục sửa'
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        window.location.href = '/admin/projects';
+      }
+    });
+  });
+
+  document.getElementById('imageInput')?.addEventListener('change', (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (file) imgPreview.src = URL.createObjectURL(file);
+  });
+
+  loadData();
+</script>

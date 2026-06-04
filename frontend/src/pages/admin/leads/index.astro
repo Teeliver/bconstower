@@ -1,0 +1,383 @@
+---
+// src/pages/admin/leads/index.astro
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+---
+
+<AdminLayout title="Quản lý khách hàng">
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-2xl font-black text-slate-900 uppercase">Quản lý khách hàng (Leads)</h1>
+        <p class="text-slate-500">Quản lý tệp khách hàng đăng ký nhận thông tin và tham quan nhà mẫu Bcons</p>
+      </div>
+      <div class="bg-orange-50 border border-orange-100 text-orange-600 px-6 py-3 rounded-2xl font-bold shadow-sm flex items-center gap-2 text-sm">
+        📊 Tổng số: <span id="totalCount" class="font-black">0</span> khách hàng
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-[1.5rem] shadow-sm border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+      
+      <div class="relative dropdown-container" id="drop-project">
+        <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Dự án quan tâm</label>
+        <button type="button" class="drop-btn w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-xl flex items-center justify-between text-sm font-medium hover:bg-slate-100 transition-all outline-none cursor-pointer">
+          <span class="selected-text">Tất cả dự án</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        <input type="hidden" id="filterProject" value="all">
+        <div class="drop-menu absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+          <div class="p-2 space-y-1 max-h-60 overflow-y-auto" id="dropdownProjectOptions">
+            <div data-value="all" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm font-bold text-slate-700">Tất cả dự án</div>
+            </div>
+        </div>
+      </div>
+
+      <div class="relative dropdown-container" id="drop-status">
+        <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Trạng thái xử lý</label>
+        <button type="button" class="drop-btn w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-xl flex items-center justify-between text-sm font-medium hover:bg-slate-100 transition-all outline-none cursor-pointer">
+          <span class="selected-text">Tất cả trạng thái</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        <input type="hidden" id="filterStatus" value="all">
+        <div class="drop-menu absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+          <div class="p-2 space-y-1">
+            <div data-value="all" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm font-bold text-slate-700">Tất cả trạng thái</div>
+            <div data-value="bao_gia" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm font-bold text-slate-700">Cần Báo Giá</div>
+            <div data-value="tham_quan_nha_mau" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm font-bold text-slate-700">Đăng ký xem nhà mẫu</div>
+            <div data-value="dang_tu_van" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm font-bold text-slate-700">Đang Tư Vấn</div>
+            <div data-value="da_chot" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm font-bold text-slate-700">Đã Chốt Cọc</div>
+            <div data-value="sai_so" class="option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm font-bold text-slate-700">Sai số / Hủy bỏ</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Tìm kiếm khách hàng</label>
+        <input type="text" id="searchInput" placeholder="Nhập tên, số điện thoại hoặc nguồn..." class="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-xl text-sm font-bold focus:bg-white focus:border-orange-500 outline-none transition-all" />
+      </div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden" id="admin-leads-root" data-api-base={PUBLIC_API_BASE}>
+        <table class="w-full text-left">
+          <thead class="bg-slate-50 border-b border-slate-200">
+            <tr>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Khách hàng</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm text-center">Dự án quan tâm</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm text-center">Yêu cầu hiện tại</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm text-center">Nguồn chiến dịch</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm text-center">Ngày đăng ký</th>
+              <th class="px-6 py-5 font-bold text-slate-600 text-sm text-right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100" id="leadTableBody">
+            <tr>
+                <td colspan="6" class="p-20 text-center text-slate-400 italic font-medium animate-pulse">Đang kết nối cơ sở dữ liệu khách hàng...</td>
+            </tr>
+          </tbody>
+        </table>
+        <div id="noResults" class="hidden p-20 text-center text-slate-400 italic bg-white font-medium">
+          Không tìm thấy thông tin khách hàng nào khớp với bộ lọc điều kiện.
+        </div>
+    </div>
+</AdminLayout>
+
+<style>
+  .dropdown-container.active .drop-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+  .dropdown-container.active .drop-btn svg { transform: rotate(180deg); }
+  .dropdown-container.active .drop-btn { border-color: #ea580c; background-color: #fff; }
+</style>
+
+<script>
+  import Swal from 'sweetalert2';
+  import { checkAdminAuth } from '../../../lib/auth';
+
+  // Khóa bảo vệ trang quản trị
+  checkAdminAuth();
+
+  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+
+  const escapeHTML = (val: any): string => {
+    if (val === null || val === undefined) return '';
+    return String(val).replace(/[&<>"']/g, (m) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[m] || m));
+  };
+
+  async function initPage() {
+    const tbody = document.getElementById('leadTableBody');
+    if (!tbody) return;
+
+    const rawToken = localStorage.getItem('admin_token');
+    const token = rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
+
+    try {
+      // 1. Tải danh sách Dự án động đổ vào bộ lọc Custom Dropdown trước
+      await fetchProjectsToDropdown();
+
+      // 2. Tải toàn bộ mảng dữ liệu khách hàng từ Laravel về
+      const res = await fetch(`${API_BASE}/api/admin/leads`, {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+      });
+      
+      if (res.status === 401) {
+        window.location.href = '/admin';
+        return;
+      }
+      
+      if (!res.ok) throw new Error("Server Lead Error");
+      
+      const result = await res.json();
+      const leads = result.data || [];
+
+      // Cập nhật tổng số lên widget đếm
+      const totalCountEl = document.getElementById('totalCount');
+      if (totalCountEl) totalCountEl.innerText = result.pagination?.total || leads.length;
+
+      if (!leads || leads.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="p-20 text-center text-slate-400 italic font-medium">Chưa có dữ liệu khách hàng đăng ký form.</td></tr>';
+        return;
+      }
+
+      renderTable(leads);
+      setupFilters();
+
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="6" class="p-20 text-center text-red-500 font-bold italic underline">Lỗi kết nối máy chủ dữ liệu Laravel API. Vui lòng kiểm tra cổng 8000.</td></tr>';
+    }
+  }
+
+  // Hàm lôi quỹ dự án thật đổ bộ vào bộ lọc Custom Dropdown
+  async function fetchProjectsToDropdown() {
+    const container = document.getElementById('dropdownProjectOptions');
+    if (!container || container.children.length > 1) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/projects-list`);
+      if (res.ok) {
+        const result = await res.json();
+        const projects = result.data || [];
+        projects.forEach((proj: any) => {
+          const div = document.createElement('div');
+          div.setAttribute('data-value', proj.title);
+          div.className = "option-item px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-sm font-bold text-slate-700";
+          div.textContent = proj.title;
+          container.appendChild(div);
+        });
+      }
+    } catch (err) {
+      console.error("Lỗi đồng bộ menu dự án:", err);
+    }
+  }
+
+  function renderTable(data: any[]) {
+    const tbody = document.getElementById('leadTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = data.map((item: any) => {
+        const name = item.name || 'Ẩn danh';
+        const phone = item.phone || 'Không có số';
+        const project = item.project || 'Trang chủ Bcons';
+        const status = item.status || 'bao_gia';
+        const source = item.source || 'CTA Form';
+        
+        // Đồng bộ định dạng thời gian chuẩn JS chấm .
+        const date = item.created_at || item.createdAt 
+          ? new Date(item.created_at || item.createdAt).toLocaleDateString('vi-VN', {hour: '2-digit', minute:'2-digit', day: '2-digit', month: '2-digit', year: 'numeric'}) 
+          : 'N/A';
+
+        return `
+        <tr class="lead-row group hover:bg-slate-50/50 transition-colors" 
+            data-project="${escapeHTML(project)}" 
+            data-status="${escapeHTML(status)}"
+            data-search="${escapeHTML(name.toLowerCase())} ${escapeHTML(phone)} ${escapeHTML(source.toLowerCase())}">
+            <td class="px-6 py-5">
+                <div class="flex items-center gap-3">
+                    <div>
+                        <div class="font-bold text-slate-800 group-hover:text-orange-600 transition-colors uppercase">${escapeHTML(name)}</div>
+                        <a href="tel:${phone}" class="text-[12px] text-slate-600 hover:text-orange-600 font-medium block mt-0.5">${escapeHTML(phone)}</a>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-5 text-center">
+                <span class="px-3 py-1 bg-orange-100 border border-orange-200 text-black text-xs rounded-lg font-medium">
+                    ${escapeHTML(project)}
+                </span>
+            </td>
+            <td class="px-6 py-5 text-center">
+                <span class="px-3 py-1 rounded-full text-[10px] font-medium uppercase shadow-sm ${getStatusBadgeClass(status)}">
+                    ${getStatusText(status)}
+                </span>
+            </td>
+            <td class="px-6 py-5 text-center text-xs text-slate-500 font-medium">
+                ${escapeHTML(source)}
+            </td>
+            <td class="px-6 py-5 text-center text-xs text-slate-400 font-bold">
+                ${date}
+            </td>
+            <td class="px-6 py-5 text-right">
+                <div class="flex justify-end gap-2">
+                    <button class="update-status-btn p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm cursor-pointer" data-id="${item.id}" data-name="${escapeHTML(name)}" data-status="${escapeHTML(status)}" title="Cập nhật trạng thái cuộc gọi">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2.5 2.5 0 113.536 3.536L12 14.232H8V10.232l9.586-9.586z" /></svg>
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+
+    setupActionEvents();
+  }
+
+  function setupFilters() {
+    ['drop-project', 'drop-status'].forEach(id => {
+        const container = document.getElementById(id);
+        if (!container) return;
+        const btn = container.querySelector('.drop-btn') as HTMLButtonElement;
+        const hiddenInput = container.querySelector('input[type="hidden"]') as HTMLInputElement;
+        const selectedText = container.querySelector('.selected-text');
+
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.dropdown-container').forEach(el => el !== container && el.classList.remove('active'));
+            container.classList.toggle('active');
+        });
+
+        container.addEventListener('click', (e) => {
+            const optionItem = (e.target as HTMLElement).closest('.option-item');
+            if (optionItem) {
+                const val = optionItem.getAttribute('data-value');
+                if (val && hiddenInput) {
+                    hiddenInput.value = val;
+                    if (selectedText) selectedText.textContent = optionItem.textContent;
+                    container.classList.remove('active');
+                    filterData();
+                }
+            }
+        });
+    });
+
+    document.getElementById('searchInput')?.addEventListener('input', filterData);
+    window.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-container').forEach(el => el.classList.remove('active'));
+    });
+  }
+
+  function filterData() {
+    const valProj = (document.getElementById('filterProject') as HTMLInputElement).value;
+    const valStatus = (document.getElementById('filterStatus') as HTMLInputElement).value;
+    const valSearch = (document.getElementById('searchInput') as HTMLInputElement).value.toLowerCase();
+
+    const rows = document.querySelectorAll('.lead-row');
+    const noResults = document.getElementById('noResults');
+    let visibleCount = 0;
+
+    rows.forEach((row: any) => {
+      const proj = row.dataset.project;
+      const status = row.dataset.status;
+      const searchContent = row.dataset.search;
+
+      const passProj = valProj === 'all' || proj === valProj;
+      const passStatus = valStatus === 'all' || status === valStatus;
+      const passSearch = searchContent.includes(valSearch);
+
+      if (passProj && passStatus && passSearch) {
+        row.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        row.classList.add('hidden');
+      }
+    });
+
+    if (visibleCount === 0) noResults?.classList.remove('hidden');
+    else noResults?.classList.add('hidden');
+  }
+
+  function setupActionEvents() {
+    document.querySelectorAll('.update-status-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const target = e.currentTarget as HTMLElement;
+            const id = target.dataset.id;
+            const name = target.dataset.name;
+            const currentStatus = target.dataset.status;
+            
+            if (!id) return;
+
+            // Mở hộp thoại chọn trạng thái bằng Swal nâng cấp đồng bộ UI
+            const { value: newStatus } = await Swal.fire({
+              title: 'Cập nhật tiến độ chăm sóc',
+              text: `Chọn trạng thái mới cho khách hàng: ${name}`,
+              input: 'select',
+              inputOptions: {
+                'bao_gia': '🔹 Cần Báo Giá',
+                'tham_quan_nha_mau': '🔮 Đăng ký Nhà Mẫu',
+                'dang_tu_van': '⏳ Đang Tư Vấn',
+                'da_chot': '💎 Đã Chốt Cọc',
+                'sai_so': '❌ Sai số / Hủy bỏ'
+              },
+              inputValue: currentStatus,
+              showCancelButton: true,
+              confirmButtonColor: '#ea580c', // Đồng bộ tone màu cam chủ đạo của ông
+              confirmButtonText: 'Cập nhật',
+              cancelButtonText: 'Hủy bỏ'
+            });
+
+            if (newStatus && newStatus !== currentStatus) {
+                Swal.fire({ title: 'Đang lưu hệ thống...', didOpen: () => Swal.showLoading() });
+                
+                const rawToken = localStorage.getItem('admin_token');
+                const token = rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
+
+                try {
+                    const res = await fetch(`${API_BASE}/api/admin/leads/${id}/status`, {
+                        method: 'PUT',
+                        headers: { 
+                          'Authorization': `Bearer ${token}`,
+                          'Content-Type': 'application/json',
+                          'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        await Swal.fire({ icon: 'success', title: 'Cập nhật trạng thái thành công!', timer: 1200, showConfirmButton: false });
+                        initPage(); // Re-render làm mới bảng
+                    } else {
+                        throw new Error(data.message || "Lỗi cập nhật");
+                    }
+                } catch (err: any) {
+                    Swal.fire('Thất bại', err.message || 'Không thể kết nối máy chủ Laravel', 'error');
+                }
+            }
+        });
+    });
+  }
+
+  // Các hàm tiện ích Map giao diện
+  function getStatusBadgeClass(status: string) {
+    switch(status) {
+      case 'bao_gia': return 'bg-blue-50 text-blue-600 border border-blue-100';
+      case 'tham_quan_nha_mau': return 'bg-purple-50 text-purple-600 border border-purple-100';
+      case 'dang_tu_van': return 'bg-amber-50 text-amber-600 border border-amber-100';
+      case 'da_chot': return 'bg-green-50 text-green-600 border border-green-200 font-black';
+      case 'sai_so': return 'bg-red-50 text-red-500 border border-red-100';
+      default: return 'bg-slate-100 text-slate-400';
+    }
+  }
+
+  function getStatusText(status: string) {
+    switch(status) {
+      case 'bao_gia': return 'Cần báo giá';
+      case 'tham_quan_nha_mau': return 'Đăng ký xem nhà mẫu';
+      case 'dang_tu_van': return 'Đang tư vấn';
+      case 'da_chot': return 'Đã Chốt Cọc';
+      case 'sai_so': return 'Hủy / Sai số';
+      default: return status;
+    }
+  }
+
+  // Khởi chạy đồng bộ mượt mà ở cả lượt tải đầu tiên và khi đổi trang qua View Transitions
+  initPage();
+  document.addEventListener('astro:page-load', initPage);
+</script>

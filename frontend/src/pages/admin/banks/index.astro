@@ -1,0 +1,194 @@
+---
+// src/pages/admin/banks/index.astro
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Danh sách ngân hàng liên kết Bcons">
+  <div class="flex justify-between items-center mb-8 font-body">
+    <div>
+      <h2 class="text-2xl font-bold text-slate-800">Tất cả ngân hàng</h2>
+      <p class="text-slate-500">Quản lý danh mục, lãi suất ưu đãi và thả nổi phục vụ công cụ tính khoản vay</p>
+    </div>
+    <a href="/admin/banks/add" class="bg-orange-600 hover:bg-orange-500 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-orange-900/20 flex items-center gap-2">
+      <span class="text-xl">+</span> Thêm ngân hàng mới
+    </a>
+  </div>
+
+  <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden font-body">
+    <table class="w-full text-left">
+      <thead class="bg-slate-50 border-b border-slate-200">
+        <tr>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm">Ngân hàng</th>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm">Lãi ưu đãi</th>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm">Lãi thả nổi</th>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm">Ngày tạo</th>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm text-right">Hành động</th>
+        </tr>
+      </thead>
+      <tbody id="bankList" class="divide-y divide-slate-100">
+        <tr><td colspan="5" class="p-10 text-center text-slate-400 italic">Đang tải dữ liệu...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</AdminLayout>
+
+<style is:global>
+  /* Bảo toàn cấu trúc thiết kế bo góc đồng bộ của hệ thống Admin Bcons */
+  .swal2-popup {
+    border-radius: 1.5rem !important;
+  }
+</style>
+
+<script>
+  import Swal from 'sweetalert2';
+  import { checkAdminAuth } from '../../../lib/auth';
+
+  // ĐỒNG BỘ: Chuyển đổi sang cổng chạy API chuẩn bảo mật của Backend Laravel
+  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  const bankList = document.getElementById('bankList');
+
+  // Kiểm tra quyền hạn Token Admin trước khi render giao diện
+  checkAdminAuth();
+
+  // 🔒 BẢO MẬT: Khử độc dữ liệu ngăn tấn công chèn mã độc XSS khi render chuỗi innerHTML
+  const escapeHTML = (val: any): string => {
+    if (val === null || val === undefined) return '';
+    return String(val).replace(/[&<>"']/g, (m) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[m] || m));
+  };
+
+  // 🔒 BẢO MẬT: Trích xuất và làm sạch Token khỏi ký tự nháy rác từ localStorage
+  const getToken = () => {
+    const rawToken = localStorage.getItem('admin_token') || localStorage.getItem('token');
+    return rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
+  }
+
+  async function fetchBanks() {
+    try {
+      // ĐỒNG BỘ: Đi vào route quản lý biệt lập và bổ sung Token Header để vượt qua Middleware an toàn
+      const res = await fetch(`${API_BASE}/api/admin/banks`, {
+        headers: {
+          'Authorization': `Bearer ${getToken()}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (res.status === 401) {
+          window.location.href = '/admin';
+          return;
+      }
+
+      if (!res.ok) throw new Error("Không thể kết nối danh mục ngân hàng từ máy chủ.");
+
+      const data = await res.json();
+
+      if (!bankList) return;
+      bankList.innerHTML = '';
+
+      if (!Array.isArray(data) || data.length === 0) {
+        bankList.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-500 italic">Chưa có ngân hàng nào được cấu hình</td></tr>';
+        return;
+      }
+
+      data.forEach((item: any) => {
+        // ĐỒNG BỘ HẬU TRƯỜNG: Đọc thông minh cấu trúc trường CamelCase từ API hoặc Snake_case gốc từ DB
+        const bankName = item.name || '';
+        const maxTerm = item.maxTerm || item.max_term || 0;
+        const preferentialRate = item.preferentialRate || item.preferential_rate || 0;
+        const preferentialTerm = item.preferentialTerm || item.preferential_term || 0;
+        const floatingRate = item.floatingRate || item.floating_rate || 0;
+        const createdAt = item.createdAt || item.created_at || Date.now();
+
+        const imageUrl = item.logo 
+          ? (item.logo.startsWith('http') ? item.logo : `${API_BASE}${item.logo}`)
+          : 'https://placehold.co/100x100?text=Bank';
+
+        const row = document.createElement('tr');
+        row.className = "hover:bg-slate-50 transition-all";
+        
+        // Render cấu trúc HTML đồng bộ tuyệt đối theo layout mẫu của Trung Tín kết hợp bộ lọc chống XSS
+        row.innerHTML = `
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-4">
+                <img src="${imageUrl}" class="w-12 h-12 rounded-lg object-contain bg-white border border-slate-200 p-1" onerror="this.src='https://placehold.co/100x100?text=Error'"/>
+                <div>
+                  <div class="font-bold text-slate-800 line-clamp-1">${escapeHTML(bankName)}</div>
+                  <div class="text-[11px] text-slate-400 font-medium uppercase tracking-tighter">Vay tối đa: ${escapeHTML(maxTerm)} Năm</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700">
+                ${escapeHTML(preferentialRate)}% (${escapeHTML(preferentialTerm)} Tháng)
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm font-bold text-slate-600">${escapeHTML(floatingRate)}%/năm</td>
+            <td class="px-6 py-4 text-xs text-slate-400 font-mono italic">${new Date(createdAt).toLocaleDateString('vi-VN')}</td>
+            <td class="px-6 py-5 text-right">
+              <div class="flex justify-end gap-2">
+                <a href="/admin/banks/edit?id=${item.id}" class="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all" title="Sửa">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                </a>
+                <button class="delete-btn p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all cursor-pointer focus:outline-none" data-id="${escapeHTML(item.id)}" data-title="${escapeHTML(bankName)}">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                </button>
+              </div>
+            </td>
+        `;
+        bankList.appendChild(row);
+      });
+
+      // LẮNG NGHE SỰ KIỆN KÍCH HOẠT HỘP THOẠI XÓA SWEETALERT2 CỰC MƯỢT
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const target = e.currentTarget as HTMLElement;
+          const id = target.dataset.id;
+          const title = target.dataset.title;
+          
+          if (!id) return;
+
+          const result = await Swal.fire({
+            title: 'Xác nhận xóa ngân hàng?',
+            text: `Dữ liệu về "${title}" sẽ không thể khôi phục!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Xóa ngay',
+            cancelButtonText: 'Hủy'
+          });
+
+          if (result.isConfirmed) {
+            Swal.fire({ title: 'Đang xóa...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            try {
+              const token = getToken(); 
+              const deleteRes = await fetch(`${API_BASE}/api/admin/banks/${id}`, {
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Accept': 'application/json'
+                }
+              });
+              const deleteData = await deleteRes.json();
+
+              if (deleteRes.ok && deleteData.success) {
+                await Swal.fire('Đã xóa!', 'Ngân hàng liên kết đã được gỡ bỏ hoàn toàn.', 'success');
+                window.location.reload();
+              } else {
+                Swal.fire('Thất bại', deleteData.message || 'Xóa danh mục thất bại.', 'error');
+              }
+            } catch (error: any) {
+              Swal.fire('Thất bại', 'Lỗi kết nối máy chủ API khi gửi lệnh xóa.', 'error');
+            }
+          }
+        });
+      });
+
+    } catch (err: any) {
+      if (bankList) bankList.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-red-500 font-bold">⚠️ Lỗi kết nối máy chủ Port 8000: ${escapeHTML(err.message)}</td></tr>`;
+    }
+  }
+
+  fetchBanks();
+</script>

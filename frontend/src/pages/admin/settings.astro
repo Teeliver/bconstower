@@ -1,0 +1,296 @@
+---
+// src/pages/admin/settings.astro
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Cấu hình hệ thống">
+    <div class="max-w-full mx-auto">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Cấu hình Website</h1>
+                <p class="text-slate-500 mt-1">Quản lý SEO, thông tin liên hệ và hình ảnh thương hiệu.</p>
+            </div>
+            <button type="submit" form="settingsForm" id="submitBtn" class="px-8 py-3 bg-orange-600 text-white rounded-2xl font-bold shadow-lg shadow-orange-600/30 hover:bg-orange-700 hover:-translate-y-1 transition-all active:scale-95 cursor-pointer">
+                Lưu tất cả thay đổi
+            </button>
+        </div>
+
+        <form id="settingsForm" class="grid grid-cols-1 lg:grid-cols-12 gap-8" enctype="multipart/form-data">
+            <div class="lg:col-span-8 space-y-8">
+                <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
+                    <div class="flex items-center gap-3 pb-4 border-b border-slate-50">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <h2 class="font-bold text-slate-800">Cấu hình SEO Meta</h2>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase ml-1">Tiêu đề Website (Site Title)</label>
+                            <input type="text" name="siteTitle" id="siteTitle" placeholder="Ví dụ: Bcons - Tập đoàn địa ốc hàng đầu" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-orange-500 outline-none transition-all" />
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase ml-1">Mô tả Website (Meta Description)</label>
+                            <textarea name="siteDescription" id="siteDescription" rows="4" placeholder="Mô tả ngắn gọn về website của bạn..." class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-orange-500 outline-none transition-all resize-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
+                    <div class="flex items-center gap-3 pb-4 border-b border-slate-50">
+                        <div class="w-10 h-10 bg-green-50 text-green-600 rounded-xl flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <h2 class="font-bold text-slate-800">Thông tin liên hệ & Mạng xã hội</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase ml-1">Hotline</label>
+                            <input type="text" name="hotline" id="hotline" class="w-full px-6 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase ml-1">Email</label>
+                            <input type="email" name="email" id="email" class="w-full px-6 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none" />
+                        </div>
+                        <div class="md:col-span-2 space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase ml-1">Địa chỉ</label>
+                            <input type="text" name="address" id="address" class="w-full px-6 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase ml-1">Link Facebook</label>
+                            <input type="text" name="facebookUrl" id="facebookUrl" class="w-full px-6 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase ml-1">Link Zalo</label>
+                            <input type="text" name="zaloUrl" id="zaloUrl" class="w-full px-6 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none" />
+                        </div>
+                        <!-- 🔥 ĐÃ THÊM: Input Google Analytics tương thích đối xứng 100% với layout lưới Grid -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase ml-1">Google Analytics ID</label>
+                            <input type="text" name="googleAnalytics" id="googleAnalytics" placeholder="Ví dụ: G-XXXXXXXXXX" class="w-full px-6 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-4 space-y-8">
+                <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
+                    <h2 class="font-bold text-slate-800 pb-4 border-b border-slate-50">Hình ảnh & Logo</h2>
+                    
+                    <div class="space-y-3">
+                        <label class="text-xs font-bold text-slate-500 uppercase ml-1">Logo Chính</label>
+                        <div class="relative group aspect-video bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden">
+                            <img id="logoPreview" src="" class="h-full w-full object-contain p-4 hidden z-10" />
+                            <div id="logoPlaceholder" class="text-slate-400 text-center z-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="text-[10px] font-bold uppercase">Tải lên Logo</span>
+                            </div>
+                            <input type="file" name="logo" class="absolute inset-0 opacity-0 cursor-pointer z-20" onchange="previewImage(this, 'logoPreview', 'logoPlaceholder')" />
+                            <input type="hidden" name="current_logo" id="current_logo" />
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-xs font-bold text-slate-500 uppercase ml-1">Favicon (32x32)</label>
+                        <div class="relative group w-20 h-20 mx-auto bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden">
+                            <img id="faviconPreview" src="" class="w-10 h-10 object-contain hidden z-10" />
+                            <div id="faviconPlaceholder" class="text-slate-400 z-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                            </div>
+                            <input type="file" name="favicon" class="absolute inset-0 opacity-0 cursor-pointer z-20" onchange="previewImage(this, 'faviconPreview', 'faviconPlaceholder')" />
+                            <input type="hidden" name="current_favicon" id="current_favicon" />
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-4">
+                        <label class="text-xs font-bold text-slate-500 uppercase ml-1">Dòng Copyright</label>
+                        <input type="text" name="copyright" id="copyright" placeholder="© 2026 Bcons Portal" class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-orange-500 outline-none" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</AdminLayout>
+
+<style is:global>
+  .swal2-popup {
+    border-radius: 1.5rem !important;
+  }
+</style>
+
+<script>
+    import { checkAdminAuth } from '../../lib/auth';
+    checkAdminAuth();
+</script>
+
+<script is:inline>
+    // ĐỒNG BỘ: Cổng chạy API chuẩn bảo mật của Backend Laravel độc lập
+    const BACKEND_URL = 'http://127.0.0.1:8000';
+
+    // 🔒 BẢO MẬT: Trích xuất và dọn sạch dấu nháy đơn/kép rác từ localStorage
+    function getCleanToken() {
+        const rawToken = localStorage.getItem('admin_token') || localStorage.getItem('token');
+        return rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
+    }
+
+    // 1. Hàm xem trước ảnh khi chọn file
+    function previewImage(input, previewId, placeholderId) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById(previewId);
+                const placeholder = document.getElementById(placeholderId);
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                if(placeholder) placeholder.classList.add('hidden');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // 2. Tải dữ liệu hiện tại từ Backend Laravel (Bổ sung Header Auth tránh lỗi 401)
+    async function fetchSettings() {
+        const token = getCleanToken();
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/admin/settings`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (res.status === 401) {
+                window.location.href = '/admin';
+                return;
+            }
+
+            if (!res.ok) throw new Error("Không thể nạp thông tin cấu hình từ máy chủ.");
+            const data = await res.json();
+            
+            if (data) {
+                // Điền dữ liệu text, hỗ trợ nhận biết thông minh cả snake_case từ DB lẫn camelCase
+                document.getElementById('siteTitle').value = data.site_title || data.siteTitle || '';
+                document.getElementById('siteDescription').value = data.site_description || data.siteDescription || '';
+                document.getElementById('hotline').value = data.hotline || '';
+                document.getElementById('email').value = data.email || '';
+                document.getElementById('address').value = data.address || '';
+                document.getElementById('facebookUrl').value = data.facebook_url || data.facebookUrl || '';
+                document.getElementById('zaloUrl').value = data.zalo_url || data.zaloUrl || '';
+                document.getElementById('copyright').value = data.copyright || '';
+                
+                // Nạp dữ liệu trường Google Analytics mới thêm
+                document.getElementById('googleAnalytics').value = data.google_analytics || data.googleAnalytics || '';
+
+                // Lưu đường dẫn ảnh hiện tại vào hidden input
+                document.getElementById('current_logo').value = data.logo || '';
+                document.getElementById('current_favicon').value = data.favicon || '';
+
+                // Hiển thị ảnh cũ nếu có
+                if (data.logo) {
+                    const lp = document.getElementById('logoPreview');
+                    lp.src = data.logo.startsWith('http') ? data.logo : BACKEND_URL + data.logo;
+                    lp.classList.remove('hidden');
+                    document.getElementById('logoPlaceholder').classList.add('hidden');
+                }
+                if (data.favicon) {
+                    const fp = document.getElementById('faviconPreview');
+                    fp.src = data.favicon.startsWith('http') ? data.favicon : BACKEND_URL + data.favicon;
+                    fp.classList.remove('hidden');
+                    document.getElementById('faviconPlaceholder').classList.add('hidden');
+                }
+            }
+        } catch (err) {
+            console.error("Lỗi nạp cấu hình hệ thống:", err);
+        }
+    }
+
+    // 3. Xử lý Submit Form (Đồng bộ cấu trúc trường dữ liệu với Database thực tế)
+    document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const token = getCleanToken();
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+
+        const rawFormData = new FormData(e.target);
+        const finalFormData = new FormData();
+
+        // 🔥 ĐỒNG BỘ PAYLOAD: Chuyển đổi tên trường sang định dạng snake_case chuẩn khớp 100% cột dưới DB
+        finalFormData.append('site_title', document.getElementById('siteTitle').value);
+        finalFormData.append('site_description', document.getElementById('siteDescription').value);
+        finalFormData.append('hotline', document.getElementById('hotline').value);
+        finalFormData.append('email', document.getElementById('email').value);
+        finalFormData.append('address', document.getElementById('address').value);
+        finalFormData.append('facebook_url', document.getElementById('facebookUrl').value);
+        finalFormData.append('zalo_url', document.getElementById('zaloUrl').value);
+        finalFormData.append('copyright', document.getElementById('copyright').value);
+        
+        // Đóng gói trường Google Analytics
+        finalFormData.append('google_analytics', document.getElementById('googleAnalytics').value);
+
+        const logoFile = rawFormData.get('logo');
+        if (logoFile && logoFile.size > 0) finalFormData.append('logo', logoFile);
+
+        const faviconFile = rawFormData.get('favicon');
+        if (faviconFile && faviconFile.size > 0) finalFormData.append('favicon', faviconFile);
+
+        Swal.fire({
+            title: 'Đang xử lý...',
+            text: 'Vui lòng chờ trong giây lát',
+            didOpen: () => Swal.showLoading(),
+            allowOutsideClick: false
+        });
+
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/admin/settings`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                },
+                body: finalFormData
+            });
+
+            const result = await res.json();
+
+            if (res.ok && result.success) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: result.message || 'Cấu hình hệ thống Bcons đã kích hoạt thành công!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                fetchSettings();
+            } else {
+                if (result.errors) {
+                    const errorMsgs = Object.values(result.errors).flat().join('<br>');
+                    throw new Error(errorMsgs);
+                }
+                throw new Error(result.message || 'Cập nhật dữ liệu cấu hình thất bại.');
+            }
+        } catch (err) {
+            console.error("Submit Settings Error:", err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Thất bại',
+                html: err.message || 'Không thể kết nối máy chủ API Laravel cổng 8000.'
+            });
+        } finally {
+            submitBtn.disabled = false;
+        }
+    });
+
+    fetchSettings();
+</script>

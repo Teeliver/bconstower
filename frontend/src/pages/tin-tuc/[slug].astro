@@ -1,0 +1,366 @@
+---
+// src/pages/tin-tuc/[slug].astro
+import MainLayout from "../../layouts/MainLayout.astro";
+
+// 🔥 BẢO MẬT & SEO TUYỆT ĐỐI: Cấu hình bắt buộc getStaticPaths cho Router đường dẫn tĩnh tin tức
+export async function getStaticPaths() {
+  const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3000";
+  try {
+    const res = await fetch(`${PUBLIC_API_BASE}/api/posts/public`);
+    if (!res.ok) return [];
+    
+    const listData = await res.json();
+    const allPosts = Array.isArray(listData) ? listData : (listData.posts || listData.data || []);
+    
+    return allPosts.map((post: any) => {
+      const safeSlug = String(post.slug || '').trim();
+      return {
+        params: { slug: safeSlug },
+        props: { allPosts } 
+      };
+    }).filter((item: any) => item.params.slug && item.params.slug !== 'undefined' && item.params.slug !== '');
+  } catch (e) {
+    console.error("Lỗi dựng cấu trúc đường dẫn tĩnh getStaticPaths tin tức:", e);
+    return [];
+  }
+}
+
+// 🔥 ĐỒNG BỘ HỆ THỐNG: Nhận dữ liệu truyền tải từ getStaticPaths và Param URL
+const { slug } = Astro.params;
+const { allPosts } = Astro.props as any;
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3000";
+
+let seoPost: any = null;
+try {
+  const resDetail = await fetch(`${PUBLIC_API_BASE}/api/posts/public/detail?slug=${slug}`);
+  if (resDetail.ok) {
+    const data = await resDetail.json();
+    seoPost = data.post || data.data || data;
+  }
+} catch (e) {
+  console.error("Lỗi fetch dữ liệu chi tiết trên Server-side:", e);
+}
+
+// Cấu hình các biến Meta phục vụ cho Facebook & Zalo Crawler bốc tách link
+const ogTitle = seoPost?.title || "Chi tiết tin tức bất động sản Bcons mới nhất";
+const ogDescription = seoPost?.summary || seoPost?.description?.substring(0, 160) || "Cập nhật thông tin tiến độ, thị trường dự án căn hộ Bcons nhanh chóng và chính xác nhất.";
+const ogImage = seoPost?.thumbnail ? `${PUBLIC_API_BASE}${seoPost.thumbnail}` : `${PUBLIC_API_BASE}/images/no-photo.jpg`;
+const ogUrl = Astro.url.href;
+
+// --- CÁC HÀM XỬ LÝ LOGIC ĐƯỢC CHUYỂN HOÀN TOÀN LÊN SERVER ---
+const formatDate = (dateString: any) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return ""; 
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${day}/${month}/${date.getFullYear()}`;
+};
+
+// Phân loại chuyên mục
+const catObj = seoPost?.category || seoPost?.chuyen_muc || seoPost?.category_id || "";
+const catStr = typeof catObj === 'object' && catObj !== null ? (catObj.name || catObj.title || catObj.slug || "") : String(catObj);
+const normalized = catStr.toLowerCase().trim();
+const isThiTruong = (normalized.includes('thị trường') || normalized.includes('thi truong') || normalized.includes('thi-truong') || normalized.includes('market'));
+const isTienDo = (normalized.includes('tiến độ') || normalized.includes('tien do') || normalized.includes('tien-do') || normalized.includes('progress'));
+
+const displayCatName = isThiTruong ? "Tin Thị Trường" : (isTienDo ? "Tin Tiến Độ" : (catStr || "Tin tức"));
+const currentCatSlug = isThiTruong ? 'thi-truong' : (isTienDo ? 'tien-do' : '');
+
+// Xử lý bài viết đọc nhiều (Sidebar)
+const mostReadPosts = [...(allPosts || [])].sort((a: any, b: any) => (Number(b.views) || 0) - (Number(a.views) || 0)).slice(0, 5);
+
+// Xử lý bài viết liên quan (Sidebar)
+let relatedPosts = (allPosts || []).filter((p: any) => p.category === seoPost?.category && p.id !== seoPost?.id);
+if (relatedPosts.length < 3) {
+  const extraPosts = (allPosts || []).filter((p: any) => p.id !== seoPost?.id && !relatedPosts.some((rp: any) => rp.id === p.id));
+  relatedPosts = relatedPosts.concat(extraPosts);
+}
+const finalRelated = relatedPosts.slice(0, 4);
+
+// 🔥 CẤU HÌNH JSON-LD ARTICLE SCHEMA CHO GOOGLE INDEX RICH SNIPPET
+const schemaData = {
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": ogTitle,
+  "description": ogDescription,
+  "image": [ogImage],
+  "datePublished": seoPost?.createdAt || seoPost?.created_at || new Date().toISOString(),
+  "author": {
+    "@type": "Person",
+    "name": seoPost?.authorName || "Trung Tín"
+  }
+};
+---
+
+<MainLayout title={ogTitle}>
+  
+  <script type="application/ld+json" set:html={JSON.stringify(schemaData)}></script>
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content={ogTitle} />
+  <meta property="og:description" content={ogDescription} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:url" content={ogUrl} />
+  <meta property="og:site_name" content="Bcons Tower" />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={ogTitle} />
+  <meta name="twitter:description" content={ogDescription} />
+  <meta name="twitter:image" content={ogImage} />
+
+  <div 
+    id="magazine-page-root" 
+    data-backend={PUBLIC_API_BASE}
+    data-post-id={seoPost?.id || ''}
+    class="bg-white w-full overflow-x-hidden break-words min-h-screen pb-24 font-sans text-slate-800 mt-9"
+  >
+    
+    <div class="sticky top-[calc(var(--web-mobile-header-height))] z-50 bg-[#fac72e] will-change-transform lg:top-[calc(var(--web-header-height))] mt-10">
+      <div class="no-scrollbar h-[var(--web-mobile-main-navigation-height)] w-full snap-x snap-mandatory overflow-x-auto lg:h-[var(--web-main-navigation-height)]">
+        <div class="relative mx-auto max-w-full xs:!container px-4 sm:px-6 lg:px-8 xl:px-[115px] 2xl:!max-w-[1280px]">
+          <div class="flex flex-row flex-nowrap items-end gap-x-1" id="magazine-nav-tabs">
+
+            <div class={`flex flex-shrink-0 snap-center flex-row items-center nav-tab-item cursor-pointer ${currentCatSlug === 'thi-truong' ? 'bg-[#d9ab1c]' : ''}`} data-category="thi-truong">
+              <div class="h-7 w-px bg-gradient-to-b from-white/0 via-primary-50/[65%] to-white/0 opacity-30"></div>
+              <a class="group focus:outline-none focus:ring-0" href="/tin-tuc?category=thi-truong">
+                <span class={`box-border inline-block px-3 py-2.5 text-sm font-semibold sm:px-4 lg:py-3 transition-colors duration-200 tab-text ${currentCatSlug === 'thi-truong' ? 'text-black' : 'text-white/70 group-hover:text-gray-400'}`}>
+                  Tin Thị Trường
+                </span>
+              </a>
+            </div>
+
+            <div class={`flex flex-shrink-0 snap-center flex-row items-center nav-tab-item cursor-pointer ${currentCatSlug === 'tien-do' ? 'bg-[#d9ab1c]' : ''}`} data-category="tien-do">
+              <div class="h-7 w-px bg-gradient-to-b from-white/0 via-primary-50/[65%] to-white/0 opacity-30"></div>
+              <a class="group focus:outline-none focus:ring-0" href="/tin-tuc?category=tien-do">
+                <span class={`box-border inline-block px-3 py-2.5 text-sm font-semibold sm:px-4 lg:py-3 transition-colors duration-200 tab-text ${currentCatSlug === 'tien-do' ? 'text-black' : 'text-white/70 group-hover:text-gray-400'}`}>
+                  Tin Tiến Độ
+                </span>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-full border-b border-neutral-100 py-1.5">
+        <div class="no-scrollbar w-full overflow-x-auto">
+            <div class="relative mx-auto max-w-full xs:!container px-4 sm:px-6 lg:px-8 xl:px-[115px] 2xl:!max-w-[1280px]">
+                <div class="flex flex-row flex-nowrap items-center gap-x-1" id="magazine-breadcrumbs">
+                    <div class="flex flex-shrink-0 flex-row items-center gap-x-1">
+                        <a class="hover:text-neutral-900 focus-visible:text-neutral-900 text-xs text-neutral-600 lg:text-sm group focus:outline-none focus:ring-0" href="/">Trang chủ</a>
+                    </div>
+                    <div class="flex flex-shrink-0 flex-row items-center gap-x-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-3 w-3 flex-shrink-0 text-neutral-400"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        <a class="hover:text-neutral-900 focus-visible:text-neutral-900 text-xs lg:text-sm group focus:outline-none focus:ring-0 font-medium text-neutral-600 cursor-pointer" href="/tin-tuc">Tin tức</a>
+                    </div>
+                    {currentCatSlug && (
+                      <div class="flex flex-shrink-0 flex-row items-center gap-x-1" id="breadcrumb-cat-node">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-3 w-3 flex-shrink-0 text-neutral-400"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                          <a class="hover:text-neutral-900 focus-visible:text-neutral-900 text-xs lg:text-sm font-medium text-neutral-600 cursor-pointer" href={`/tin-tuc?category=${currentCatSlug}`}>{displayCatName}</a>
+                      </div>
+                    )}
+                    <div class="flex flex-shrink-0 flex-row items-center gap-x-1" id="breadcrumb-sub-node">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-3 w-3 flex-shrink-0 text-neutral-400"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        <span class="text-xs lg:text-sm font-medium text-neutral-900 line-clamp-1" id="breadcrumb-active-title">{seoPost?.title || "Chi tiết"}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mx-auto max-w-full xs:!container px-4 sm:px-6 lg:px-8 xl:px-[115px] 2xl:!max-w-[1280px] relative z-[1] pt-8 pb-8 sm:pt-6 sm:pb-8">
+      <div class="flex flex-col lg:flex-row items-start gap-x-8">
+        
+        <div class="w-full lg:w-[60%] flex-1 border-b lg:border-b-0 pb-8 lg:pb-0">
+          
+          {seoPost ? (
+            <article id="post-main-content" class="w-full animate-fadeIn RICH-TEXT-BODY RICH-TEXT-CONTENT">
+              <span id="post-detail-cat" class="text-xs font-bold uppercase tracking-wider text-emerald-800">{displayCatName}</span>
+              
+              <h1 id="post-detail-title" class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-neutral-900 leading-tight pt-2 pb-4">{seoPost.title}</h1>
+              
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-neutral-100 pb-5 text-xs text-neutral-500 font-medium RICH-TEXT-CONTENT RICH-TEXT-BODY">
+                <div class="flex flex-row items-center gap-x-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span id="post-detail-date">{formatDate(seoPost.createdAt || seoPost.created_at)}</span>
+                </div>
+                
+                <div class="flex flex-row items-center gap-x-1 cursor-pointer select-none hover:text-emerald-800 transition-colors" id="view-metadata-action">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  <span id="post-detail-views">{(Number(seoPost.views) || 0)} lượt xem</span>
+                </div>
+
+                <div class="flex flex-row items-center gap-x-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  <span id="post-detail-author">{seoPost.authorName || "Trung Tín"}</span>
+                </div>
+              </div>
+
+              <p id="post-detail-summary" class="text-base sm:text-lg font-semibold text-neutral-700 pt-5 pb-6 text-justify italic leading-relaxed RICH-TEXT-BODY">{seoPost.summary || seoPost.description || ""}</p>
+
+              {(seoPost.image || seoPost.thumbnail) && (
+                <div id="post-detail-image-container" class="w-full aspect-[5/3] overflow-hidden rounded-md my-6 shadow-sm block">
+                   <img id="post-detail-main-img" class="w-full h-full object-cover duration-300 hover:scale-[1.02]" src={`${PUBLIC_API_BASE}${seoPost.image || seoPost.thumbnail}`} alt={seoPost.title} />
+                </div>
+              )}
+
+              <div id="post-detail-body" class="rich-text-content RICH-TEXT-CONTENT text-slate-700 text-justify leading-relaxed text-base space-y-4" set:html={seoPost.content || '<p class="text-slate-400 RICH-TEXT-BODY">Nội dung bài viết đang được cập nhật...</p>'}></div>
+
+            </article>
+          ) : (
+            <div id="error-post-message" class="text-center py-20 bg-slate-50 border border-slate-100 rounded-2xl animate-fadeIn">
+              <div class="text-4xl mb-2">🚫</div>
+              <p class="font-bold text-slate-700 text-sm">Không tìm thấy bài viết hoặc nội dung đã bị gỡ bỏ.</p>
+              <a href="/tin-tuc" class="mt-4 inline-block text-sm font-bold text-emerald-700 hover:underline">Quay lại danh sách</a>
+            </div>
+          )}
+        </div>
+
+        <div class="w-full lg:w-[40%] lg:sticky lg:top-24 pl-0 lg:pl-4 self-start flex flex-col gap-y-10">
+          <div>
+            <div class="flex w-full flex-row items-center gap-x-2 pb-5">
+              <div class="h-6 w-[4px] bg-[#fac72e] rounded-sm"></div>
+              <b class="text-xl font-bold text-neutral-900">Đọc nhiều</b>
+            </div>
+            <div id="sidebar-most-read-list" class="flex flex-col gap-y-4">
+              {mostReadPosts.map((post: any, index: any) => (
+                <a href={`/tin-tuc/${post.slug || ''}`} class="group focus:outline-none block py-1.5">
+                  <div class="flex flex-row items-start gap-x-3.5">
+                    <div class="shrink-0 w-6 h-6 rounded-full bg-[#fac72e] text-black text-xs font-bold flex items-center justify-center mt-0.5 select-none">{index + 1}</div>
+                    <p class="text-[15px] leading-snug text-neutral-800 font-medium line-clamp-2 pt-0.5 transition-colors duration-200 group-hover:text-emerald-800">{post.title || 'Chưa có tiêu đề'}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div class="flex w-full flex-row items-center gap-x-2 pb-5 mt-5">
+              <div class="h-6 w-[4px] bg-[#fac72e] rounded-sm"></div>
+              <b class="text-xl font-bold text-neutral-900">Bài viết liên quan</b>
+            </div>
+            <div id="sidebar-related-posts-list" class="flex flex-col gap-y-4">
+              {finalRelated.length === 0 ? (
+                <p class="text-xs text-neutral-400 italic">Chưa có bài viết liên quan nào...</p>
+              ) : (
+                finalRelated.map((post: any) => {
+                  const thumb = post.image || post.thumbnail ? `${PUBLIC_API_BASE}${post.image || post.thumbnail}` : '/images/no-photo.jpg';
+                  return (
+                    <a href={`/tin-tuc/${post.slug || ''}`} class="focus:outline-none group">
+                      <div class="flex flex-row items-start gap-x-3">
+                        <div class="relative h-[72px] w-[104px] overflow-hidden rounded-md">
+                          <img src={thumb} class="object-cover object-center duration-300 group-hover:scale-[1.1]" style="position:absolute;height:100%;width:100%;left:0;top:0;right:0;bottom:0;color:transparent" alt={post.title} />
+                        </div>
+                        <div class="flex flex-1 flex-col items-start gap-y-1">
+                          <b class="text-[14px] leading-snug text-neutral-800 font-medium line-clamp-2 transition-colors duration-200 group-hover:text-emerald-800 pt-0.5">{post.title || 'Chưa có tiêu đề'}</b>
+                          <div class="flex w-full flex-row items-center gap-x-1.5">
+                              <div class="flex flex-row items-center gap-x-1">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-4 w-4 text-neutral-600"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm88-24a8,8,0,0,0-8,8V82c-6.35-7.36-12.83-14.45-20.12-21.83a96,96,0,1,0-2,137.7,8,8,0,0,0-11-11.64A80,80,0,1,1,184.54,71.4C192.68,79.64,199.81,87.58,207,96H184a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V64A8,8,0,0,0,224,56Z"></path></svg>
+                                  <span class="text-xs font-medium text-neutral-600">{formatDate(post.createdAt || post.created_at)}</span>
+                              </div>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  )
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-full">
+          <div class="h-px w-full" style="background-image:linear-gradient(to right, #A8A29E 30%, rgba(255, 255, 255, 0) 20%);background-position:left;background-repeat:repeat-x;background-size:4px 1px"></div>
+          <div class="flex flex-col items-center py-6">
+              <span class="text-sm font-medium text-neutral-600">Chia sẻ bài viết</span>
+              <div class="flex items-center justify-center gap-2 pt-4">                  
+                  <button type="button" id="share-facebook" class="w-8 h-8 rounded-full text-white flex items-center justify-center hover:opacity-90 focus:outline-none transition-all duration-200 cursor-pointer shadow-sm" style="background-color: #1877f2;" title="Chia sẻ bài viết lên Facebook">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9.101 23.694v-9.516H6.183v-3.61h2.918V7.89c0-2.89 1.711-4.478 4.353-4.478 1.266 0 2.625.227 2.625.227v2.885h-1.479c-1.433 0-1.877.889-1.877 1.802v2.164h3.25l-.52 3.61h-2.73v9.516H9.101z"/></svg>
+                  </button>
+                  <button type="button" id="share-zalo" class="w-8 h-8 rounded-full bg-[#0068ff] text-white flex items-center justify-center hover:opacity-90 focus:outline-none transition-all duration-200 cursor-pointer shadow-sm" style="background-color: #0068ff;" title="Chia sẻ bài viết qua Zalo">
+                      <span class="font-black text-2xl leading-none select-none">Z</span>
+                  </button>
+              </div>
+          </div>
+          <div class="h-px w-full" style="background-image:linear-gradient(to right, #A8A29E 30%, rgba(255, 255, 255, 0) 20%);background-position:left;background-repeat:repeat-x;background-size:4px 1px"></div>
+      </div>
+    </div>
+  </div>
+</MainLayout>
+
+<script is:inline>
+  var pageRoot = document.getElementById('magazine-page-root');
+  var BACKEND_URL = pageRoot ? pageRoot.getAttribute('data-backend') : 'http://localhost:3000';
+  var postId = pageRoot ? pageRoot.getAttribute('data-post-id') : '';
+
+  // 🔥 LUỒNG TỰ ĐỘNG TĂNG LƯỢT XEM CÓ CHỐNG SPAM F5 (sessionStorage + 5s delay)
+  if (postId && postId !== '') {
+    // 1. Tạo một khóa phiên làm việc (Session Key) duy nhất cho bài viết này
+    var sessionKey = 'bcons_viewed_' + postId;
+    
+    // 2. Kiểm tra xem trình duyệt trong phiên này đã gửi yêu cầu tăng view chưa
+    if (!sessionStorage.getItem(sessionKey)) {
+      
+      // 3. Đặt thời gian trì hoãn 5 giây (Xác thực người dùng thực sự đọc bài, không phải click nhầm hoặc bot lướt qua)
+      setTimeout(function() {
+        // Kiểm tra phòng thủ hai lớp đề phòng trường hợp User tải lại trang cứng trong khoảng 5s đó
+        if (!sessionStorage.getItem(sessionKey)) {
+          
+          fetch(BACKEND_URL + '/api/posts/public/' + postId + '/view', {
+            method: 'POST',
+            headers: { 
+              'Accept': 'application/json',
+              'Content-Type': 'application/json' 
+            }
+          })
+          .then(function(res) {
+            if (res.ok) {
+              // Lưu vết vào bộ nhớ phiên của trình duyệt để chặn toàn bộ request F5 sau đó
+              sessionStorage.setItem(sessionKey, 'true');
+            }
+          })
+          .catch(function(err) {
+            console.error('Lỗi hệ thống ghi nhận tăng lượt xem:', err);
+          });
+          
+        }
+      }, 5000); // 5000ms = 5 giây đọc bài thực tế
+    }
+  }
+
+  // --- Giữ nguyên vẹn các tính năng UX copy link và chia sẻ mạng xã hội ---
+  var metadataAction = document.getElementById('view-metadata-action');
+  if (metadataAction) {
+    metadataAction.onclick = function() {
+      navigator.clipboard.writeText(window.location.href).then(function() {
+        alert('Đã sao chép liên kết bài viết vào bộ nhớ tạm!');
+      }).catch(function(err) {
+        console.error('Lỗi sao chép nhanh URL: ', err);
+      });
+    };
+  }
+
+  var shareFacebookBtn = document.getElementById('share-facebook');
+  if (shareFacebookBtn) {
+    shareFacebookBtn.onclick = function() {
+      window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank');
+    };
+  }
+
+  var shareZaloBtn = document.getElementById('share-zalo');
+  if (shareZaloBtn) {
+    shareZaloBtn.onclick = function() {
+      window.open('https://social.zalo.me/share?url=' + encodeURIComponent(window.location.href), '_blank');
+    };
+  }
+</script>
+
+<style is:global>
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+  .rich-text-content img { max-width: 100%; height: auto; border-radius: 0.375rem; margin: 1.5rem auto; display: block; }
+  .rich-text-content p { margin-bottom: 1rem; text-align: justify; }
+</style>

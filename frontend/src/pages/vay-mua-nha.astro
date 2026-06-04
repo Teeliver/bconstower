@@ -1,0 +1,443 @@
+---
+// src/pages/vay-mua-nha.astro
+// Giao diện công khai tính toán khoản vay kèm Banner Hero lớn, bọc trong MainLayout
+import MainLayout from '../layouts/MainLayout.astro';
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE || "http://localhost:3000";
+---
+
+<MainLayout title="Gói Vay Mua Nhà Ưu Đãi - Hệ Thống Bất Động Sản Bcons">
+  <!-- <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" /> -->
+
+  <div class="relative overflow-hidden w-full font-body text-white py-16 md:py-28 px-4 sm:px-6 lg:px-8" 
+       style="background: linear-gradient(135deg, #034832 0%, #012419 100%);">
+    
+    <div class="absolute right-0 top-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute left-1/3 bottom-0 w-80 h-80 bg-orange-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+      
+      <div class="lg:col-span-7 space-y-6 text-left mt-10">
+        <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full bg-white/10 text-emerald-300 backdrop-blur-sm">
+          Mới cải tiến
+        </span>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight md:leading-none text-white uppercase">
+          Mua nhà ưng ý,<br class="hidden sm:inline" /> Khoản vay hợp lý
+        </h1>
+        <p class="text-base sm:text-lg text-emerald-100/80 max-w-xl leading-relaxed">
+          Chúng tôi cung cấp những ưu đãi tốt nhất từ mạng lưới ngân hàng liên kết chiến lược của Bcons, giúp bạn dễ dàng chạm đến tổ ấm mơ ước một cách an toàn tài chính.
+        </p>
+        <div class="flex flex-wrap items-center gap-4 pt-2">
+          <button type="button" class="px-8 py-4 bg-white hover:bg-slate-100 text-slate-900 font-medium rounded-2xl shadow-lg transition-all active:scale-95 cursor-pointer uppercase">
+            Đăng ký tư vấn
+          </button>
+          <a href="#calculator-root" class="px-8 py-4 border-2 border-white/30 hover:border-white hover:bg-white/5 text-white font-medium rounded-2xl transition-all active:scale-95 flex items-center gap-2 uppercase">
+            Tính toán khoản vay
+          </a>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5 hidden lg:block relative min-h-[420px] w-full select-none">
+        
+        <div id="float-badge-1" class="absolute bg-white text-slate-800 p-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-2.5 animate-bounce rotate-3" style="animation-duration: 4s; top: 8%; left: 2%;">
+          <div class="w-12 h-12 flex items-center justify-center border border-slate-200 rounded-xl overflow-hidden bg-white flex-shrink-0 shadow-sm">
+            <span class="text-[9px] font-bold text-slate-400">Logo</span>
+          </div>
+          <div class="flex flex-col pr-1 text-left"><span class="text-xs font-extrabold text-slate-800 whitespace-nowrap">BIDV</span><span class="text-[10px] font-bold text-emerald-600 font-mono">--%</span></div>
+        </div>
+
+        <div id="float-badge-2" class="absolute bg-white text-slate-800 p-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-2.5 animate-bounce -rotate-6" style="animation-duration: 4.6s; top: 10%; right: 4%;">
+          <div class="w-12 h-12 flex items-center justify-center border border-slate-200 rounded-xl overflow-hidden bg-white flex-shrink-0 shadow-sm">
+            <span class="text-[9px] font-bold text-slate-400">Logo</span>
+          </div>
+          <div class="flex flex-col pr-1 text-left"><span class="text-xs font-extrabold text-slate-800 whitespace-nowrap">Vietcombank</span><span class="text-[10px] font-bold text-emerald-600 font-mono">--%</span></div>
+        </div>
+
+        <div id="float-badge-3" class="absolute bg-white text-slate-800 p-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-2.5 animate-bounce rotate-6" style="animation-duration: 5.2s; top: 38%; left: 8%;">
+          <div class="w-12 h-12 flex items-center justify-center border border-slate-200 rounded-xl overflow-hidden bg-white flex-shrink-0 shadow-sm">
+            <span class="text-[9px] font-bold text-slate-400">Logo</span>
+          </div>
+          <div class="flex flex-col pr-1 text-left"><span class="text-xs font-extrabold text-slate-800 whitespace-nowrap">ACB Bank</span><span class="text-[10px] font-bold text-emerald-600 font-mono">--%</span></div>
+        </div>
+
+        <div id="float-badge-4" class="absolute bg-white text-slate-800 p-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-2.5 animate-bounce -rotate-2" style="animation-duration: 4.4s; top: 44%; right: 10%;">
+          <div class="w-12 h-12 flex items-center justify-center border border-slate-200 rounded-xl overflow-hidden bg-white flex-shrink-0 shadow-sm">
+            <span class="text-[9px] font-bold text-slate-400">Logo</span>
+          </div>
+          <div class="flex flex-col pr-1 text-left"><span class="text-xs font-extrabold text-slate-800 whitespace-nowrap">TPBank</span><span class="text-[10px] font-bold text-emerald-600 font-mono">--%</span></div>
+        </div>
+
+        <div id="float-badge-5" class="absolute bg-white text-slate-800 p-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-2.5 animate-bounce rotate-[12deg]" style="animation-duration: 5.8s; bottom: 8%; left: 12%;">
+          <div class="w-12 h-12 flex items-center justify-center border border-slate-200 rounded-xl overflow-hidden bg-white flex-shrink-0 shadow-sm">
+            <span class="text-[9px] font-bold text-slate-400">Logo</span>
+          </div>
+          <div class="flex flex-col pr-1 text-left"><span class="text-xs font-extrabold text-slate-800 whitespace-nowrap">VIB Bank</span><span class="text-[10px] font-bold text-emerald-600 font-mono">--%</span></div>
+        </div>
+
+        <div id="float-badge-6" class="absolute bg-white text-slate-800 p-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-2.5 animate-bounce -rotate-3" style="animation-duration: 5s; bottom: 22%; right: 2%;">
+          <div class="w-12 h-12 flex items-center justify-center border border-slate-200 rounded-xl overflow-hidden bg-white flex-shrink-0 shadow-sm">
+            <span class="text-[9px] font-bold text-slate-400">Logo</span>
+          </div>
+          <div class="flex flex-col pr-1 text-left"><span class="text-xs font-extrabold text-slate-800 whitespace-nowrap">MB Bank</span><span class="text-[10px] font-bold text-emerald-600 font-mono">--%</span></div>
+        </div>
+
+        <div id="float-badge-7" class="absolute bg-white text-slate-800 p-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-2.5 animate-bounce rotate-2" style="animation-duration: 5.6s; top: 24%; left: 45%;">
+          <div class="w-12 h-12 flex items-center justify-center border border-slate-200 rounded-xl overflow-hidden bg-white flex-shrink-0 shadow-sm">
+            <span class="text-[9px] font-bold text-slate-400">Logo</span>
+          </div>
+          <div class="flex flex-col pr-1 text-left"><span class="text-xs font-extrabold text-slate-800 whitespace-nowrap">VietinBank</span><span class="text-[10px] font-bold text-emerald-600 font-mono">--%</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="calculator-root" class="max-w-7xl mx-auto font-body py-16 px-4 sm:px-6 lg:px-8 scroll-mt-6">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <div class="lg:col-span-1 space-y-6">
+        
+        <div class="p-6 rounded-xl shadow-xl space-y-5 bg-neutral-50" style="background-color: #FFC94A; color: #000000;">
+          <h3 class="text-lg font-bold border-b pb-3 flex items-center gap-2 uppercase" style="border-color: rgba(255, 255, 255, 0.2);">
+            Thông tin dòng vốn
+          </h3>
+          
+          <div class="space-y-2 text-left">
+            <label class="block text-sm font-bold ml-1" style="color: #000000;">Giá trị căn hộ (VNĐ) <span class="text-orange-300">*</span></label>
+            <input type="text" id="input-house-value" value="2.000.000.000" class="w-full px-6 py-4 bg-white border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-mono font-bold text-slate-800 shadow-inner" placeholder="Nhập giá trị căn hộ..." />
+          </div>
+
+          <div class="space-y-2 text-left">
+            <label class="block text-sm font-bold ml-1" style="color: #000000;">Tỷ lệ vay vốn (%) <span class="text-orange-300">*</span></label>
+            <input type="number" id="input-loan-ratio" min="10" max="80" value="70" class="w-full px-6 py-4 bg-white border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-mono font-bold text-slate-800 shadow-inner" placeholder="Ví dụ: 70" />
+            <p class="text-[11px] italic ml-1" style="color: #292929;">Hỗ trợ vay tối đa từ 10% đến 80% giá trị căn hộ</p>
+          </div>
+
+          <div class="space-y-2 text-left">
+            <label class="block text-sm font-bold ml-1" style="color: #000000;">Thời hạn vay (Năm) <span class="text-orange-300">*</span></label>
+            <input type="number" id="input-loan-term" min="5" max="35" value="20" class="w-full px-6 py-4 bg-white border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-mono font-bold text-slate-800 shadow-inner" placeholder="Ví dụ: 20" />
+            <p id="txt-bank-term-note" class="text-[11px] italic ml-1" style="color: #292929;">Kỳ hạn vay linh hoạt từ 5 đến 35 năm</p>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-xl shadow-slate-100/70 border border-slate-100 space-y-4">
+          <h3 class="text-lg font-bold text-slate-800 border-b border-slate-50 pb-3 flex items-center gap-2 uppercase">
+            Ngân hàng liên kết
+          </h3>
+          
+          <button type="button" id="mobile-bank-trigger" class="w-full flex lg:hidden items-center justify-between p-4 bg-slate-50 border-2 border-slate-200 rounded-2xl font-bold text-slate-700 focus:outline-none transition-all">
+            <div id="mobile-active-bank-content" class="flex items-center gap-3">
+              <span class="text-xs text-slate-400 font-medium">Bấm để chọn ngân hàng...</span>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300" id="mobile-bank-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          
+          <div id="bank-selector-container" class="hidden lg:block space-y-3 mt-3 lg:mt-0 max-h-[350px] overflow-y-auto lg:max-h-none lg:overflow-visible pr-1 transition-all">
+            <div class="text-center py-6 text-slate-400 italic text-xs animate-pulse">Đang tải dữ liệu lãi suất ngân hàng mới nhất...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-2 space-y-6">
+        
+        <div class="text-white p-8 rounded-xl grid grid-cols-1 sm:grid-cols-3 gap-6 relative overflow-hidden">
+          <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-orange-600/10 rounded-full blur-3xl"></div>
+          
+          <div class="space-y-1 z-10">
+            <span class="text-[10px] uppercase font-black tracking-widest text-black">Số tiền cần vay</span>
+            <div id="summary-loan-amount" class="text-xl font-black text-orange-500">0 đ</div>
+          </div>
+          <div class="space-y-1 z-10">
+            <span class="text-[10px] uppercase font-black tracking-widest text-black">Gốc lãi tháng đầu</span>
+            <div id="summary-first-month" class="text-xl font-black text-black">0 đ</div>
+          </div>
+          <div class="space-y-1 z-10">
+            <span class="text-[10px] uppercase font-black tracking-widest text-black">Tổng lãi phải trả</span>
+            <div id="summary-total-interest" class="text-xl font-black" style="color: #114232;">0 đ</div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-xl shadow-slate-100/70 border border-slate-200 overflow-hidden">
+          <div class="p-6 border-b border-slate-100 bg-slate-50/50">
+            <h3 class="text-base font-bold text-slate-800 flex items-center gap-2 uppercase">
+              Lịch thanh toán chi tiết (Phương thức gốc đều, lãi giảm dần)
+            </h3>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-100 border-b border-slate-200">
+                <tr>
+                  <th class="px-6 py-4 font-bold text-slate-700 text-xs uppercase tracking-wider text-center">Kỳ hạn</th>
+                  <th class="px-6 py-4 font-bold text-slate-700 text-xs uppercase tracking-wider">Tiền gốc/Tháng</th>
+                  <th class="px-6 py-4 font-bold text-slate-700 text-xs uppercase tracking-wider">Tiền lãi/Tháng</th>
+                  <th class="px-6 py-4 font-bold text-slate-700 text-xs uppercase tracking-wider">Tổng gốc + lãi</th>
+                  <th class="px-6 py-4 font-bold text-slate-700 text-xs uppercase tracking-wider text-right">Dư nợ còn lại</th>
+                </tr>
+              </thead>
+              <tbody id="payment-schedule-tbody" class="divide-y divide-slate-100 text-slate-700 font-Inter tabular-nums">
+                <tr>
+                  <td colspan="5" class="p-10 text-center text-slate-400 italic">Đang bốc cấu hình dữ liệu khoản vay...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="show-more-container" class="p-4 bg-slate-50 border-t border-slate-100 text-center hidden">
+            <button id="btn-show-more" type="button" class="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold tracking-wider rounded-xl transition-all shadow-sm cursor-pointer focus:outline-none">
+              Xem đầy đủ lịch trả nợ (<span id="txt-hidden-count">0</span> tháng còn lại)
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</MainLayout>
+
+<script>
+  const API_BASE_URL = import.meta.env.PUBLIC_API_BASE || "http://localhost:3000";
+
+  const inputHouseValue = document.getElementById('input-house-value') as HTMLInputElement;
+  const inputLoanRatio = document.getElementById('input-loan-ratio') as HTMLInputElement;
+  const inputLoanTerm = document.getElementById('input-loan-term') as HTMLInputElement;
+  const txtBankTermNote = document.getElementById('txt-bank-term-note') as HTMLElement;
+
+  const bankContainer = document.getElementById('bank-selector-container') as HTMLElement;
+  const scheduleTbody = document.getElementById('payment-schedule-tbody') as HTMLElement;
+  
+  const mobileBankTrigger = document.getElementById('mobile-bank-trigger');
+  const mobileActiveContent = document.getElementById('mobile-active-bank-content');
+  const mobileBankArrow = document.getElementById('mobile-bank-arrow');
+
+  const showMoreContainer = document.getElementById('show-more-container') as HTMLElement;
+  const btnShowMore = document.getElementById('btn-show-more') as HTMLButtonElement;
+  const txtHiddenCount = document.getElementById('txt-hidden-count') as HTMLElement;
+
+  const smrLoanAmount = document.getElementById('summary-loan-amount') as HTMLElement;
+  const smrFirstMonth = document.getElementById('summary-first-month') as HTMLElement;
+  const smrTotalInterest = document.getElementById('summary-total-interest') as HTMLElement;
+
+  let listBanks: any[] = [];
+  let selectedBank: any = null;
+
+  function formatVND(num: number): string {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num).replace('₫', 'đ');
+  }
+
+  function formatNumberString(val: string): string {
+    const clean = val.replace(/\D/g, '');
+    if (!clean) return '';
+    return parseInt(clean, 10).toLocaleString('vi-VN');
+  }
+
+  mobileBankTrigger?.addEventListener('click', () => {
+    bankContainer.classList.toggle('hidden');
+    mobileBankArrow?.classList.toggle('rotate-180');
+  });
+
+  // 1. Tải dữ liệu ngân hàng công khai tự động từ REST API Hono
+  async function loadBanksData() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/banks`);
+      listBanks = await res.json();
+      
+      if (!Array.isArray(listBanks) || listBanks.length === 0) {
+        bankContainer.innerHTML = `<div class="text-center py-4 text-slate-400 text-xs">Hệ thống đang cập nhật các gói lãi suất mới.</div>`;
+        return;
+      }
+
+      bankContainer.innerHTML = '';
+      listBanks.forEach((bank, idx) => {
+        const item = document.createElement('div');
+        // 🔥 ĐÃ THÊM: Các class hover:border-orange-500/40 hover:shadow-md để kích hoạt hiệu ứng di chuột mượt mà cho Bank item chưa chọn
+        item.className = `bank-item border-2 rounded-2xl p-4 flex items-center justify-between cursor-pointer transition-all duration-200 ${idx === 0 ? 'border-orange-500 bg-orange-50/20 shadow-sm' : 'border-slate-100 bg-white hover:border-orange-500/40 hover:shadow-md'}`;
+        
+        const logoUrl = bank.logo ? (bank.logo.startsWith('http') ? bank.logo : `${API_BASE_URL}${bank.logo}`) : 'https://placehold.co/120x50?text=Bank';
+
+        item.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-16 h-12 flex items-center justify-center border border-slate-100 rounded-xl overflow-hidden bg-white p-1 flex-shrink-0 shadow-sm">
+              <img src="${logoUrl}" class="max-w-full max-h-full object-contain" onerror="this.src='https://placehold.co/120x50?text=Bank'"/>
+            </div>
+            <div class="flex flex-col justify-center min-w-0 text-left">
+              <div class="min-w-full font-bold text-slate-800 text-sm leading-tight">${bank.name}</div>
+              <div class="text-[11px] text-slate-400 font-medium mt-1">Ưu đãi: <b style="color: #059669;">${bank.preferentialRate || bank.preferential_rate}%</b></div>
+              <div class="text-[11px] text-slate-400 font-medium mt-1">Thả nổi: <b style="color: #059669;">${bank.floatingRate || bank.floating_rate}%</b></div>
+            </div>
+          </div>
+        `;
+        
+        item.addEventListener('click', () => {
+          // 🔥 ĐÃ THÊM: Gỡ bỏ class active cũ, đồng thời bù lại class hover chuẩn chỉ khi bỏ chọn
+          document.querySelectorAll('.bank-item').forEach(el => {
+            el.classList.remove('border-orange-500', 'bg-orange-50/20', 'shadow-sm');
+            el.classList.add('border-slate-100', 'bg-white', 'hover:border-orange-500/40', 'hover:shadow-md');
+          });
+          
+          // Khóa viền cam chuẩn cho thẻ vừa click chọn
+          item.classList.remove('border-slate-100', 'bg-white', 'hover:border-orange-500/40', 'hover:shadow-md');
+          item.classList.add('border-orange-500', 'bg-orange-50/20', 'shadow-sm');
+          selectedBank = bank;
+          
+          const maxBankTerm = parseInt(bank.maxTerm || bank.max_term || 35, 10);
+          inputLoanTerm.max = maxBankTerm.toString();
+          txtBankTermNote.innerText = `Ngân hàng này hỗ trợ vay tối đa ${maxBankTerm} năm`;
+          
+          if (parseInt(inputLoanTerm.value, 10) > maxBankTerm) {
+            inputLoanTerm.value = maxBankTerm.toString();
+          }
+
+          if (mobileActiveContent) {
+            mobileActiveContent.innerHTML = `
+              <div class="w-10 h-7 flex items-center justify-center bg-white border border-slate-200 rounded-lg overflow-hidden flex-shrink-0">
+                <img src="${logoUrl}" class="max-w-full max-h-full object-contain p-0.5" />
+              </div>
+              <span class="text-xs font-bold text-slate-800 truncate max-w-[180px]">${bank.name}</span>
+            `;
+          }
+
+          if (window.innerWidth < 1024) {
+            bankContainer.classList.add('hidden');
+            mobileBankArrow?.classList.remove('rotate-180');
+          }
+
+          calculateLoan();
+        });
+
+        bankContainer.appendChild(item);
+      });
+
+      // Rải 7 logo lên các vị trí ngẫu nhiên trên Banner
+      for (let i = 1; i <= 7; i++) {
+        const badgeElement = document.getElementById(`float-badge-${i}`);
+        const bankData = listBanks[i - 1]; 
+        
+        if (badgeElement && bankData) {
+          const logoUrl = bankData.logo ? (bankData.logo.startsWith('http') ? bankData.logo : `${API_BASE_URL}${bankData.logo}`) : 'https://placehold.co/100x100?text=Bank';
+          const rate = bankData.preferentialRate || bankData.preferential_rate;
+
+          badgeElement.innerHTML = `
+            <div class="w-18 h-18 flex items-center justify-center rounded-xl overflow-hidden bg-white flex-shrink-0">
+              <img src="${logoUrl}" class="max-w-full max-h-full object-contain p-0.5" onerror="this.src='https://placehold.co/100x100?text=B'" />
+            </div>
+          `;
+        }
+      }
+
+      selectedBank = listBanks[0];
+      const initialMax = parseInt(selectedBank.maxTerm || selectedBank.max_term || 35, 10);
+      txtBankTermNote.innerText = `Ngân hàng này hỗ trợ vay tối đa ${initialMax} năm`;
+      
+      if (mobileActiveContent && selectedBank) {
+        // 🔥 ĐÃ VÁ LỖI CHÍ MẠNG: Đổi dấu ngoặc vuông ] thành dấu ngoặc đơn ) ở hàm startsWith
+        const initialLogo = selectedBank.logo ? (selectedBank.logo.startsWith('http') ? selectedBank.logo : `${API_BASE_URL}${selectedBank.logo}`) : 'https://placehold.co/120x50?text=Bank';
+        mobileActiveContent.innerHTML = `
+          <div class="w-10 h-7 flex items-center justify-center bg-white border border-slate-200 rounded-lg overflow-hidden flex-shrink-0">
+            <img src="${initialLogo}" class="max-w-full max-h-full object-contain p-0.5" />
+          </div>
+          <span class="text-xs font-bold text-slate-800 truncate max-w-[180px]">${selectedBank.name}</span>
+        `;
+      }
+
+      calculateLoan();
+
+    } catch (err) {
+      bankContainer.innerHTML = `<div class="text-center py-4 text-red-500 text-xs font-bold">⚠️ Không thể đồng bộ biểu phí lãi suất từ tổng đài Bcons.</div>`;
+    }
+  }
+
+  // 2. Logic tính toán dòng tiền giảm dần & phân bổ thu gọn đúng 24 tháng ban đầu chuẩn UI
+  function calculateLoan() {
+    if (!selectedBank) return;
+
+    const rawHouseValue = inputHouseValue.value.replace(/\D/g, '');
+    const houseValue = parseFloat(rawHouseValue) || 0;
+    
+    let loanRatio = parseFloat(inputLoanRatio.value) || 0;
+    if (loanRatio > 80) { loanRatio = 80; inputLoanRatio.value = "80"; }
+    if (loanRatio < 0) { loanRatio = 0; inputLoanRatio.value = "0"; }
+
+    let loanTermYears = parseInt(inputLoanTerm.value, 10) || 5;
+    const maxBankTerm = parseInt(selectedBank.maxTerm || selectedBank.max_term || 35, 10);
+    if (loanTermYears > maxBankTerm) { loanTermYears = maxBankTerm; inputLoanTerm.value = maxBankTerm.toString(); }
+
+    const totalMonths = loanTermYears * 12;
+    const loanAmount = houseValue * (loanRatio / 100);
+    
+    const prefRateYear = parseFloat(selectedBank.preferentialRate || selectedBank.preferential_rate) / 100;
+    const prefMonthsLimit = parseInt(selectedBank.preferentialTerm || selectedBank.preferential_term, 10) || 0;
+    const floatRateYear = parseFloat(selectedBank.floatingRate || selectedBank.floating_rate) / 100;
+
+    let remainingPrincipal = loanAmount;
+    let totalInterest = 0;
+    let firstMonthTotal = 0;
+
+    let htmlTableRows = '';
+
+    for (let month = 1; month <= totalMonths; month++) {
+      const currentRateYear = month <= prefMonthsLimit ? prefRateYear : floatRateYear;
+      const currentRateMonth = currentRateYear / 12;
+
+      const principalPerMonth = loanAmount / totalMonths;
+      const interestPerMonth = remainingPrincipal * currentRateMonth;
+      const totalPerMonth = principalPerMonth + interestPerMonth;
+
+      if (month === 1) firstMonthTotal = totalPerMonth;
+
+      totalInterest += interestPerMonth;
+      remainingPrincipal -= principalPerMonth;
+
+      const isHiddenRow = month > 24;
+      const rowClass = isHiddenRow ? 'month-hidden-row hidden' : '';
+
+      htmlTableRows += `
+        <tr class="hover:bg-slate-50/80 transition-all ${rowClass}">
+          <td class="px-6 py-3.5 text-center font-medium text-slate-500">Tháng ${month}</td>
+          <td class="px-6 py-3.5 font-medium">${formatVND(principalPerMonth)}</td>
+          <td class="px-6 py-3.5 text-red-500 font-medium">${formatVND(interestPerMonth)}</td>
+          <td class="px-6 py-3.5 font-medium text-slate-900">${formatVND(totalPerMonth)}</td>
+          <td class="px-6 py-3.5 text-right font-medium text-blue-600">${formatVND(Math.max(0, remainingPrincipal))}</td>
+        </tr>
+      `;
+    }
+
+    smrLoanAmount.innerText = formatVND(loanAmount);
+    smrFirstMonth.innerText = formatVND(firstMonthTotal);
+    smrTotalInterest.innerText = formatVND(totalInterest);
+    scheduleTbody.innerHTML = htmlTableRows;
+
+    if (totalMonths > 24) {
+      showMoreContainer.classList.remove('hidden');
+      txtHiddenCount.innerText = (totalMonths - 24).toString();
+    } else {
+      showMoreContainer.classList.add('hidden');
+    }
+  }
+
+  // 3. Xử lý sự kiện nhập dữ liệu
+  inputHouseValue.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement;
+    target.value = formatNumberString(target.value);
+    calculateLoan();
+  });
+
+  inputLoanRatio.addEventListener('input', () => { calculateLoan(); });
+  inputLoanTerm.addEventListener('input', () => { calculateLoan(); });
+
+  // 4. Click bung toàn bộ lịch thanh toán bị ẩn
+  btnShowMore.addEventListener('click', () => {
+    document.querySelectorAll('.month-hidden-row').forEach(row => {
+      row.classList.remove('hidden');
+    });
+    showMoreContainer.classList.add('hidden');
+  });
+
+  loadBanksData();
+</script>

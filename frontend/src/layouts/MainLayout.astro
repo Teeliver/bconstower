@@ -1,0 +1,120 @@
+---
+// src/layouts/MainLayout.astro
+import '../styles/global.css'
+import Navbar from '../components/Navbar.astro'
+import Footer from '../components/home/Footer.astro'
+import FloatingContact from '../components/FloatingContact.astro'
+
+// 1. Nhận các Props từ từng trang (nếu có)
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const { title, description, image } = Astro.props;
+
+// 2. Fetch thông tin cấu hình từ Backend (Server-side fetch)
+const BACKEND_URL = 'http://localhost:8000'; // Giữ nguyên URL gốc của ông
+let settings = {
+  siteTitle: "Bcons Portal cc",
+  siteDescription: "Hệ thống quản lý bất động sản",
+  favicon: "/favicon.svg",
+  logo: "/logo.png",
+  ogImage: "",
+  hotline: "",
+  email: "",
+  address: "",
+  facebookUrl: "#",
+  zaloUrl: "#",
+  customScripts: "",
+  copyright: "",
+  googleAnalyticsId: "" // Khởi tạo trường lưu ID theo dõi ẩn
+};
+
+try {
+  const res = await fetch(`${BACKEND_URL}/api/settings/info`);
+  if (res.ok) {
+    const result = await res.json();
+    const data = result.data || result;
+    
+    if (data) {
+      settings = {
+        siteTitle:         data.site_title ?? settings.siteTitle,
+        siteDescription: data.site_description ?? settings.siteDescription,
+        favicon:         data.favicon ?? settings.favicon,
+        logo:            data.logo ?? data.logo_footer ?? settings.logo,
+        ogImage:         data.og_image ?? data.logo ?? settings.ogImage,
+        hotline:         data.hotline ?? settings.hotline,
+        
+        // 🔥 BỐC CHUẨN TRƯỜNG ANALYTICS ID TỪ API BACKEND QUY ĐỊNH CHUNG
+        googleAnalyticsId: data.google_analytics_id ?? settings.googleAnalyticsId,
+        
+        email:           data.email ?? settings.email,
+        address:         data.address ?? settings.address,
+        facebookUrl:     data.facebook_url ?? settings.facebookUrl,
+        zaloUrl:         data.zalo_url ?? settings.zaloUrl,
+        customScripts:   data.custom_scripts ?? settings.customScripts,
+        copyright:       data.copyright ?? settings.copyright
+      };
+    }
+  }
+} catch (error) {
+  console.error("Layout fetch settings error:", error);
+}
+
+// 3. Ưu tiên dữ liệu cụ thể của từng trang, nếu không có thì lấy mặc định từ Settings
+const finalTitle = title ? `${title} | ${settings.siteTitle}` : settings.siteTitle;
+const finalDesc = description || settings.siteDescription;
+const finalImage = image ? `${BACKEND_URL}${image}` : `${BACKEND_URL}${settings.ogImage}`;
+const finalFavicon = settings.favicon.startsWith('http') ? settings.favicon : `${BACKEND_URL}${settings.favicon}`;
+---
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <title>{finalTitle}</title>
+    <meta name="description" content={finalDesc} />
+    <link rel="icon" type="image/x-icon" href={finalFavicon} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={finalTitle} />
+    <meta property="og:description" content={finalDesc} />
+    <meta property="og:image" content={finalImage} />
+
+    {settings.googleAnalyticsId && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${settings.googleAnalyticsId}`}></script>
+        <script is:inline set:html={`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${settings.googleAnalyticsId}', {
+            page_path: window.location.pathname,
+          });
+        `}></script>
+      </>
+    )}
+
+    {settings.customScripts && <Fragment set:html={settings.customScripts} />}
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="font-['Plus_Jakarta_Sans'] antialiased">
+    
+    <header class="bg-white py-0.5 shadow-sm">
+        <Navbar />
+    </header>
+
+    <main>
+        <slot />
+        <FloatingContact />
+    </main>
+    
+    <Footer />
+
+</body>
+</html>

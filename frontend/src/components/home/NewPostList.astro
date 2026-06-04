@@ -1,0 +1,227 @@
+---
+// src/components/home/NewPostList.astro
+// Khối tin đăng căn hộ/nhà phố mới nhất - Đồng bộ 100% UI/UX theo hệ thống sang nhượng
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3000";
+---
+
+<section id="new-posts-root" data-api-base={PUBLIC_API_BASE} class="w-full py-16 bg-slate-50 border-t border-slate-100 animate-fadeIn">
+  <div class="max-w-7xl mx-auto px-5">
+    
+    <div class="w-full flex flex-col items-center text-center mb-10">
+      <span class="text-[10px] font-black uppercase tracking-widest text-[#064e3b] bg-[#fac72e]/20 px-3 py-1 rounded-md mb-2">
+        Nguồn Hàng Mới Nhất
+      </span>
+      <h3 class="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">
+        Tin Đăng Căn Hộ Bcons Mới Cập Nhật
+      </h3>
+      <div class="w-12 h-1 bg-[#fac72e] rounded-full mt-2.5"></div>
+    </div>
+
+    <div id="new-posts-skeleton" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
+      {[1,2,3,4].map(() => (
+        <div class="space-y-3">
+          <div class="aspect-[4/3] bg-slate-100 rounded-xl w-full"></div>
+          <div class="h-4 bg-slate-100 rounded w-2/3"></div>
+          <div class="h-3 bg-slate-100 rounded w-1/2"></div>
+        </div>
+      ))}
+    </div>
+
+    <div id="new-posts-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
+
+  </div>
+</section>
+
+<script is:inline>
+  (async function initNewPosts() {
+    const root = document.getElementById('new-posts-root');
+    if (!root) return;
+    const BACKEND_URL = root.getAttribute('data-api-base') || 'http://localhost:8000';
+    const grid = document.getElementById('new-posts-grid');
+    const skeleton = document.getElementById('new-posts-skeleton');
+    const defaultImage = '/images/no-photo.jpg';
+
+    let PROJECT_LOOKUP_MAP = {}; // 🧠 BẢN ĐỒ TRA CỨU DỰ ÁN PHÒNG THỦ TOÀN CỤC
+
+    // 🔒 BẢO MẬT XSS: Bộ lọc khử trùng dữ liệu thô nhập từ cơ sở dữ liệu
+    const escapeHTML = (str) => {
+      if (!str) return '';
+      return str.replace(/[&<>"']/g, (match) => {
+        const map = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        };
+        return map[match] || match;
+      });
+    };
+
+    // Định vị dữ liệu bảng dự án dựa theo liên kết id hệ thống công lộ
+    function getProjectData(apt) {
+      if (apt.project && typeof apt.project === 'object') {
+        return apt.project;
+      }
+      const pId = apt.project_id || apt.projectId;
+      if (pId && PROJECT_LOOKUP_MAP[String(pId)]) {
+        return PROJECT_LOOKUP_MAP[String(pId)];
+      }
+      return null;
+    }
+
+    // Hàm chuẩn hóa mốc thời gian đăng bài
+    function timeAgo(dateString) {
+        if (!dateString) return 'Đang cập nhật';
+        const now = new Date();
+        const past = new Date(dateString);
+        const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+
+        if (diffInSeconds < 60) return 'Vừa xong';
+        const minutes = Math.floor(diffInSeconds / 60);
+        if (minutes < 60) return `Đăng ${minutes} phút trước`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `Đăng ${hours} giờ trước`;
+        const days = Math.floor(hours / 24);
+        if (days < 30) return `Đăng ${days} ngày trước`;
+        
+        return `Đăng ${past.toLocaleDateString('vi-VN')}`;
+    }
+
+    try {
+      // 🔥 ĐỒNG BỘ: Kết nối trực tiếp đến Endpoint API chuyên biệt mới lập trên Laravel Controller
+      const res = await fetch(BACKEND_URL + "/api/apartments/new-posts");
+      if (!res.ok) return;
+      const result = await res.json();
+      const apartments = Array.isArray(result) ? result : (result.apartments || result.data || []);
+
+      if (!grid) return;
+
+      if (apartments.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-16 bg-slate-50 rounded-2xl border border-dashed border-slate-200 w-full">
+            <p class="text-sm font-bold text-slate-400">Chưa có nguồn hàng mới cập nhật hôm nay.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // 🧠 THU THẬP DỮ LIỆU DỰ ÁN: Nạp data vào map phòng thủ phục vụ kiểm tra chéo
+      const projectsList = result.projects || result.project_list || result.data_projects || [];
+      if (Array.isArray(projectsList)) {
+        projectsList.forEach(p => {
+          if (p && p.id) {
+            PROJECT_LOOKUP_MAP[p.id] = p;
+            PROJECT_LOOKUP_MAP[String(p.id)] = p;
+          }
+        });
+      }
+      apartments.forEach(apt => {
+        if (apt.project && apt.project.id) {
+          PROJECT_LOOKUP_MAP[apt.project.id] = apt.project;
+          PROJECT_LOOKUP_MAP[String(apt.project.id)] = apt.project;
+        }
+      });
+
+      // Sắp xếp các căn hộ mới nhất lên trên đầu và lấy tối đa 8 bản ghi hiển thị ngoài trang chủ
+      const sortedApts = apartments.sort((a, b) => {
+        const dateB = new Date(b.created_at || b.createdAt).getTime();
+        const dateA = new Date(a.created_at || a.createdAt).getTime();
+        return dateB - dateA;
+      }).slice(0, 8);
+
+      grid.innerHTML = sortedApts.map(apt => {
+        let itemImages = [];
+        
+        if (apt.image) {
+          if (typeof apt.image === 'string') {
+            if (apt.image.trim().startsWith('[') && apt.image.trim().endsWith(']')) {
+              try { itemImages = JSON.parse(apt.image); } catch(e) { itemImages = [apt.image]; }
+            } else {
+              itemImages = [apt.image];
+            }
+          } else if (Array.isArray(apt.image)) {
+            itemImages = apt.image;
+          }
+        }
+
+        // Định dạng đường dẫn ảnh tuyệt đối an toàn
+        const rawThumb = (itemImages && itemImages.length > 0) ? itemImages[0] : '';
+        const thumb = rawThumb 
+          ? (rawThumb.startsWith('http') ? rawThumb : (BACKEND_URL.replace(/\/$/, '') + '/' + rawThumb.replace(/^\//, ''))) 
+          : defaultImage;
+        
+        const priceBillion = apt.price ? (apt.price / 1000000000).toFixed(2).replace('.', ',') : '0';
+        const pricePerM2 = (apt.price && apt.area) ? Math.round((apt.price / apt.area) / 1000000) : 0;
+        
+        // 🔥 KIỂM TRA BẢO MẬT SLUG: Ưu tiên bốc trường project_slug đã được xử lý khép kín từ Backend
+        const proj = getProjectData(apt);
+        const currentProjectSlug = apt.project_slug || apt.projectSlug || (proj && proj.slug ? proj.slug : 'bcons');
+        const currentCreatedAt = apt.created_at || apt.createdAt;
+
+        // 📍 MA TRẬN FALLBACK ĐỊA CHỈ: Ưu tiên địa chỉ căn hộ -> địa chỉ dự án -> thông báo mặc định công lộ
+        const rawAddress = apt.address || (proj ? proj.address : '') || (proj ? proj.location : '') || 'Đang cập nhật';
+
+        // 🛡️ LỌC CHỐNG TẤN CÔNG XSS: Khử trùng triệt để toàn bộ dữ liệu chuỗi động trước khi chèn vào DOM HTML
+        const safeName = escapeHTML(apt.name || '');
+        const safeAddress = escapeHTML(rawAddress);
+        const safeProjectSlug = escapeHTML(currentProjectSlug);
+        const safeAptSlug = escapeHTML(apt.slug || '');
+        const safeThumb = escapeHTML(thumb);
+
+        return `
+        <div class="relative w-full">
+          <a href="/${safeProjectSlug}/${safeAptSlug}" class="focus:outline-none">          
+            <div class="relative aspect-[4/3] rounded-2xl overflow-hidden mb-3 shadow-sm border border-slate-50 group">
+              <img src="${safeThumb}" onerror="this.src='${defaultImage}'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="${safeName}" />
+              <div class="absolute bottom-2 right-2 bg-black/40 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1 text-white">
+                  <svg viewBox="0 0 24 24" class="w-3 h-3 fill-current opacity-80"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                  <span class="text-[10px] font-bold">1/${itemImages.length || 1}</span>
+              </div>
+            </div>
+            <div class="w-full pt-2">
+              <div class="flex w-full flex-row items-center justify-between gap-x-2">
+                <span class="font-extrabold text-emerald-700">${priceBillion} tỷ · <span class="text-sm font-semibold">${pricePerM2} triệu/m²</span></span>
+                <span class="text-xs text-neutral-600">${timeAgo(currentCreatedAt)}</span>
+              </div>
+              <section class="pt-1">
+                <h6 class="text-base font-bold text-neutral-900 line-clamp-1" title="${safeName}">${safeName}</h6>
+                <p class="pt-0.5 text-sm text-neutral-600">${safeAddress}</p>
+              </section>
+            </div>
+
+            <div class="flex flex-row flex-nowrap items-center pt-1.5">
+              <div class="flex flex-row items-center">
+                <div class="flex flex-row items-center gap-x-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-5 w-5 text-neutral-500"><path d="M248,112v56H112V80H216A32,32,0,0,1,248,112Z" opacity="0.2"></path><path d="M216,72H32V48a8,8,0,0,0-16,0V208a8,8,0,0,0-16,0V176H240v32a8,8,0,0,0-16,0V112A40,40,0,0,0,216,72ZM32,88h72v72H32Zm88,72V88h96a24,24,0,0,1,24,24v48Z"></path></svg>
+                  <span class="whitespace-nowrap text-sm text-neutral-600">${apt.bedrooms || 0} PN</span>
+                </div>
+              </div>
+              <div class="flex flex-row items-center">
+                <div class="mx-3 h-3 w-px bg-black/10"></div>
+                <div class="flex flex-row items-center gap-x-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-5 w-5 text-neutral-500"><path d="M240,104v40a48,48,0,0,1-48,48H64a48,48,0,0,1-48-48V104H136v40h64V104Z" opacity="0.2"></path><path d="M240,96H208a8,8,0,0,0-8-8H136a8,8,0,0,0-8,8H64V52A12,12,0,0,1,76,40a12.44,12.44,0,0,1,12.16,9.59,8,8,0,0,0,15.68-3.18A28.32,28.32,0,0,0,76,24,28,28,0,0,0,48,52V96H16a8,8,0,0,0-8,8v40a56.06,56.06,0,0,0,56,56v16a8,8,0,0,0,16,0V200h96v16a8,8,0,0,0,16,0V200a56.06,56.06,0,0,0,56-56V104A8,8,0,0,0,240,96Zm-48,8v32H144V104Zm40,40a40,40,0,0,1-40,40H64a40,40,0,0,1-40-40V112H128v32a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V112h24Z"></path></svg>
+                  <span class="whitespace-nowrap text-sm text-neutral-600">${apt.bathrooms || 0} WC</span>
+                </div>
+              </div>
+              <div class="flex flex-row items-center">
+                <div class="mx-3 h-3 w-px bg-black/10"></div>
+                <div class="flex flex-row items-center gap-x-1">
+                  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-500" weight="duotone"><path opacity="0.2" fill="currentColor" d="M2.96094 2.95996H13.040939999999999V13.03996H2.96094z"></path><path d="M13.041 2.96l-3.94 3.955M9.098 2.96h3.94v3.955M2.963 13.04l3.94-3.955M6.906 13.04H2.963V9.084M13.037 9.085v3.395a.56.56 0 01-.56.56H9.099M6.902 2.96H3.521a.56.56 0 00-.56.56v3.395" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  <span class="whitespace-nowrap text-sm text-neutral-600">${apt.area || 0} m²</span>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+        `;
+      }).join('');
+
+    } catch (e) {
+      console.error("Lỗi kết nối đồng bộ danh sách nguồn hàng mới:", e);
+    } finally {
+      if (skeleton) skeleton.classList.add('hidden');
+      if (grid) grid.classList.remove('hidden');
+    }
+  })();
+</script>
