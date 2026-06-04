@@ -17,7 +17,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
       <h3 class="text-slate-500 text-sm font-bold uppercase">Doanh thu tháng</h3>
-      <p id="monthly-revenue" class="text-3xl font-black text-orange-500">...</p>
+      <p id="monthly-revenue" class="text-3xl font-black text-emerald-800">...</p>
     </div>
 
     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -200,7 +200,7 @@ function renderCharts(selling: number, sold: number, chartData: any[], projectSt
                 labels: chartData ? chartData.map((d: any) => d.month) : [],
                 datasets: [{
                     data: chartData ? chartData.map((d: any) => d.revenue) : [],
-                    borderColor: '#f97316',
+                    borderColor: '#fac72e',
                     backgroundColor: 'rgba(249, 115, 22, 0.05)',
                     fill: true,
                     tension: 0.4,
@@ -227,7 +227,7 @@ function renderCharts(selling: number, sold: number, chartData: any[], projectSt
                 labels: ['Đang bán', 'Đã chốt'],
                 datasets: [{
                     data: [selling, sold],
-                    backgroundColor: ['#1e293b', '#f97316'],
+                    backgroundColor: ['#1e293b', '#fac72e'],
                     borderWidth: 0,
                     hoverOffset: 15
                 }]
@@ -356,7 +356,7 @@ function renderHistory(data: any) {
               <!-- Cột người thực hiện kèm Avatar viết tắt -->
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center gap-2.5">
-                  <div class="w-7 h-7 rounded-full bg-orange-600/10 text-orange-700 font-black text-xs flex items-center justify-center">
+                  <div class="w-7 h-7 rounded-full bg-[orange]-600/10 text-orange-700 font-black text-xs flex items-center justify-center">
                     ${shortLetter}
                   </div>
                   <span class="font-semibold text-slate-800">${safeUserName}</span>
