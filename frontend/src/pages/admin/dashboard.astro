@@ -1,9 +1,9 @@
 ---
+// src/pages/admin/dashboard.astro
 import AdminLayout from '../../layouts/AdminLayout.astro';
 ---
 
 <AdminLayout title="Thống Kê | Bảng Điều Khiển Admin">
-  <!-- 📊 KHỐI THỐNG KÊ SỐ LIỆU TỔNG QUAN -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
       <h3 class="text-slate-500 text-sm font-bold uppercase">Đang bán</h3>
@@ -26,7 +26,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     </div>
   </div>
 
-  <!-- 📈 KHỐI ĐỒ THỊ XU HƯỚNG VÀ PHÂN BỔ GIỎ HÀNG -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
     <div class="lg:col-span-2 bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
         <div class="flex justify-between items-center mb-6">
@@ -50,7 +49,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     </div>
   </div>
 
-  <!-- 🏢 KHỐI BIỂU ĐỒ DỰ ÁN VÀ CHIẾN THẦN CHỐT DEAL -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
     <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
         <h3 class="text-lg font-bold text-slate-800 mb-6 uppercase text-[12px] tracking-widest text-slate-400">Hiệu suất theo dự án</h3>
@@ -66,8 +64,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     </div>
   </div>
 
-  <!-- 📜 MỚI: KHỐI LỊCH SỬ HOẠT ĐỘNG THỜI GIAN THỰC CHUẨN UI/UX SAAS ĐÃ FIX VỠ DÒNG -->
-  <div class="mt-10 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+  <div id="activity-history-container" class="mt-10 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
     <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
       <div>
         <h2 class="text-base font-bold text-slate-900">Lịch sử hoạt động gần đây</h2>
@@ -145,6 +142,20 @@ async function loadDashboardStats(page = 1) {
       return;
     }
 
+    // 🔥 ĐÃ TÍCH HỢP: Kiểm tra quyền tài khoản ngay khi nạp số liệu để thực thi ẩn/hiện khối lịch sử
+    const userRole = localStorage.getItem('user_role') || localStorage.getItem('admin_role') || localStorage.getItem('role') || '';
+    const roleClean = userRole.toLowerCase().trim();
+    const isAdminOrManager = roleClean.includes('admin') || roleClean.includes('editor') || roleClean.includes('quản lý') || roleClean.includes('quan_ly') || roleClean.includes('manager');
+
+    const historyContainer = document.getElementById('activity-history-container');
+    if (historyContainer) {
+      if (!isAdminOrManager) {
+        historyContainer.classList.add('hidden'); // Ẩn hoàn toàn nếu không phải Admin/Manager
+      } else {
+        historyContainer.classList.remove('hidden');
+      }
+    }
+
     const response = await fetch(`${API_BASE}/api/admin/stats?page=${page}`, {
       headers: {
         'Authorization': `Bearer ${adminToken}`,
@@ -152,10 +163,17 @@ async function loadDashboardStats(page = 1) {
       }
     });
 
-    if (response.status === 401 || response.status === 403) {
-      localStorage.clear();
-      window.location.replace('/admin');
-      return;
+    if (response.status === 401) {
+        // Chưa đăng nhập hoặc token hết hạn thật -> Mới đẩy ra Login
+        localStorage.clear();
+        // Xoá luôn cookie chạy ngầm
+        document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+        window.location.href = '/admin/login';
+    } 
+
+    else if (response.status === 403) {
+        // Đã đăng nhập nhưng SAI QUYỀN -> Giữ nguyên phiên, đẩy sang trang báo lỗi 403
+        window.location.href = '/403'; 
     }
 
     const data = await response.json();
@@ -183,7 +201,10 @@ async function loadDashboardStats(page = 1) {
         renderTopSellers(topSellers);
     }
 
-    renderHistory(data);
+    // Chỉ chạy render dữ liệu bảng nếu tài khoản có quyền xem
+    if (isAdminOrManager) {
+        renderHistory(data);
+    }
 
   } catch (error) {
     console.error('Lỗi sập kết nối cổng Dashboard Laravel API:', error);
@@ -329,7 +350,6 @@ function renderHistory(data: any) {
           const uName = item.userName || item.user_name || 'Hệ thống';
           const shortLetter = uName.charAt(0).toUpperCase();
 
-          // 🔥 UX CAO CẤP: Phân bổ màu sắc Badge động dựa trên từ khóa hành động
           let badgeClass = "bg-slate-50 text-slate-700 border-slate-200/60";
           if (item.action.includes("Thêm")) badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200/60";
           else if (item.action.includes("Chỉnh sửa")) badgeClass = "bg-blue-50 text-blue-700 border-blue-200/60";
@@ -337,7 +357,6 @@ function renderHistory(data: any) {
           else if (item.action.includes("Chốt deal") || item.action.includes("👑")) badgeClass = "bg-amber-50 text-amber-700 border-amber-200/60";
           else if (item.action.includes("Phê duyệt") || item.action.includes("✅")) badgeClass = "bg-teal-50 text-teal-700 border-teal-200/60";
 
-          // 🔥 UX KHỬ LẶP: Dọn sạch các chuỗi mô tả trùng lặp thông tin với cột Người thực hiện
           let cleanTarget = item.target || '';
           const replacePattern = new RegExp(`— tài khoản \\[${uName}\\] đã (chỉnh sửa và cập nhật nội dung bài viết|cập nhật lại hồ sơ thông tin và phân quyền|cập nhật lại các chỉ số tài chính và lãi suất|cập nhật lại thông số kỹ thuật của căn hộ|tiến hành thay đổi và cập nhật lại cấu hình)`, "i");
           cleanTarget = cleanTarget.replace(replacePattern, '—');
@@ -349,26 +368,22 @@ function renderHistory(data: any) {
 
           return `
             <tr class="hover:bg-slate-50/50 transition-colors duration-150">
-              <!-- Cố định dòng thời gian phẳng, không xuống dòng -->
               <td class="px-6 py-4 whitespace-nowrap font-medium text-slate-500 font-mono">
                 ${hh}:${mm} ${d}-${m}
               </td>
-              <!-- Cột người thực hiện kèm Avatar viết tắt -->
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center gap-2.5">
-                  <div class="w-7 h-7 rounded-full bg-[orange]-600/10 text-orange-700 font-black text-xs flex items-center justify-center">
+                  <div class="w-7 h-7 rounded-full bg-orange-600/10 text-orange-700 font-black text-xs flex items-center justify-center">
                     ${shortLetter}
                   </div>
                   <span class="font-semibold text-slate-800">${safeUserName}</span>
                 </div>
               </td>
-              <!-- Badge Hành động phân loại màu sắc -->
               <td class="px-6 py-4 whitespace-nowrap">
                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${badgeClass}">
                   ${safeAction}
                 </span>
               </td>
-              <!-- Nội dung chi tiết rút gọn bằng truncate -->
               <td class="px-6 py-4 text-slate-600 font-medium max-w-xs md:max-w-md lg:max-w-2xl truncate" title="${safeTarget}">
                 ${safeTarget}
               </td>

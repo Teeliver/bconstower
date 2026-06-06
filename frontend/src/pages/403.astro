@@ -1,0 +1,30 @@
+---
+// src/pages/403.astro
+import MainLayout from "../layouts/MainLayout.astro";
+---
+
+<MainLayout title="Truy cập bị từ chối - Bcons">
+  <div class="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-center px-4 font-sans text-slate-200">
+    <div class="p-4 bg-red-950/30 border border-red-800/40 rounded-full mb-6 animate-bounce">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-12 h-12 text-red-500">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+      </svg>
+    </div>
+    
+    <h1 class="text-3xl font-black text-white uppercase tracking-tight">Khu Vực Hạn Chế Truy Cập</h1>
+    
+    <p class="text-slate-400 font-medium text-sm mt-3 max-w-md leading-relaxed">
+      Tài khoản đã đăng nhập thành công nhưng <span class="text-orange-500 font-bold">không đủ đặc quyền</span> để can thiệp vào phân khu dữ liệu này.
+    </p>
+
+    <div class="flex flex-row gap-4 mt-8">
+      <button onclick="history.back()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer">
+        ⬅️ Quay lại trang trước
+      </button>
+      
+      <a href="/admin/dashboard" class="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition shadow-lg shadow-orange-900/20">
+        🏠 Về Bảng Điều Khiển
+      </a>
+    </div>
+  </div>
+</MainLayout>

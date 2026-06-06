@@ -98,16 +98,16 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     </div>
 
     <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-        <table class="w-full text-left">
+        <table class="w-full text-left table-fixed border-collapse">
           <thead class="bg-slate-50 border-b border-slate-200">
             <tr>
-              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Thông tin căn hộ</th>
-              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Vị trí</th>
-              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Đặc điểm</th>
-              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Giá & Diện tích</th>
-              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Người đăng</th>
-              <th class="px-6 py-4 font-bold text-slate-600 text-sm">Trạng thái</th>
-              <th class="px-6 py-5 font-bold text-slate-600 text-sm text-center">Thao tác</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm w-[25%]">Thông tin căn hộ</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm w-[15%]">Vị trí</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm w-[14%]">Đặc điểm</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm w-[12%]">Giá & Diện tích</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm w-[12%]">Người đăng</th>
+              <th class="px-6 py-4 font-bold text-slate-600 text-sm w-[13%]">Trạng thái</th>
+              <th class="px-6 py-5 font-bold text-slate-600 text-sm text-center w-[9%]">Thao tác</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100" id="apartmentTableBody">
@@ -137,7 +137,24 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
   const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
   const token = localStorage.getItem('admin_token')?.replace(/['"]+/g, '').trim();
 
-  // 🔒 BẢO MẬT & ÉP KIỂU: Khử độc XSS an toàn tuyệt đối cho chuỗi và số
+  // Nhận diện quyền lực đăng nhập hiện hành ở Client-side
+  const userStr = localStorage.getItem('admin_user');
+  let userRoleClean = '';
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      userRoleClean = String(user.role || '').toLowerCase().trim();
+    } catch (e) {
+      userRoleClean = String(localStorage.getItem('user_role') || '').toLowerCase().trim();
+    }
+  } else {
+    userRoleClean = String(localStorage.getItem('user_role') || '').toLowerCase().trim();
+  }
+
+  // 🔥 ĐỒNG BỘ ĐẶC QUYỀN: Gom nhóm chỉ cho phép Admin và Manager thực hiện Duyệt/Xoá
+  const isManagement = ['admin', 'administrator', 'quan_ly', 'quản lý', 'manager', 'editor'].includes(userRoleClean);
+
+  // Khử độc XSS an toàn tuyệt đối cho chuỗi và số
   const escapeHTML = (val: any): string => {
     if (val === null || val === undefined) return '';
     const str = String(val); 
@@ -218,7 +235,6 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
         const currentDirection = item.direction_balcony || item.directionBalcony || item.direction_main || item.directionMain || 'Chưa xác định';
         const currentPrice = item.price || 0;
         const currentArea = item.area || 0;
-        // 🔥 ĐỒNG BỘ: Nhận diện chính xác trường creator_name từ leftJoin Backend truyền sang
         const currentCreatedBy = item.creator_name || item.created_by || item.createdBy || 'N/A';
         const currentStatus = item.approval_status || item.approvalStatus || item.status || 'pending';
         const rawImage = item.image || item.image_url;
@@ -248,8 +264,8 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
                     <div class="flex items-center gap-4">
                         <img src="${displayImage}" class="w-12 h-12 rounded-xl object-cover border border-slate-100 shadow-sm" onerror="this.src='https://placehold.co/400x400?text=Error'"/>
                         <div>
-                            <div class="font-bold text-slate-800">${escapeHTML(currentName)}</div>
-                            <div class="text-[10px] text-slate-400 font-mono italic">/${escapeHTML(currentSlug)}</div>
+                            <div class="font-medium text-slate-800">${escapeHTML(currentName)}</div>
+                            
                         </div>
                     </div>
                 </td>
@@ -279,16 +295,22 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
                 </td>
                 <td class="px-6 py-5 text-right">
                     <div class="flex justify-end gap-2">
-                        ${currentStatus === 'pending' || currentStatus === 'con_trong' ? `
+                        <!-- 🔥 ĐÃ VÁ LỖI DUYỆT BÀI: Thêm điều kiện isManagement để ẩn nút Tích xanh Duyệt đối với Broker -->
+                        ${(currentStatus === 'pending' || currentStatus === 'con_trong') && isManagement ? `
                         <button class="approve-btn p-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition-all" data-id="${item.id}">
                              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                         </button>` : ''}
+                        
                         <a href="/admin/apartments/edit?id=${item.id}" class="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all">
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                         </a>
+                        
+                        <!-- 🔥 ĐÃ VÁ LỖI XOÁ BÀI: Giữ nguyên bọc isManagement ẩn nút Thùng rác đỏ đối với Broker -->
+                        ${isManagement ? `
                         <button class="delete-btn p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all" data-id="${item.id}">
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                         </button>
+                        ` : ''}
                     </div>
                 </td>
             </tr>`;

@@ -34,7 +34,7 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // 🔥 BỌC TRY-CATCH ĐỂ ĐỐI CHIẾU THUẬT TOÁN HASH CŨ
+        // 🔥 GIỮ NGUYÊN BẢO MẬT: BỌC TRY-CATCH ĐỂ ĐỐI CHIẾU THUẬT TOÁN HASH CŨ
         try {
             if (!Hash::check($request->password, $user->password)) {
                 return response()->json([
@@ -52,19 +52,30 @@ class AuthController extends Controller
             ], 400);
         }
 
-        // Quyền truy cập
-        if ($user->role !== 'ADMIN' && $user->role !== 'EDITOR') {
+        // 🔥 ĐÃ CẬP NHẬT: Chuẩn hóa và mở rộng bộ lọc phân quyền cho cả Admin, Quản lý và Môi giới
+        // Chuyển role về chữ viết hoa để check chuẩn xác bất kể DB ông đang lưu chữ hoa hay chữ thường
+        $roleClean = strtoupper(trim($user->role ?? ''));
+
+        // Danh sách các quyền được phép đặt chân vào trang quản trị Bcons
+        $allowedRoles = [
+            'ADMIN', 'EDITOR',
+            'MANAGER', 'QUAN_LY', 'QUẢN LÝ',
+            'BROKER', 'MOI_GIOI', 'MÔI GIỚI'
+        ];
+
+        if (!in_array($roleClean, $allowedRoles)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tài khoản không có quyền truy cập.'
+                'message' => 'Tài khoản không có quyền truy cập vào vùng quản trị này.'
             ], 403);
         }
 
-        // Tạo Token tạm thời
+        // GIỮ NGUYÊN: Tạo Token tạm thời dạng base64 theo cấu trúc cũ của ông
         $secretKey = 'Bcons_Design_System_Secret_Key';
         $tokenPayload = $user->id . '|' . time() . '|' . sha1($user->email . $secretKey);
         $token = base64_encode($tokenPayload);
 
+        // GIỮ NGUYÊN 100% cấu trúc UI/UX data trả về cho Frontend Astro bốc tách
         return response()->json([
             'success' => true,
             'message' => 'Đăng nhập thành công.',
@@ -73,7 +84,7 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'fullname' => $user->fullname,
                 'email' => $user->email,
-                'role' => $user->role,
+                'role' => $user->role, // Trả về nguyên bản để Client bọc lọc khớp menu
                 'avatar' => $user->avatar
             ]
         ], 200);

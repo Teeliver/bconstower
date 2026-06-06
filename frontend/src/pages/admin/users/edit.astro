@@ -31,7 +31,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
             <div class="absolute inset-0 rounded-full border-4 border-slate-50 shadow-inner overflow-hidden bg-slate-100">
                 <img id="previewAvatar" src="https://placehold.co/200x200?text=Avatar" class="w-full h-full object-cover" />
             </div>
-            <label class="absolute bottom-2 right-2 w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center cursor-pointer shadow-lg hover:bg-blue-700 transition-all active:scale-90">
+            <label class="absolute bottom-2 right-2 w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center cursor-pointer shadow-lg hover:bg-blue-700 transition-all active:scale-95">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
               <input type="file" name="avatar" id="avatarInput" class="hidden" accept="image/*" />
             </label>
@@ -52,6 +52,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
             <select name="role" id="roleSelect" class="w-full bg-slate-50 border-none rounded-xl py-3 px-4 font-bold text-slate-700 outline-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer">
                 <option value="USER">USER (Thành viên)</option>
                 <option value="BROKER">BROKER (Môi giới)</option>
+                <option value="MANAGER">MANAGER (Quản lý)</option>
                 <option value="ADMIN">ADMIN (Quản trị)</option>
             </select>
           </div>
@@ -164,8 +165,10 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     return rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
   }
 
+  // 🔥 ĐÃ CẬP NHẬT: Thêm điều kiện 'MANAGER' để mở khối xác minh thông tin môi giới
   function toggleBrokerFields(role: string) {
-    if (role === 'BROKER' || role === 'ADMIN') {
+    const roleUpper = String(role || '').toUpperCase().trim();
+    if (roleUpper === 'BROKER' || roleUpper === 'ADMIN' || roleUpper === 'MANAGER') {
       brokerFields.classList.remove('hidden');
     } else {
       brokerFields.classList.add('hidden');
@@ -190,20 +193,33 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
           'Accept': 'application/json'
         }
       });
-      if (res.status === 401 || res.status === 403) { window.location.href = '/admin'; return; }
+      if (res.status === 401) {
+          // Chưa đăng nhập hoặc token hết hạn thật -> Mới đẩy ra Login
+          localStorage.clear();
+          // Xoá luôn cookie chạy ngầm
+          document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+          window.location.href = '/admin/login';
+      } 
+
+      else if (res.status === 403) {
+          // Đã đăng nhập nhưng SAI QUYỀN -> Giữ nguyên phiên, đẩy sang trang báo lỗi 403
+          window.location.href = '/403'; 
+      }
       if (!res.ok) throw new Error("Không thể nạp thông tin tài khoản.");
 
       const user = await res.json();
 
       const nameValue = user.fullname || user.name || '';
       const emailValue = user.email || '';
-      const roleValue = user.role || 'USER';
+      const roleValue = String(user.role || 'USER').toUpperCase().trim(); // Đồng bộ chữ hoa
       
       (document.getElementById('fullname') as HTMLInputElement).value = nameValue;
       document.getElementById('displayFullname')!.textContent = nameValue || '---';
       displayEmailEl.textContent = emailValue || '---';
       (document.getElementById('phone') as HTMLInputElement).value = user.phone || '';
       (document.getElementById('address') as HTMLInputElement).value = user.address || '';
+      
+      // Khớp giá trị đã chuẩn hóa hoa thường lên select dropdown
       roleSelect.value = roleValue;
 
       toggleBrokerFields(roleValue);

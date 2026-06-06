@@ -555,24 +555,38 @@ const schemaData = {
         }
         const thumb = itemImages[0] ? (itemImages[0].startsWith('http') ? itemImages[0] : `${BACKEND_URL.replace(/\/$/, '')}/${itemImages[0].replace(/^\//, '')}`) : 'https://placehold.co/600x450?text=No+Image';
         return `
-          <a href="/${escapeHTML(apt.project_slug || projectSlug)}/${escapeHTML(apt.slug)}" class="group block transition-all duration-300">
-            <div class="relative aspect-[4/3] rounded-2xl overflow-hidden mb-3 shadow-sm border border-slate-50">
+        <div class="relative w-full">
+          <a href="/${escapeHTML(apt.project_slug || projectSlug)}/${escapeHTML(apt.slug)}" class="focus:outline-none"">
+            <div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-50 border border-slate-100 mb-2.5">
               <img src="${thumb}" alt="${escapeHTML(apt.name)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div class="absolute bottom-2 right-2 bg-black/40 backdrop-blur-sm px-2 py-1 rounded-lg text-white text-[10px] font-bold">1/${itemImages.length} Ảnh</div>
             </div>
-            <div class="space-y-1.5 px-1">
-              <div class="flex justify-between items-center">
-                <div class="flex items-center gap-1">
-                  <span class="text-[15px] font-bold text-[#064e3b]">${(apt.price / 1000000000).toFixed(2).replace('.', ',')} tỷ</span>
-                  <span class="text-slate-400 text-sm">·</span>
-                  <span class="text-[13px] font-bold text-[#064e3b]">${Math.round(apt.price / apt.area / 1000000)} tr/m²</span>
-                </div>
-                <span class="text-[10px] text-slate-400 font-medium">${timeAgo(apt.created_at || apt.createdAt)}</span>
+            <div class="w-full pt-2">
+              <div class="flex w-full flex-row items-center justify-between gap-x-2">
+                  <span class="font-extrabold text-emerald-700">${(apt.price / 1000000000).toFixed(2).replace('.', ',')} tỷ ·
+                    <span class="text-sm font-semibold">${Math.round(apt.price / apt.area / 1000000)} tr/m²</span>
+                  </span>
+                  <span class="text-xs text-neutral-600">${timeAgo(apt.created_at || apt.createdAt)}</span>
               </div>
-              <h3 class="text-[14px] font-bold text-slate-900 line-clamp-1 uppercase group-hover:text-[#064e3b] transition-colors">${escapeHTML(apt.name)}</h3>
-              <p class="text-[13px] text-slate-500 line-clamp-2">${escapeHTML(apt.project_address || "Đang cập nhật")}</p>
+              <section class="pt-1">
+                <h6 class="text-base text-lg md:text-sm font-bold text-neutral-900 line-clamp-1" title="${escapeHTML(apt.name)}">${escapeHTML(apt.name)}</h3>
+                <p class="pt-0.5 text-lg md:text-sm text-neutral-600">${escapeHTML(apt.project_address || "Đang cập nhật")}</p>
+              </section>
+              <div class="flex flex-row flex-nowrap items-center pt-1.5">
+                    <div class="flex flex-row items-center">
+                    <div class="flex flex-row items-center gap-x-1"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-5 w-5 text-neutral-500"><path d="M248,112v56H112V80H216A32,32,0,0,1,248,112Z" opacity="0.2"></path><path d="M216,72H32V48a8,8,0,0,0-16,0V208a8,8,0,0,0,16,0V176H240v32a8,8,0,0,0,16,0V112A40,40,0,0,0,216,72ZM32,88h72v72H32Zm88,72V88h96a24,24,0,0,1,24,24v48Z"></path></svg><span class="whitespace-nowrap text-lg md:text-sm text-neutral-600">${(apt.bedrooms || 0 )} PN</span></div>
+              </div>
+              <div class="flex flex-row items-center">
+                    <div class="mx-3 h-3 w-px bg-black/10"></div>
+                    <div class="flex flex-row items-center gap-x-1"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-5 w-5 text-neutral-500"><path d="M240,104v40a48,48,0,0,1-48,48H64a48,48,0,0,1-48-48V104H136v40h64V104Z" opacity="0.2"></path><path d="M240,96H208a8,8,0,0,0-8-8H136a8,8,0,0,0-8,8H64V52A12,12,0,0,1,76,40a12.44,12.44,0,0,1,12.16,9.59,8,8,0,0,0,15.68-3.18A28.32,28.32,0,0,0,76,24,28,28,0,0,0,48,52V96H16a8,8,0,0,0-8,8v40a56.06,56.06,0,0,0,56,56v16a8,8,0,0,0,16,0V200h96v16a8,8,0,0,0,16,0V200a56.06,56.06,0,0,0,56-56V104A8,8,0,0,0,240,96Zm-48,8v32H144V104Zm40,40a40,40,0,0,1-40,40H64a40,40,0,0,1-40-40V112H128v32a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V112h24Z"></path></svg><span class="whitespace-nowrap text-lg md:text-sm text-neutral-600">${(apt.bathrooms || 0 )} WC</span></div>
+              </div>
+              <div class="flex flex-row items-center">
+                    <div class="mx-3 h-3 w-px bg-black/10"></div>
+                    <div class="flex flex-row items-center gap-x-1"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-500" weight="duotone"><path opacity="0.2" fill="currentColor" d="M2.96094 2.95996H13.040939999999999V13.03996H2.96094z"></path><path d="M13.041 2.96l-3.94 3.955M9.098 2.96h3.94v3.955M2.963 13.04l3.94-3.955M6.906 13.04H2.963V9.084M13.037 9.085v3.395a.56.56 0 01-.56.56H9.099M6.902 2.96H3.521a.56.56 0 00-.56.56v3.395" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="whitespace-nowrap text-lg md:text-sm text-neutral-600">${(apt.area || 0 )} m²</span></div>
+              </div>
             </div>
-          </a>`;
+          </a>
+        </div>`;
       }).join('');
     } catch (e) { console.error("Lỗi nạp căn hộ tương tự:", e); }
   }

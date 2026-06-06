@@ -195,8 +195,8 @@ class ApartmentController extends Controller
         $creatorName = $authUser->fullname ?? $authUser->name ?? 'Hệ thống';
         ActivityLog::write(
             'Thêm mới ➕',
-            'Giỏ hàng căn hộ',
-            "Người dùng [{$creatorName}] đã đăng tin căn hộ mới [{$apartment->name}] lên sàn giao dịch."
+            // 'Giỏ hàng căn hộ',
+            "Đã đăng tin căn hộ mới [{$apartment->name}] lên sàn giao dịch."
         );
 
         return response()->json(['success' => true, 'message' => 'Đăng tin căn hộ mới thành công!', 'data' => $apartment], 201);
@@ -332,24 +332,24 @@ class ApartmentController extends Controller
 
             ActivityLog::write(
                 $actionTitle,
-                'Giỏ hàng căn hộ',
-                "Quản trị viên [{$staffName}] đã thực hiện duyệt căn hộ [{$apartment->name}] -> Trạng thái: {$statusDescription}."
+                // 'Giỏ hàng căn hộ',
+                "Đã duyệt căn hộ [{$apartment->name}] || Trạng thái: {$statusDescription}."
             );
         }
         // TRƯỜNG HỢP 2: Ghi nhận CHIẾN THẦN CHỐT DEAL khi căn hộ đổi trạng thái thành 'da_ban'
         elseif ($apartment->status === 'da_ban' && $oldStatus !== 'da_ban') {
             ActivityLog::write(
                 'Chốt deal 👑',
-                'Giỏ hàng căn hộ',
-                "Chiến thần [{$staffName}] đã bán thành công căn hộ [{$apartment->name}]!"
+                // 'Giỏ hàng căn hộ',
+                "Chúc mừng chiến thần [{$staffName}] đã chốt căn hộ [{$apartment->name}]!"
             );
         }
         // TRƯỜNG HỢP 3: Chỉnh sửa các thông số kỹ thuật thông thường
         else {
             ActivityLog::write(
                 'Chỉnh sửa 📝',
-                'Giỏ hàng căn hộ',
-                "Tài khoản [{$staffName}] đã cập nhật lại thông số kỹ thuật của căn hộ [{$apartment->name}]."
+                // 'Giỏ hàng căn hộ',
+                "Đã cập nhật thông tin của căn hộ [{$apartment->name}]."
             );
         }
 
@@ -429,8 +429,8 @@ class ApartmentController extends Controller
         $staffName = $authUser->fullname ?? $authUser->name ?? 'Hệ thống';
         ActivityLog::write(
             'Xóa bỏ ❌',
-            'Giỏ hàng căn hộ',
-            "Tài khoản [{$staffName}] đã gỡ bỏ hoàn toàn căn hộ [{$apartmentName}] ra khỏi danh mục quản trị."
+            // 'Giỏ hàng căn hộ',
+            "Đã xoá căn hộ [{$apartmentName}] khỏi hệ thống."
         );
 
         return response()->json(['success' => true, 'message' => 'Đã xóa căn hộ thành công khỏi sàn!'], 200);

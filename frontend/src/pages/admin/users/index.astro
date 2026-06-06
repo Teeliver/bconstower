@@ -120,11 +120,17 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
       });
 
       if (res.status === 401) {
-          window.location.href = '/admin';
-          return;
-      }
+          // Chưa đăng nhập hoặc token hết hạn thật -> Mới đẩy ra Login
+          localStorage.clear();
+          // Xoá luôn cookie chạy ngầm
+          document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+          window.location.href = '/admin/login';
+      } 
 
-      if (!res.ok) throw new Error("Máy chủ trả về mã lỗi hệ thống.");
+      else if (res.status === 403) {
+          // Đã đăng nhập nhưng SAI QUYỀN -> Giữ nguyên phiên, đẩy sang trang báo lỗi 403
+          window.location.href = '/403'; 
+      }
 
       const users = await res.json();
       renderUsers(users);

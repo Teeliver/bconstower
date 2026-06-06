@@ -8,38 +8,8 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
 
 <MainLayout title="Toàn bộ giỏ hàng căn hộ Bcons mới nhất 2026">
   <div class="bg-white w-full overflow-x-hidden break-words min-h-screen pb-24 font-sans text-slate-800">
-    
-    <div class="w-full bg-[#064e3b] relative py-10 sm:py-12 animate-fadeIn overflow-hidden mt-20">
-      <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:3rem_3rem]"></div>
-      
-      <div class="max-w-7xl mx-auto w-full px-4 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-        <div class="lg:col-span-7 space-y-4 text-white">
-          <div class="space-y-1">
-            <div class="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-white/30 text-white text-[10px] md:text-[12px] font-medium uppercase tracking-wider">
-              <span class="w-1.5 h-1.5 rounded-full bg-black animate-pulse"></span>
-              Kho dữ liệu tổng hợp căn hộ ký gửi toàn hệ thống 2026
-            </div>
-            <h1 class="text-[18px] text-[#fac72e] sm:text-3xl font-black uppercase tracking-tight leading-tight mt-4">
-              Danh sách tất cả căn hộ Bcons giá tốt
-            </h1>
-          </div>
-          <p class="text-lg sm:text-[16px] text-justify text-white max-w-xl leading-relaxed">
-            Hệ thống lọc thông minh kết nối trực tiếp kho sản phẩm ký gửi, chuyển nhượng căn hộ 1PN, 2PN, 3PN diện tích đa dạng trên toàn bộ chuỗi dự án của Bcons.
-          </p>
-          <p class="text-lg sm:text-[16px] text-justify text-white max-w-xl leading-relaxed">
-            Giỏ hàng được tổng hợp từ hàng khách hàng ký gửi và giỏ hàng từ Chủ Đầu Tư. 
-          </p>
-        </div>
 
-        <div class="lg:col-span-5 w-full">
-          <div class="relative aspect-[16/10] rounded-2xl overflow-hidden bg-white/10 border border-white/10 shadow-xl">
-            <img src="/images/no-photo.jpg" id="all-apartments-hero-img" class="w-full h-full object-cover" alt="Tổng kho căn hộ Bcons" />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-4 pt-6">
+    <div class="max-w-7xl mx-auto px-4 pt-30 md:pt-36">
       
       <div class="flex flex-wrap gap-4 mb-6 animate-fadeIn relative z-30">
         
@@ -165,7 +135,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
 <script define:vars={{ PUBLIC_API_BASE }}>
   const BACKEND_URL = PUBLIC_API_BASE;
 
-  // 🔥 LUỒNG KẾT NỐI TÌM KIẾM ĐỘNG: Đọc trực tiếp các tham số bộ lọc từ Trang chủ bắn qua URL
   const urlParams = new URLSearchParams(window.location.search);
   const urlKeyword = urlParams.get('keyword') || '';
   const urlPrice = urlParams.get('price') || '';
@@ -173,20 +142,18 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
 
   let MASTER_APARTMENTS = [];
   let FILTERED_APARTMENTS = [];
-  let VISIBLE_COUNT = 24; 
+  let VISIBLE_COUNT = 15; 
 
-  // Quản lý trạng thái lọc động lồng ghép tham số từ Trang chủ
   let activeFilters = {
     project: 'all',
     price: urlPrice || 'all',
     direction: 'all',
     floor: 'all',
-    keyword: urlKeyword, // Lưu trữ từ khóa phục vụ lọc live
-    rooms: urlRooms       // Lưu trữ số phòng ngủ phục vụ lọc live
+    keyword: urlKeyword, 
+    rooms: urlRooms       
   };
   let activeSort = 'all'; 
 
-  // 🔒 BẢO MẬT XSS TUYỆT ĐỐI: Bộ giải mã làm sạch chuỗi thô từ DB Laravel đổ về trước khi render HTML
   const escapeHTML = (str) => {
     if (!str) return '';
     return str.replace(/[&<>"']/g, (match) => {
@@ -208,29 +175,64 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
     return "Đăng ngày hôm nay";
   }
 
-  // KHỞI TẠO EVENT LẮNG NGHE DROPDOWN CHUẨN ĐÉT ĐẰNG VIỀN CAM NỔI BẬT
+  // 🔥 ĐÃ FIX LỖI CHÍ MẠNG: Đồng bộ hóa toàn bộ cơ chế bắt click ngay tại Container cha
   function initCustomDropdowns() {
     const containers = document.querySelectorAll('.dropdown-container');
     
     containers.forEach(container => {
       container.addEventListener('click', function(e) {
+        const optionItem = e.target.closest('.option-item');
+        
+        // 1. Trường hợp: Người dùng Click chọn một lựa chọn (Option) bên trong Menu thả
+        if (optionItem) {
+          e.stopPropagation(); // Ngăn vỡ cấu trúc đóng mở sai lệch
+          const displayVal = this.querySelector('.display-value');
+          const value = optionItem.getAttribute('data-value');
+          const text = optionItem.textContent;
+
+          if (displayVal) displayVal.textContent = text;
+          const filterKey = this.id.replace('dropdown-', '');
+
+          // Cập nhật biến trạng thái phân loại chuẩn xác
+          if (filterKey === 'sort') {
+            activeSort = value;
+          } else {
+            activeFilters[filterKey] = value;
+          }
+
+          // Thu hồi menu và gỡ màu viền cam sau khi chọn xong
+          const menu = this.querySelector('.dropdown-menu');
+          if (menu) menu.classList.add('hidden');
+          const chevron = this.querySelector('.chevron-icon');
+          if (chevron) chevron.classList.remove('rotate-180');
+          this.classList.remove('border-orange-500', 'border-2');
+          this.classList.add('border-slate-200');
+
+          // Thực thi kích hoạt bộ lọc + Sắp xếp ngay lập tức
+          applyFilters();
+          return;
+        }
+
+        // 2. Trường hợp: Người dùng Click vào thanh tiêu đề để Đóng/Mở Dropdown
         e.stopPropagation();
         const menu = this.querySelector('.dropdown-menu');
         const chevron = this.querySelector('.chevron-icon');
         const isHidden = menu.classList.contains('hidden');
 
-        // Thu hồi toàn bộ dropdown khác
+        // Thu hồi toàn bộ hộp thả khác đang mở trên màn hình để tránh đè layout
         containers.forEach(other => {
-          other.querySelector('.dropdown-menu').classList.add('hidden');
-          const c = other.querySelector('.chevron-icon');
-          if (c) c.classList.remove('rotate-180');
-          if (other.id !== 'dropdown-sort') {
-            other.classList.remove('border-orange-500', 'border-2');
-            other.classList.add('border-slate-200');
+          if (other !== this) {
+            other.querySelector('.dropdown-menu').classList.add('hidden');
+            const c = other.querySelector('.chevron-icon');
+            if (c) c.classList.remove('rotate-180');
+            if (other.id !== 'dropdown-sort') {
+              other.classList.remove('border-orange-500', 'border-2');
+              other.classList.add('border-slate-200');
+            }
           }
         });
 
-        // Bung mở menu hiện tại
+        // Đảo trạng thái Đóng/Mở của hộp thả hiện tại
         if (isHidden) {
           menu.classList.remove('hidden');
           if (chevron) chevron.classList.add('rotate-180');
@@ -238,34 +240,19 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
             this.classList.remove('border-slate-200');
             this.classList.add('border-orange-500', 'border-2');
           }
+        } else {
+          menu.classList.add('hidden');
+          if (chevron) chevron.classList.remove('rotate-180');
+          if (this.id !== 'dropdown-sort') {
+            this.classList.remove('border-orange-500', 'border-2');
+            this.classList.add('border-slate-200');
+          }
         }
       });
     });
 
-    // SỬ DỤNG EVENT DELEGATION: Cho phép bắt sự kiện click chọn option động
-    document.addEventListener('click', function(e) {
-      const containers = document.querySelectorAll('.dropdown-container');
-      
-      if (e.target.classList.contains('option-item')) {
-        e.stopPropagation();
-        const container = e.target.closest('.dropdown-container');
-        const displayVal = container.querySelector('.display-value');
-        const value = e.target.getAttribute('data-value');
-        const text = e.target.textContent;
-
-        displayVal.textContent = text;
-        const filterKey = container.id.replace('dropdown-', '');
-
-        if (filterKey === 'sort') {
-          activeSort = value;
-        } else {
-          activeFilters[filterKey] = value;
-        }
-
-        applyFilters();
-      }
-
-      // Đóng toàn bộ hộp thả
+    // Bấm trượt ra vùng trống ngoài màn hình thì tự động đóng sạch Dropdown
+    document.addEventListener('click', function() {
       containers.forEach(container => {
         container.querySelector('.dropdown-menu').classList.add('hidden');
         const chevron = container.querySelector('.chevron-icon');
@@ -280,7 +267,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
 
   function populateProjectFilterOptions() {
     const projectMenu = document.getElementById('menu-dynamic-projects');
-    
     const projectNames = [...new Set(MASTER_APARTMENTS.map(function(apt) {
       return apt.project_name || apt.projectName || (apt.projectInfo && apt.projectInfo.name) || '';
     }))].filter(Boolean);
@@ -324,7 +310,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
         } else if (Array.isArray(apt.image)) { itemImages = apt.image; }
       }
 
-      // ⚡ PHÒNG THỦ ĐƯỜNG DẪN ẢNH: Khử hoàn toàn lỗi trùng hoặc mất dấu xuyệt gạch chéo
       const rawThumb = (itemImages && itemImages.length > 0) ? itemImages[0] : '';
       const thumb = rawThumb 
         ? (rawThumb.startsWith('http') ? rawThumb : (BACKEND_URL.replace(/\/$/, '') + '/' + rawThumb.replace(/^\//, ''))) 
@@ -335,7 +320,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
       const realCreatedDate = apt.created_at || apt.createdAt || apt.updated_at || apt.updatedAt;
       const currentProjectSlug = apt.project_slug || apt.projectSlug || (apt.projectInfo && apt.projectInfo.slug) || 'bcons';
 
-      // 🔒 ÁP MÀNG LỌC AN TOÀN CHỐNG TẤN CÔNG XSS ĐẦU RA HTML
       const safeName = escapeHTML(apt.name || '');
       const safeAddress = escapeHTML(apt.project_address || apt.projectAddress || apt.address || 'Bình Dương');
       const safeProjSlug = escapeHTML(currentProjectSlug);
@@ -432,6 +416,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
       return true;
     });
 
+    // 🔥 XỬ LÝ LỌC SẮP XẾP: Sắp xếp động mảng sản phẩm sau khi đã vượt qua các màng lọc
     if (activeSort === 'price-asc') {
       FILTERED_APARTMENTS.sort(function(a, b) { return Number(a.price) - Number(b.price); });
     } else if (activeSort === 'price-desc') {
@@ -440,19 +425,17 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
       FILTERED_APARTMENTS.sort(function(a, b) { return Number(b.area) - Number(a.area); });
     }
 
-    VISIBLE_COUNT = 24;
+    VISIBLE_COUNT = 15;
     renderApartmentSlice();
   }
 
   async function loadAllApartmentsData() {
     const skeleton = document.getElementById('project-skeleton');
     try {
-      // 🔥 ĐÃ ĐỒNG BỘ: Kết nối luồng qua endpoint danh mục công khai chuyên dụng vừa tạo trên Laravel
       const res = await fetch(BACKEND_URL + "/api/apartments/public-list");
       if (!res.ok) throw new Error("API sập luồng mạng");
       const result = await res.json();
 
-      // 🧠 THÍCH ỨNG PAYLOAD KÉP: Tương thích mượt mà cả dạng mảng lồng lẫn mảng phẳng của API
       MASTER_APARTMENTS = Array.isArray(result) ? result : (result.apartments || result.data || []);
       
       if (MASTER_APARTMENTS.length > 0) {
@@ -498,7 +481,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
       if (skeleton) skeleton.classList.add('hidden');
 
       document.getElementById('btn-load-more').addEventListener('click', function() {
-        VISIBLE_COUNT += 12;
+        VISIBLE_COUNT += 15;
         renderApartmentSlice();
       });
 
