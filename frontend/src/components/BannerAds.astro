@@ -1,0 +1,50 @@
+---
+// src/components/BannerAds.astro
+interface Props {
+  position: 'news_sidebar' | 'apartment_sidebar' | 'project_horizontal';
+  className?: string;
+}
+
+const { position, className = "" } = Astro.props;
+const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+
+let banners = [];
+try {
+  // Gọi API công khai bảo mật đã được orderBy từ tầng Backend
+  const res = await fetch(`${BACKEND_URL}/api/public/banners?position=${position}`);
+  const json = await res.json();
+  if (json.success) {
+    banners = json.data;
+  }
+} catch (e) {
+  console.error(`[Astro Banner Error] Vị trí ${position} bị lỗi đường truyền:`, e);
+}
+---
+
+{banners.length > 0 && (
+  /* 🔥 LOGIC NỐI TIẾP TUYỆT ĐỐI: 
+     - "flex flex-col gap-4" hoặc "space-y-4" ép các Banner xếp thẳng hàng dọc từ trên xuống dưới.
+     - Thằng nào có sort_order nhỏ hơn sẽ đứng lên đầu, xếp nối tiếp nhau hoàn hảo.
+  */
+  <div class={`flex flex-col gap-4 w-full ${className}`}>
+    {banners.map((banner: any) => {
+      const displayImg = banner.image_path.startsWith('http') ? banner.image_path : `${BACKEND_URL}${banner.image_path}`;
+      
+      return (
+        <a 
+          href={banner.link_url || '#'} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="block w-full overflow-hidden rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 group shrink-0"
+        >
+          <img 
+            src={displayImg} 
+            alt={banner.title || "Bcons Real Estate Ads"} 
+            class="w-full h-auto object-cover group-hover:scale-[1.01] transition-transform duration-300"
+            loading="lazy"
+          />
+        </a>
+      );
+    })}
+  </div>
+)}

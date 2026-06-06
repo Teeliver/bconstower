@@ -1,7 +1,7 @@
 ---
 // src/pages/[projectSlug]/[apartmentSlug].astro
 import MainLayout from "../../layouts/MainLayout.astro";
-import Navbar from '../../components/Navbar.astro';
+import BannerAds from '../../components/BannerAds.astro';
 
 export async function getStaticPaths() {
   const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
@@ -425,6 +425,11 @@ const schemaData = {
                   </div>
                 </div>
               </div>
+            </div>
+
+            <!-- BANNER QUẢNG CÁO PHÍA DƯỚI THÔNG TIN LIÊN HỆ -->
+            <div class="mt-6">
+              <BannerAds position="apartment_sidebar" />
             </div>
           </div>
         </div>

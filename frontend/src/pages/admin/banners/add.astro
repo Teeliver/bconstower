@@ -1,0 +1,202 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Thêm banner quảng cáo trực quan">
+  <div class="flex flex-col mb-8">
+    <h1 class="text-2xl font-black text-slate-900">Tạo Banner Quảng Cáo Trực Quan</h1>
+    <p class="text-slate-500">Thiết lập tham số và nhấp chuột trực tiếp vào ô mô phỏng nét đứt để tải ảnh</p>
+  </div>
+
+  <form id="visualBannerForm" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <div class="lg:col-span-4 space-y-6 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm h-fit">
+      <div>
+        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Tên chiến dịch / Banner</label>
+        <input type="text" id="bannerTitle" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-orange-500 focus:bg-white transition-all text-slate-800 font-medium" placeholder="Ví dụ: Ưu đãi đặt cọc Bcons Polaris" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Đường dẫn khi click (URL Link)</label>
+        <input type="url" id="linkUrl" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-orange-500 focus:bg-white transition-all text-slate-800 font-medium" placeholder="https://bconstower.vn/du-an/bcons-polaris/" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Thứ tự nối tiếp</label>
+          <input type="number" id="sortOrder" value="0" min="0" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-orange-500 focus:bg-white transition-all text-slate-800 font-medium" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Vị trí hiển thị</label>
+          <select id="positionSelect" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-orange-500 focus:bg-white transition-all font-semibold text-slate-700 cursor-pointer">
+            <option value="" disabled selected>-- Chọn vị trí --</option>
+            <option value="news_sidebar">Sidebar Tin Tức</option>
+            <option value="apartment_sidebar">Sidebar Căn Hộ</option>
+            <option value="project_horizontal">Banner Ngang Dự Án</option>
+          </select>
+        </div>
+      </div>
+
+      <input type="file" id="hiddenFileInput" accept="image/*" class="hidden" required />
+
+      <button type="submit" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-orange-600/10 active:scale-[0.98] text-sm uppercase tracking-wider">
+        Lưu cấu hình Banner
+      </button>
+    </div>
+
+    <div class="lg:col-span-8 bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl min-h-[460px] flex flex-col justify-between">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-yellow-500 inline-block"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span>
+          <span class="text-[11px] text-slate-500 font-mono ml-2">bconstower.vn/wireframe-canvas</span>
+        </div>
+      </div>
+
+      <div id="canvasBody" class="flex-1 flex flex-col justify-center">
+        <div id="emptyState" class="text-center p-10 space-y-3">
+          <div class="text-3xl text-slate-600 animate-pulse">🎯</div>
+          <p class="text-sm font-medium text-slate-400">Vui lòng chọn vị trí thiết lập Ads ở bên trái để hiện sơ đồ</p>
+        </div>
+
+        <div id="layout_news_sidebar" class="hidden-layout hidden w-full grid grid-cols-12 gap-4 animate-fadeIn">
+          <div class="col-span-8 bg-slate-800/40 rounded-2xl p-4 space-y-3 border border-slate-800">
+            <div class="h-5 bg-slate-700/50 rounded-md w-2/3"></div>
+            <div class="h-32 bg-slate-700/20 rounded-xl w-full"></div>
+          </div>
+          <div class="col-span-4">
+            <div class="banner-dropzone border-2 border-dashed border-orange-500/40 hover:border-orange-500 bg-orange-500/5 hover:bg-orange-500/10 rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all aspect-[3/4] relative overflow-hidden h-full w-full group">
+              <div class="dz-placeholder space-y-1 pointer-events-none group-hover:scale-105 transition-transform">
+                <span class="text-lg">📸</span>
+                <div class="text-[11px] font-bold text-slate-200">UP SIDEBAR NEWS</div>
+                <div class="text-[9px] text-orange-400">Gợi ý: 360 x 480 px</div>
+              </div>
+              <img class="dz-preview absolute inset-0 w-full h-full object-cover hidden" />
+            </div>
+          </div>
+        </div>
+
+        <div id="layout_apartment_sidebar" class="hidden-layout hidden w-full grid grid-cols-12 gap-4 animate-fadeIn">
+          <div class="col-span-9 space-y-3">
+            <div class="h-32 bg-slate-800/40 rounded-2xl border border-slate-800 p-4 flex gap-3">
+              <div class="w-1/4 h-full bg-slate-700/40 rounded-xl"></div>
+              <div class="flex-1 space-y-2 mt-1"><div class="h-4 bg-slate-700/50 rounded w-1/2"></div><div class="h-3 bg-slate-700/30 rounded w-3/4"></div></div>
+            </div>
+          </div>
+          <div class="col-span-3">
+            <div class="banner-dropzone border-2 border-dashed border-orange-500/40 hover:border-orange-500 bg-orange-500/5 hover:bg-orange-500/10 rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all h-[180px] relative overflow-hidden w-full group">
+              <div class="dz-placeholder space-y-1 pointer-events-none group-hover:scale-105 transition-transform">
+                <span class="text-lg">📸</span>
+                <div class="text-[10px] font-bold text-slate-200">UP SIDEBAR CĂN HỘ</div>
+                <div class="text-[9px] text-orange-400">Gợi ý: 360 x 600 px</div>
+              </div>
+              <img class="dz-preview absolute inset-0 w-full h-full object-cover hidden" />
+            </div>
+          </div>
+        </div>
+
+        <div id="layout_project_horizontal" class="hidden-layout hidden w-full space-y-4 animate-fadeIn">
+          <div class="grid grid-cols-3 gap-3">
+            <div class="h-16 bg-slate-800/40 rounded-xl border border-slate-800"></div>
+            <div class="h-16 bg-slate-800/40 rounded-xl border border-slate-800"></div>
+            <div class="h-16 bg-slate-800/40 rounded-xl border border-slate-800"></div>
+          </div>
+          <div class="banner-dropzone border-2 border-dashed border-orange-500/40 hover:border-orange-500 bg-orange-500/5 hover:bg-orange-500/10 rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all h-[90px] relative overflow-hidden w-full group">
+            <div class="dz-placeholder flex items-center gap-3 pointer-events-none">
+              <span class="text-xl">📸</span>
+              <div class="text-left">
+                <div class="text-[11px] font-bold text-slate-200">UPLOAD BANNER NGANG DỰ ÁN</div>
+                <div class="text-[9px] text-orange-400">Gợi ý: 1200 x 250 px</div>
+              </div>
+            </div>
+            <img class="dz-preview absolute inset-0 w-full h-full object-cover hidden" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</AdminLayout>
+
+<style>
+  .animate-fadeIn { animation: fIn 0.3s ease-out forwards; }
+  @keyframes fIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<script>
+  import Swal from 'sweetalert2';
+
+  const selectPosition = document.getElementById('positionSelect') as HTMLSelectElement;
+  const hiddenInput = document.getElementById('hiddenFileInput') as HTMLInputElement;
+  const emptyState = document.getElementById('emptyState');
+  const form = document.getElementById('visualBannerForm');
+
+  // 1. Chuyển đổi Layout ảo theo select
+  selectPosition?.addEventListener('change', (e) => {
+    emptyState?.classList.add('hidden');
+    document.querySelectorAll('.hidden-layout').forEach(el => el.classList.add('hidden'));
+    document.getElementById(`layout_${(e.target as HTMLSelectElement).value}`)?.classList.remove('hidden');
+  });
+
+  // 2. Kích hoạt click file ngầm
+  document.querySelectorAll('.banner-dropzone').forEach(zone => {
+    zone.addEventListener('click', () => hiddenInput?.click());
+  });
+
+  // 3. Đọc luồng dữ liệu file và in preview lên mockup nét đứt
+  hiddenInput?.addEventListener('change', (e) => {
+    const input = e.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const currentLayout = document.getElementById(`layout_${selectPosition.value}`);
+        if (currentLayout && event.target?.result) {
+          const previewImg = currentLayout.querySelector('.dz-preview') as HTMLImageElement;
+          const placeholder = currentLayout.querySelector('.dz-placeholder') as HTMLDivElement;
+          const zoneBox = currentLayout.querySelector('.banner-dropzone') as HTMLDivElement;
+
+          previewImg.src = event.target.result as string;
+          previewImg.classList.remove('hidden');
+          placeholder.classList.add('opacity-0');
+          zoneBox.className = "banner-dropzone border-2 border-green-500 bg-green-500/5 rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all relative overflow-hidden h-full w-full";
+        }
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  });
+
+  // 4. Gửi payload lên Laravel Controller
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+    const token = localStorage.getItem('admin_token')?.replace(/['"]+/g, '').trim();
+
+    if (!hiddenInput.files || hiddenInput.files.length === 0) {
+      Swal.fire('Thiếu ảnh', 'Ông vui lòng click vào ô nét đứt màu cam trên Layout ảo để nạp hình ảnh trước nhé!', 'warning');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', (document.getElementById('bannerTitle') as HTMLInputElement).value);
+    formData.append('link_url', (document.getElementById('linkUrl') as HTMLInputElement).value);
+    formData.append('sort_order', (document.getElementById('sortOrder') as HTMLInputElement).value);
+    formData.append('position', selectPosition.value);
+    formData.append('image', hiddenInput.files[0]);
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/banners`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' },
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await Swal.fire('Thành công', 'Banner quảng cáo mới đã được kích hoạt.', 'success');
+        window.location.href = '/admin/banners';
+      } else {
+        Swal.fire('Thất bại', data.message || 'Lỗi lưu dữ liệu.', 'error');
+      }
+    } catch (err) {
+      Swal.fire('Lỗi', 'Gãy kết nối mạng với hệ thống backend.', 'error');
+    }
+  });
+</script>

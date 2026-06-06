@@ -16,6 +16,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ConsignmentController;
+use App\Http\Controllers\BannerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -127,6 +128,15 @@ Route::middleware([\App\Http\Middleware\AdminAuthMiddleware::class])->prefix('ad
             Route::delete('/{id}', [UserController::class, 'destroy']);
         });
 
+        // Khóa cứng quyền can thiệp Banner Ads cho Admin và Manager, cấm Broker
+        Route::middleware(['role:admin,manager'])->group(function () {
+            Route::prefix('banners')->group(function () {
+                Route::get('/', [BannerController::class, 'index']);
+                Route::post('/', [BannerController::class, 'store']);
+                Route::delete('/{id}', [BannerController::class, 'destroy']);
+            });
+        });
+
         // ⚙️ Phân hệ 9: Cấu hình cốt lõi Hệ thống Website & SEO Meta Flat toàn trang
         Route::get('/settings', [SettingController::class, 'index']);
         Route::post('/settings', [SettingController::class, 'update']);
@@ -233,3 +243,8 @@ Route::prefix('notifications')->group(function () {
     Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
     Route::post('/mark-all-read', [NotificationController::class, 'markAllRead']);
 });
+
+
+// CỤM 1: PUBLIC CLIENT ROUTES (Không cần đăng nhập, Astro gọi trực tiếp)
+Route::get('/public/banners', [BannerController::class, 'getBannersByPosition']);
+

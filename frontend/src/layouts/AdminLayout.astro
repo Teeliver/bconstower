@@ -1,5 +1,4 @@
 ---
-// src/layouts/AdminLayout.astro
 import "../styles/global.css";
 const { pathname } = Astro.url;
 const { title = "Admin Dashboard" } = Astro.props;
@@ -7,6 +6,7 @@ const { title = "Admin Dashboard" } = Astro.props;
 const isProjectActive = pathname.includes("/admin/projects");
 const isApartmentActive = pathname.includes("/admin/apartments");
 const isHeroActive = pathname.includes("/admin/hero-slides"); 
+const isBannerActive = pathname.includes("/admin/banners"); // 🔥 THÊM MỚI: Trạng thái active của Banner Ads động
 const isUserActive = pathname.includes("/admin/users");
 const isPostActive = pathname.includes("/admin/posts");
 const isLeadActive = pathname.includes("/admin/leads"); 
@@ -56,6 +56,12 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM4 21a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z" /></svg>
               Quản lý Banner
             </a>
+
+            <a id="menu-banner" href="/admin/banners" class={`flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 font-medium group ${isBannerActive ? "bg-[#fac72e] text-black shadow-lg shadow-orange-600/30" : "text-slate-400 hover:bg-slate-800 hover:text-white"}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              Banner Ads động
+            </a>
+
             <a id="menu-projects" href="/admin/projects" class={`flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 font-medium group ${isProjectActive ? "bg-[#fac72e] text-black shadow-lg shadow-orange-600/30" : "text-slate-400 hover:bg-slate-800 hover:text-white"}`}>
               <svg xmlns="http://www.w3.org/2000/xl" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"></path></svg>
               Quản lý dự án
@@ -110,7 +116,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
         <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-6 md:px-10 sticky top-0 z-30">
           <div class="flex items-center gap-4">
             <button id="open-sidebar-btn" class="lg:hidden p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
             <h2 class="text-base md:text-lg font-semibold text-slate-800 truncate">Hệ thống quản lý</h2>
           </div>
@@ -153,13 +159,12 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
 
       // 🔥 LUỒNG KIỂM TRA PHÂN QUYỀN MENU ĐỘNG (DỰA TRÊN LOCALSTORAGE)
       function applyRoleMenuPrivileges() {
-        // Đọc trường vai trò (Hỗ trợ quét cả user_role, admin_role, hoặc role)
         const userRole = localStorage.getItem('user_role') || localStorage.getItem('admin_role') || localStorage.getItem('role') || '';
         const roleClean = userRole.toLowerCase().trim();
 
-        // Khởi tạo danh sách bốc các node phần tử DOM thực tế của menu
         const menuDashboard = document.getElementById('menu-dashboard');
         const menuHero = document.getElementById('menu-hero');
+        const menuBanner = document.getElementById('menu-banner'); // 🔥 Tóm node mục Banner mới tạo
         const menuProjects = document.getElementById('menu-projects');
         const menuApartments = document.getElementById('menu-apartments');
         const menuPosts = document.getElementById('menu-posts');
@@ -170,9 +175,10 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
         const menuBanks = document.getElementById('menu-banks');
         const menuSettings = document.getElementById('menu-settings');
 
-        // 1. Trường hợp là Môi giới: Chỉ hiển thị Căn hộ và Tính thuế phí
+        // 1. Trường hợp là Môi giới/Broker: Ẩn sạch, cấm sờ vào Banner Ads
         if (roleClean.includes('môi giới') || roleClean === 'moi_gioi' || roleClean === 'broker') {
           if (menuHero) menuHero.classList.add('hidden');
+          if (menuBanner) menuBanner.classList.add('hidden'); // 🔥 ẨN KHỎI MÔI GIỚI
           if (menuProjects) menuProjects.classList.add('hidden');
           if (menuPosts) menuPosts.classList.add('hidden');
           if (menuUsers) menuUsers.classList.add('hidden');
@@ -181,17 +187,17 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
           if (menuBanks) menuBanks.classList.add('hidden');
           if (menuSettings) menuSettings.classList.add('hidden');
         } 
-        // 2. Trường hợp là Quản lý: Chỉ hiển thị Căn Hộ, Leads, Consignment, Tính Thuế Phí, Tin Tức (Posts)
+        // 2. Trường hợp là Quản lý/Manager: Được xem Leads, Căn hộ, Tin tức... nhưng CẤM xem Banner Ads
         else if (roleClean.includes('quản lý') || roleClean === 'quan_ly' || roleClean === 'manager') {
           if (menuHero) menuHero.classList.add('hidden');
+          if (menuBanner) menuBanner.classList.add('hidden'); // 🔥 ẨN KHỎI TRƯỞNG PHÒNG/QUAN LÝ
           if (menuProjects) menuProjects.classList.add('hidden');
           if (menuUsers) menuUsers.classList.add('hidden');
           if (menuSettings) menuSettings.classList.add('hidden');
         }
-        // 3. Toàn bộ các quyền khác (Admin, SuperAdmin...) -> Giữ nguyên, không can thiệp (Hiện FULL)
+        // 3. Toàn bộ các quyền Admin tối cao -> Bỏ qua lệnh nén, hiển thị đầy đủ 100%!
       }
 
-      // Kích hoạt chạy ngay lập tức khi load trang để triệt tiêu hiện tượng lag/nháy layout
       applyRoleMenuPrivileges();
 
       // 📱 TOGGLE SIDEBAR MOBILE
@@ -213,7 +219,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
       closeSidebarBtn?.addEventListener("click", () => toggleMobileSidebar(false));
       sidebarOverlay?.addEventListener("click", () => toggleMobileSidebar(false));
 
-      // 🟡 BẬT/TẮT POPUP THÔNG BÁO QUẢ CHUÔNG
+      // 🟡 POPUP THÔNG BÁO QUẢ CHUÔNG
       notifyBtn?.addEventListener("click", (e) => {
         e.stopPropagation();
         if (!notifyDropdown?.classList.toggle("hidden")) fetchNotifications();
@@ -226,28 +232,14 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
       markReadBtn?.addEventListener("click", async (e) => {
         e.stopPropagation();
         try {
-          const token = localStorage.getItem('admin_token');
-          if (!token) return;
-
-          const res = await fetch(`${API_BASE}/api/notifications/mark-all-read`, {
-            method: "POST", 
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
+          const token = localStorage.getItem('admin_token'); if (!token) return;
+          const res = await fetch(`${API_BASE}/api/notifications/mark-all-read`, { method: "POST", headers: { 'Authorization': `Bearer ${token}` } });
           const data = await res.json();
           if (data.success) {
-            Swal.fire({
-              icon: 'success',
-              title: 'Thành công',
-              text: 'Đã xóa toàn bộ huy hiệu thông báo chưa đọc.',
-              timer: 1500,
-              showConfirmButton: false
-            });
-            updateUnreadBadge(); 
-            fetchNotifications(); 
+            Swal.fire({ icon: 'success', title: 'Thành công', text: 'Đã xóa toàn bộ huy hiệu thông báo chưa đọc.', timer: 1500, showConfirmButton: false });
+            updateUnreadBadge(); fetchNotifications(); 
           }
-        } catch (err) {
-          console.error("Lỗi đánh dấu đã đọc thông báo: ", err);
-        }
+        } catch (err) {}
       });
 
       async function updateUnreadBadge() {

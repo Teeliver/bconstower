@@ -1,0 +1,173 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Danh sách Banner Quảng cáo">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-2xl font-black text-slate-900">Quản lý Banner Ads</h1>
+      <p class="text-slate-500">Danh sách các chiến dịch Banner quảng cáo đang chạy trên hệ thống bconstower.vn</p>
+    </div>
+    <a href="/admin/banners/add" class="bg-orange-600 hover:bg-orange-500 text-white px-6 py-3 rounded-2xl font-bold text-sm uppercase tracking-wider transition-all shadow-lg shadow-orange-600/10 active:scale-95">
+      + Tạo Banner Mới
+    </a>
+  </div>
+
+  <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+    <table class="w-full text-left table-fixed border-collapse">
+      <thead class="bg-slate-50 border-b border-slate-200">
+        <tr>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm w-[20%]">Hình ảnh</th>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm w-[28%]">Tên chiến dịch / Banner</th>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm w-[20%]">Vị trí hiển thị</th>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm w-[12%] text-center">Thứ tự</th>
+          <th class="px-6 py-4 font-bold text-slate-600 text-sm w-[10%] text-center">Trạng thái</th>
+          <th class="px-6 py-5 font-bold text-slate-600 text-sm text-center w-[10%]">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100" id="bannerTableBody">
+        <tr>
+          <td colspan="6" class="p-20 text-center text-slate-400 italic">Đang tải danh sách banner ads...</td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="noBanners" class="hidden p-20 text-center text-slate-400 italic bg-white">
+      Hệ thống trống. Chưa có banner quảng cáo nào được cấu hình.
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  import { checkAdminAuth } from '../../../lib/auth';
+  import Swal from 'sweetalert2';
+
+  checkAdminAuth();
+
+  const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  const token = localStorage.getItem('admin_token')?.replace(/['"]+/g, '').trim();
+
+  // Khử độc nội dung tránh lỗi bảo mật XSS
+  const escapeHTML = (str: string): string => {
+    if (!str) return 'N/A';
+    return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m] || m));
+  };
+
+  // Ánh xạ vị trí sang chuỗi tiếng Việt kèm Badge sắc màu tương ứng
+  const getPositionBadge = (pos: string) => {
+    switch(pos) {
+      case 'news_sidebar':
+        return `<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-600">📰 Sidebar Tin Tức</span>`;
+      case 'apartment_sidebar':
+        return `<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-600">🏢 Sidebar Căn Hộ</span>`;
+      case 'project_horizontal':
+        return `<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700">横 Banner Ngang</span>`;
+      default:
+        return `<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-slate-100 text-slate-600">${escapeHTML(pos)}</span>`;
+    }
+  };
+
+  async function loadBanners() {
+    const tbody = document.getElementById('bannerTableBody');
+    const noBanners = document.getElementById('noBanners');
+    if (!tbody) return;
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/banners`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+      });
+
+      if (!res.ok) throw new Error("Không thể lấy dữ liệu");
+
+      const json = await res.json();
+      const banners = json.data || [];
+
+      if (banners.length === 0) {
+        tbody.innerHTML = '';
+        noBanners?.classList.remove('hidden');
+        return;
+      }
+
+      noBanners?.classList.add('hidden');
+      tbody.innerHTML = banners.map((banner: any) => {
+        const fullImgUrl = banner.image_path.startsWith('http') ? banner.image_path : `${BACKEND_URL}${banner.image_path}`;
+        
+        return `
+          <tr class="hover:bg-slate-50/60 transition-colors">
+            <td class="px-6 py-4">
+              <img src="${fullImgUrl}" class="w-full h-14 object-cover rounded-xl border border-slate-200 shadow-sm bg-slate-100" onerror="this.src='https://placehold.co/400x150?text=Error'"/>
+            </td>
+            <td class="px-6 py-4 min-w-0">
+              <div class="font-bold text-slate-800 truncate" title="${escapeHTML(banner.title)}">${escapeHTML(banner.title)}</div>
+              <div class="text-[10px] text-slate-400 truncate mt-0.5" title="${escapeHTML(banner.link_url)}">${escapeHTML(banner.link_url || 'Không đính sự kiện link')}</div>
+            </td>
+            <td class="px-6 py-4 min-w-0 whitespace-nowrap">
+              ${getPositionBadge(banner.position)}
+            </td>
+            <td class="px-6 py-4 text-center font-mono font-bold text-sm text-slate-600">
+              ${banner.sort_order}
+            </td>
+            <td class="px-6 py-4 text-center">
+              <span class="inline-block w-2.5 h-2.5 rounded-full ${banner.is_active ? 'bg-green-500 shadow-sm shadow-green-300' : 'bg-slate-300'}"></span>
+            </td>
+            <td class="px-6 py-4 text-center">
+              <div class="flex justify-center items-center gap-2">
+                <a href="/admin/banners/edit?id=${banner.id}" class="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                </a>
+                <button class="delete-banner-btn p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shrink-0" data-id="${banner.id}">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      setupDeleteEvents();
+
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="6" class="p-20 text-center text-red-500 font-medium">⚠️ Không thể tải danh sách banner ads từ Server API.</td></tr>';
+    }
+  }
+
+  function setupDeleteEvents() {
+    document.querySelectorAll('.delete-banner-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = (e.currentTarget as HTMLElement).dataset.id;
+        if (!id) return;
+
+        const confirm = await Swal.fire({
+          title: 'Gỡ bỏ banner này?',
+          text: 'Tấm Poster quảng cáo này sẽ bị xóa vĩnh viễn khỏi hệ thống!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#ef4444',
+          cancelButtonColor: '#64748b',
+          confirmButtonText: 'Đồng ý xóa',
+          cancelButtonText: 'Hủy bỏ'
+        });
+
+        if (confirm.isConfirmed) {
+          try {
+            const deleteRes = await fetch(`${BACKEND_URL}/api/admin/banners/${id}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (deleteRes.ok) {
+              await Swal.fire('Đã gỡ', 'Đã xóa bỏ cấu hình banner thành công.', 'success');
+              loadBanners();
+            } else {
+              Swal.fire('Thất bại', 'Lỗi phân quyền hệ thống backend.', 'error');
+            }
+          } catch (err) {
+            Swal.fire('Lỗi', 'Mất kết nối đường truyền mạng.', 'error');
+          }
+        }
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', loadBanners);
+</script>

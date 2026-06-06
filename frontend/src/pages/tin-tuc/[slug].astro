@@ -1,6 +1,7 @@
 ---
 // src/pages/tin-tuc/[slug].astro
 import MainLayout from "../../layouts/MainLayout.astro";
+import BannerAds from '../../components/BannerAds.astro';
 
 // 🔥 BẢO MẬT & SEO TUYỆT ĐỐI: Cấu hình bắt buộc getStaticPaths cho Router đường dẫn tĩnh tin tức
 export async function getStaticPaths() {
@@ -268,6 +269,10 @@ const schemaData = {
                 })
               )}
             </div>
+          </div>
+
+          <div>
+            <BannerAds position="news_sidebar" />
           </div>
         </div>
       </div>

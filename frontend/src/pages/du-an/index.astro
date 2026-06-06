@@ -1,6 +1,6 @@
 ---
 import MainLayout from "../../layouts/MainLayout.astro";
-import Navbar from '../../components/Navbar.astro';
+import BannerAds from '../../components/BannerAds.astro';
 
 // 🔥 ĐỒNG BỘ HỆ THỐNG: Lấy trực tiếp biến cấu hình từ file .env của Trung Tín
 const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
@@ -35,7 +35,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
     </div>
 
     <div class="max-w-7xl mx-auto px-4 pt-6">
-      
+      <BannerAds position="project_horizontal" className="my-8" />
       <div class="flex flex-wrap gap-4 mb-6 animate-fadeIn relative z-30">
         
         <div class="flex flex-col gap-1 min-w-[190px] md:min-w-[160px]">
