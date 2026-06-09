@@ -1,0 +1,53 @@
+<script is:inline>
+(function() {
+  const PROTECTED_ROUTES = {
+    "/admin/dashboard": ["admin", "manager", "broker"],
+    "/admin": ["admin"],
+    "/manager": ["admin", "manager"],
+    "/dashboard": ["admin", "manager", "broker"],
+  };
+
+  const pathname = window.location.pathname;
+
+  // 1. Bỏ qua các trang công cộng
+  if (
+    pathname.includes("/login") ||
+    pathname.includes("/403") ||
+    pathname.startsWith("/api")
+  ) return;
+
+  // 2. Lấy dữ liệu từ LocalStorage (vì Static không đọc được Cookie server)
+  const token = localStorage.getItem("admin_token");
+  const rawRole = localStorage.getItem("user_role");
+  
+  const userRole = rawRole ? rawRole.replace(/^"|"$/g, '').trim().toLowerCase() : null;
+
+  // 3. Quy đổi nhóm quyền
+  let userGroup = userRole;
+  if (userRole) {
+    if (["quan_ly", "quản lý", "manager", "editor"].includes(userRole)) userGroup = "manager";
+    else if (["moi_gioi", "môi giới", "broker", "nhan_vien", "nhân viên"].includes(userRole)) userGroup = "broker";
+    else if (["admin", "administrator"].includes(userRole)) userGroup = "admin";
+  }
+
+  // 4. Tìm route bảo vệ
+  const matchedPath = Object.keys(PROTECTED_ROUTES)
+    .sort((a, b) => b.length - a.length)
+    .find(route => pathname.startsWith(route));
+
+  if (matchedPath) {
+    // Nếu chưa đăng nhập
+    if (!token || token === "undefined" || token === "null" || !userGroup) {
+      const targetLogin = pathname.startsWith("/admin") ? "/admin/login" : "/login";
+      window.location.href = `${targetLogin}?redirect=${encodeURIComponent(pathname)}`;
+      return;
+    }
+
+    // Kiểm tra quyền
+    const allowedRoles = PROTECTED_ROUTES[matchedPath];
+    if (!allowedRoles.includes(userGroup)) {
+      window.location.href = "/403";
+    }
+  }
+})();
+</script>

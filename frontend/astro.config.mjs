@@ -6,8 +6,8 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://bconstower.vn',
-  output: 'static',
+  // site: 'https://bconstower.vn',
+  output: 'server',
 
   adapter: node({
     mode: 'standalone',

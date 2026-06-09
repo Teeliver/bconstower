@@ -1,118 +1,752 @@
 ---
-// src/pages/admin/projects/edit.astro
 import AdminLayout from '../../../layouts/AdminLayout.astro';
-// 🔥 ĐÃ BỎ: Không dùng Astro.params nữa để cấu hình chạy tĩnh hoàn toàn theo dạng ?id=...
 ---
 
-<AdminLayout title="Sửa Dự Án">
-  <script is:inline src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-  <div class="max-w-full mx-auto px-4 py-8">
-    <div class="mb-8">
-      <a href="/admin/projects" id="backBtn" class="text-slate-400 hover:text-slate-800 transition-colors flex items-center gap-2 font-medium">
-        <span>←</span> Hủy bỏ
-      </a>
-      <h1 class="text-3xl font-bold text-slate-800 mt-2">Cập nhật dự án</h1>
+<AdminLayout title="Cấu hình trực quan Landing Page Dự Án">
+  <div class="max-w-full mx-auto py-2 px-2">
+    
+    <div class="flex flex-col mb-8">
+      <h1 class="text-2xl font-black text-slate-900">Cấu Hình Landing Page</h1>
+      <p class="text-slate-500">Bật/tắt các Widget tính năng ở cột trái, kéo thả thay đổi vị trí sắp xếp linh hoạt bên cột phải bám sát cấu trúc thiết kế mẫu.</p>
     </div>
 
-    <form id="editProjectForm" class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-50">
-      <input type="hidden" name="currentImage" id="currentImage" />
-
-      <div class="md:col-span-2">
-        <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Tên dự án</label>
-        <input type="text" name="title" id="title" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none font-medium transition-all" />
-      </div>
-
-      <div class="md:col-span-2">
-        <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Địa chỉ</label>
-        <input type="text" name="address" id="address" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none font-medium transition-all" />
-      </div>
-
-      <div class="grid grid-cols-2 gap-4 w-full">
-        <div>
-          <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Lat</label>
-          <input type="text" name="lat" id="edit-lat" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" placeholder="Ví dụ: 10.885348" />
-        </div>
-        <div>
-          <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Lng</label>
-          <input type="text" name="lng" id="edit-lng" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-orange-500 transition-all font-medium" placeholder="Ví dụ: 106.783637" />
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4 w-full mb-4">
-        <div class="relative dropdown-container" id="dropdown-status">
-          <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Tình trạng</label>
-          <input type="hidden" name="status" id="status" value="dang_xay_dung">
-          <button type="button" class="drop-btn w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl flex items-center justify-between font-medium hover:bg-slate-100 transition-all focus:border-orange-500 outline-none shadow-sm">
-            <span class="selected-text">🏗️ Đang xây dựng</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          <div class="drop-menu absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
-            <div class="p-2 space-y-1">
-              <div data-value="dang_xay_dung" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
-                <span>Đang xây dựng</span>
-              </div>
-              <div data-value="da_ban_giao" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
-                <span>Đã bàn giao</span>
-              </div>
-              <div data-value="dang_mo_ban" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
-                <span>Đang mở bán</span>
-              </div>
-              <div data-value="sap_mo_ban" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
-                <span>Sắp mở bán</span>
-              </div>
-            </div>
+    <form id="projectLandingForm" class="w-full">
+      
+      <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 mb-6">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2 cursor-pointer select-none">
+          <div class="text-xs font-black text-slate-400 uppercase tracking-widest">
+            SECTION 00: THÔNG TIN PHẲNG CỐT LÕI (NHẬN DIỆN HỆ THỐNG BẮT BUỘC)
           </div>
         </div>
-
-        <div class="relative dropdown-container" id="dropdown-legal">
-          <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Pháp lý</label>
-          <input type="hidden" name="legal" id="legal" value="hdmb">
-          <button type="button" class="drop-btn w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl flex items-center justify-between font-medium hover:bg-slate-100 transition-all focus:border-orange-500 outline-none shadow-sm">
-            <span class="selected-text">📄 Hợp đồng mua bán</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          <div class="drop-menu absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
-            <div class="p-2 space-y-1">
-              <div data-value="hdmb" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
-                <span>Hợp đồng mua bán</span>
-              </div>
-              <div data-value="so_hong" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
-                <span>Đã có sổ hồng</span>
-              </div>
-              <div data-value="booking" class="option-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 hover:text-orange-700 cursor-pointer">
-                <span>Booking tư vấn</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="md:col-span-2">
-        <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Hình ảnh dự án</label>
-        <input type="file" id="imageInput" name="image" accept="image/*" class="w-full mb-4 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer" />
         
-        <div class="flex justify-center bg-slate-50 rounded-3xl p-6 border-2 border-dashed border-slate-200">
-          <div class="relative group">
-            <img id="imgPreview" src="" class="w-48 h-48 object-cover rounded-2xl shadow-md border-4 border-white transition-transform group-hover:scale-105" onerror="this.src='https://placehold.co/200x200?text=No+Image'" />
+        <div class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Tên dự án gốc</label>
+              <input type="text" id="projectTitle" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-orange-500 focus:bg-white transition-all" placeholder="Ví dụ: Bcons City" />
+            </div>
+            <div>
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Đường dẫn thân thiện (Slug URL tự động)</label>
+              <input type="text" id="projectSlug" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-orange-500 focus:bg-white transition-all" placeholder="Ví dụ: bcons-city" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Tọa độ Lat</label>
+                <input type="text" id="projectLat" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-orange-500 focus:bg-white transition-all" placeholder="10.885348" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Tọa độ Lng</label>
+                <input type="text" id="projectLng" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-orange-500 focus:bg-white transition-all" placeholder="106.783637" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="relative dropdown-container" id="dropdown-status">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Tình trạng mở bán</label>
+                <input type="hidden" id="status" value="dang_xay_dung" />
+                <button type="button" class="drop-btn w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs font-bold hover:bg-slate-100 transition-all outline-none min-h-[38px]">
+                  <span class="selected-text">Đang xây dựng</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div class="drop-menu absolute z-30 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+                  <div class="p-2 space-y-1">
+                    <div data-value="dang_xay_dung" class="option-item flex items-center gap-3 px-4 py-2.5 text-xs font-bold hover:bg-orange-50 hover:text-orange-700 hover:rounded-xl cursor-pointer border-b border-slate-100">Đang xây dựng</div>
+                    <div data-value="da_ban_giao" class="option-item flex items-center gap-3 px-4 py-2.5 text-xs font-bold hover:bg-orange-50 hover:text-orange-700 hover:rounded-xl cursor-pointer border-b border-slate-100">Đã bàn giao</div>
+                    <div data-value="dang_mo_ban" class="option-item flex items-center gap-3 px-4 py-2.5 text-xs font-bold hover:bg-orange-50 hover:text-orange-700 hover:rounded-xl cursor-pointer border-b border-slate-100">Đang mở bán</div>
+                    <div data-value="sap_mo_ban" class="option-item flex items-center gap-3 px-4 py-2.5 text-xs font-bold hover:bg-orange-50 hover:text-orange-700 hover:rounded-xl cursor-pointer border-b border-slate-100">Sắp mở bán</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="relative dropdown-container" id="dropdown-legal">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Pháp lý hiện tại</label>
+                <input type="hidden" id="legal" value="hdmb" />
+                <button type="button" class="drop-btn w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs font-bold hover:bg-slate-100 transition-all outline-none min-h-[38px]">
+                  <span class="selected-text">Hợp đồng mua bán</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div class="drop-menu absolute z-30 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible -translate-y-2 transition-all duration-300">
+                  <div class="p-2 space-y-1">
+                    <div data-value="hdmb" class="option-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-orange-50 hover:text-orange-700 hover:rounded-xl cursor-pointer border-b border-slate-100">Hợp đồng mua bán</div>
+                    <div data-value="so_hong" class="option-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-orange-50 hover:text-orange-700 hover:rounded-xl cursor-pointer border-b border-slate-100">Đã có sổ hồng</div>
+                    <div data-value="booking" class="option-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-orange-50 hover:text-orange-700 hover:rounded-xl cursor-pointer border-b border-slate-100">Booking tư vấn</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Địa chỉ dự án chính thức</label>
+            <input type="text" id="projectAddress" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-orange-500 focus:bg-white transition-all" placeholder="Ví dụ: Đại lộ Bình Dương, Phường Đông Hòa, TP. Dĩ An, Bình Dương" />
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Hình ảnh đại diện ngoài danh sách</label>
+            <div class="flex flex-col sm:flex-row gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <div class="flex-1 w-full">
+                <input type="file" id="projectFileInput" accept="image/*" class="w-full text-xs file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer" />
+                <p class="text-[10px] text-slate-400 mt-2">Ảnh thumbnail phẳng đại diện của sản phẩm phục vụ hiển thị ngoài danh sách bảng điều khiển chính.</p>
+              </div>
+              <div class="w-24 h-24 rounded-xl border bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                <img id="projectPreviewImg" class="w-full h-full object-cover hidden" />
+                <span id="projectPreviewPlaceholder" class="text-[10px] font-bold text-slate-400">Chưa ảnh</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="md:col-span-2 pt-4">
-        <button type="submit" id="submitBtn" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-5 rounded-2xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50">
-          Lưu thay đổi
-        </button>
+      <div class="grid grid-cols-1 xl:grid-cols-4 gap-6 items-start">
+        
+        <div class="xl:col-span-1 bg-slate-900 text-white p-5 rounded-3xl border border-slate-800 shadow-2xl xl:sticky xl:top-6 space-y-4">
+          <div>
+            <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Kho Widget Tính Năng</h3>
+            <p class="text-[11px] text-slate-400 mt-1">Bấm nút kích hoạt để đưa khối vào khu vực Canvas bố cục thực tế.</p>
+          </div>
+          
+          <div id="widgetPool" class="space-y-2 max-h-[65vh] overflow-y-auto pr-1">
+            <div data-widget-id="hero" class="widget-pool-item bg-slate-800 p-3 rounded-xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-orange-500 transition-all select-none group">
+              <div class="flex items-center gap-2 text-xs font-bold"><span>01. Banner Hero & Form</span></div>
+              <button type="button" class="activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">Bật</button>
+            </div>
+            <div data-widget-id="highlights" class="widget-pool-item bg-slate-800 p-3 rounded-xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-orange-500 transition-all select-none group">
+              <div class="flex items-center gap-2 text-xs font-bold"><span>02. Đối Tác Ngân Hàng</span></div>
+              <button type="button" class="activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">Bật</button>
+            </div>
+            <div data-widget-id="stats" class="widget-pool-item bg-slate-800 p-3 rounded-xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-orange-500 transition-all select-none group">
+              <div class="flex items-center gap-2 text-xs font-bold"><span>03. Thanh 4 Thông Số</span></div>
+              <button type="button" class="activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">Bật</button>
+            </div>
+            <div data-widget-id="promo" class="widget-pool-item bg-slate-800 p-3 rounded-xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-orange-500 transition-all select-none group">
+              <div class="flex items-center gap-2 text-xs font-bold"><span>04. Khối Chiết Khấu</span></div>
+              <button type="button" class="activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">Bật</button>
+            </div>
+            <div data-widget-id="overview" class="widget-pool-item bg-slate-800 p-3 rounded-xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-orange-500 transition-all select-none group">
+              <div class="flex items-center gap-2 text-xs font-bold"><span>05. Tổng Quan Chi Tiết</span></div>
+              <button type="button" class="activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">Bật</button>
+            </div>
+            <div data-widget-id="location_links" class="widget-pool-item bg-slate-800 p-3 rounded-xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-orange-500 transition-all select-none group">
+              <div class="flex items-center gap-2 text-xs font-bold"><span>06. Bản Đồ Vị Trí Vùng</span></div>
+              <button type="button" class="activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">Bật</button>
+            </div>
+            <div data-widget-id="floorplan" class="widget-pool-item bg-slate-800 p-3 rounded-xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-orange-500 transition-all select-none group">
+              <div class="flex items-center gap-2 text-xs font-bold"><span>07. Bản Đồ Mặt Bằng</span></div>
+              <button type="button" class="activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">Bật</button>
+            </div>
+            <div data-widget-id="amenities" class="widget-pool-item bg-slate-800 p-3 rounded-xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-orange-500 transition-all select-none group">
+              <div class="flex items-center gap-2 text-xs font-bold"><span>08. 6 Khối Tiện Ích Nội Khu</span></div>
+              <button type="button" class="activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">Bật</button>
+            </div>
+            <div data-widget-id="unit_designs" class="widget-pool-item bg-slate-800 p-3 rounded-xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-orange-500 transition-all select-none group">
+              <div class="flex items-center gap-2 text-xs font-bold"><span>09. Layout Mẫu Căn Hộ</span></div>
+              <button type="button" class="activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">Bật</button>
+            </div>
+            <div data-widget-id="furniture" class="widget-pool-item bg-slate-800 p-3 rounded-xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-orange-500 transition-all select-none group">
+              <div class="flex items-center gap-2 text-xs font-bold"><span>10. Vật Liệu Bàn Giao</span></div>
+              <button type="button" class="activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">Bật</button>
+            </div>
+            <div data-widget-id="payment_methods" class="widget-pool-item bg-slate-800 p-3 rounded-xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-orange-500 transition-all select-none group">
+              <div class="flex items-center gap-2 text-xs font-bold"><span>11. Tiến Độ Thanh Toán</span></div>
+              <button type="button" class="activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">Bật</button>
+            </div>
+            <div data-widget-id="apartments" class="widget-pool-item bg-slate-800 p-3 rounded-xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-orange-500 transition-all select-none group">
+              <div class="flex items-center gap-2 text-xs font-bold"><span>12. Live Inventory Giỏ Hàng</span></div>
+              <button type="button" class="activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">Bật</button>
+            </div>
+            <div data-widget-id="lead_form" class="widget-pool-item bg-slate-800 p-3 rounded-xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-orange-500 transition-all select-none group">
+              <div class="flex items-center gap-2 text-xs font-bold"><span>13. Biểu Mẫu Chân Trang</span></div>
+              <button type="button" class="activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">Bật</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="xl:col-span-3 space-y-6">
+          <div id="activeCanvas" class="space-y-6 min-h-[350px] bg-slate-50/60 border-2 border-dashed border-slate-200 rounded-3xl p-4 md:p-6 transition-all">
+            </div>
+          
+          <button type="submit" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-4 rounded-2xl transition-all shadow-xl shadow-orange-600/10 active:scale-[0.99] text-sm uppercase tracking-wider cursor-pointer">
+            Cập Nhật Landing Page Dự Án
+          </button>
+        </div>
+        
       </div>
+
+      <div id="hiddenWidgetStorage" class="hidden">
+        
+        <div data-section-id="hero" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 section-card">
+          <div class="canvas-drag-handle flex items-center justify-between bg-slate-50 px-4 py-2 rounded-xl mb-2 border border-slate-100 cursor-move select-none" draggable="true">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-sm">⣿</span>
+              <span class="canvas-index-badge text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded font-mono">#</span>
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">SECTION 01: BANNER HERO & LEAD FORM</span>
+            </div>
+            <button type="button" class="remove-widget-btn text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">✕ Gỡ hiển thị</button>
+          </div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1 cursor-pointer section-header select-none">
+            <span class="text-[10px] font-black text-slate-400 tracking-wider uppercase">Cấu hình chi tiết form nhập liệu</span>
+            <div class="flex items-center gap-3">
+              <span class="direction-badge text-[10px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md uppercase font-mono" id="badge_hero">Bố cục: Mặc định</span>
+              <button type="button" class="collapse-toggle-btn p-1 text-slate-400 hover:text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+            </div>
+          </div>
+          <div class="section-content space-y-4">
+            <div id="container_hero" class="flex flex-col lg:flex-row gap-6 items-stretch transition-all duration-300 dynamic-flex-row" data-direction="normal" data-badge="badge_hero">
+              <div class="w-full lg:w-[58%] bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between gap-5 relative group/col draggable-column" draggable="true">
+                <div class="absolute top-2 right-2 opacity-0 group-hover/col:opacity-100 transition-opacity cursor-move bg-slate-200 text-slate-600 text-[9px] font-black px-2 py-1 rounded-md shadow-sm select-none">⣿ KÉO ĐỔI BÊN</div>
+                <div class="space-y-4 w-full">
+                  <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Tên dự án chính (H1)</label>
+                    <input type="text" id="heroTitle" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-orange-500 focus:bg-white transition-all" placeholder="Ví dụ: BCONS CENTER CITY" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Giới thiệu ngắn dự án / Slogan sản phẩm</label>
+                    <input type="text" id="heroSubtitle" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none focus:border-orange-500 focus:bg-white transition-all" placeholder="Ví dụ: Căn hộ cao cấp mặt tiền đại lộ" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Giới thiệu chi tiết dự án</label>
+                    <textarea id="heroDescription" rows="3" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 outline-none focus:border-orange-500 focus:bg-white transition-all" placeholder="Nhập văn bản mô tả chi tiết..."></textarea>
+                  </div>
+                </div>
+                <div class="bg-amber-400/10 p-4 rounded-xl border border-dashed border-amber-400 space-y-3">
+                  <span class="block text-[9px] font-black text-amber-800 uppercase tracking-wider">Biểu mẫu tư vấn (Hứng Leads Ads)</span>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div class="h-9 bg-white border border-slate-200 rounded-lg flex items-center px-3 text-[10px] text-slate-400 font-medium">Họ và tên của khách...</div>
+                    <div class="h-9 bg-white border border-slate-200 rounded-lg flex items-center px-3 text-[10px] text-slate-400 font-medium">Số điện thoại liên hệ...</div>
+                  </div>
+                  <div>
+                    <label class="block text-[9px] font-bold text-amber-900 uppercase tracking-wider mb-1">Chữ hiển thị trên nút gửi dữ liệu Form</label>
+                    <input type="text" id="heroBtnText" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 outline-none" placeholder="Ví dụ: ĐĂNG KÝ NHẬN BẢNG GIÁ" />
+                  </div>
+                </div>
+              </div>
+              <div class="w-full lg:w-[42%] flex flex-col min-h-[260px] relative group/col draggable-column" draggable="true">
+                <div class="absolute top-2 right-2 opacity-0 group-hover/col:opacity-100 transition-opacity cursor-move bg-slate-200 text-slate-600 text-[9px] font-black px-2 py-1 rounded-md shadow-sm select-none">⣿ KÉO ĐỔI BÊN</div>
+                <div class="flex-1 border-2 border-dashed border-slate-300 hover:border-orange-500 bg-white rounded-2xl flex flex-col items-center justify-center p-4 text-center cursor-pointer relative overflow-hidden transition-all group" id="heroDropzone">
+                  <div class="pointer-events-none space-y-1 text-slate-400 group-hover:text-slate-600 transition-colors">
+                    <span class="text-3xl">📸</span><div class="text-xs font-bold text-slate-700">UP ẢNH PHỐI CẢNH HERO</div>
+                  </div>
+                  <img id="heroPreviewImg" class="absolute inset-0 w-full h-full object-cover hidden" />
+                </div>
+                <input type="file" id="heroFileInput" accept="image/*" class="hidden" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-section-id="highlights" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 section-card">
+          <div class="canvas-drag-handle flex items-center justify-between bg-slate-50 px-4 py-2 rounded-xl mb-2 border border-slate-100 cursor-move select-none" draggable="true">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-sm">⣿</span>
+              <span class="canvas-index-badge text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded font-mono">#</span>
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">SECTION 02: ĐIỂM TỰA NIỀM TIN & ĐỐI TÁC NGÂN HÀNG</span>
+            </div>
+            <button type="button" class="remove-widget-btn text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">✕ Gỡ hiển thị</button>
+          </div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1 cursor-pointer section-header select-none">
+            <span class="text-[10px] font-black text-slate-400 tracking-wider uppercase">Cấu hình thông số đối tác</span>
+            <button type="button" class="collapse-toggle-btn p-1 text-slate-400 hover:text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+          </div>
+          <div class="section-content space-y-6">
+            <div class="space-y-3">
+              <span class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">1. Cấu hình 3 khối Điểm Tựa Niềm Tin</span>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                  <span class="text-[9px] font-bold text-amber-600 uppercase">Khối số #1</span>
+                  <input type="text" id="trustTitle1" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none" />
+                  <textarea id="trustDesc1" rows="3" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium resize-none text-slate-600 outline-none"></textarea>
+                  <input type="hidden" id="trustIcon1" value="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                  <span class="text-[9px] font-bold text-amber-600 uppercase">Khối số #2</span>
+                  <input type="text" id="trustTitle2" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none" />
+                  <textarea id="trustDesc2" rows="3" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium resize-none text-slate-600 outline-none"></textarea>
+                  <input type="hidden" id="trustIcon2" value="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04M12 21.48l.342-.161L12 21.48z" />
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                  <span class="text-[9px] font-bold text-amber-600 uppercase">Khối số #3</span>
+                  <input type="text" id="trustTitle3" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none" />
+                  <textarea id="trustDesc3" rows="3" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium resize-none text-slate-600 outline-none"></textarea>
+                  <input type="hidden" id="trustIcon3" value="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138z" />
+                </div>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <span class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">2. Tên 7 Hệ Thống Ngân Hàng Đồng Hành</span>
+              <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+                <input type="text" id="partner1" class="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-center text-slate-800 outline-none" />
+                <input type="text" id="partner2" class="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-center text-slate-800 outline-none" />
+                <input type="text" id="partner3" class="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-center text-slate-800 outline-none" />
+                <input type="text" id="partner4" class="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-center text-slate-800 outline-none" />
+                <input type="text" id="partner5" class="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-center text-slate-800 outline-none" />
+                <input type="text" id="partner6" class="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-center text-slate-800 outline-none" />
+                <input type="text" id="partner7" class="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-center text-slate-800 outline-none" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-section-id="stats" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 section-card">
+          <div class="canvas-drag-handle flex items-center justify-between bg-slate-50 px-4 py-2 rounded-xl mb-2 border border-slate-100 cursor-move select-none" draggable="true">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-sm">⣿</span>
+              <span class="canvas-index-badge text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded font-mono">#</span>
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">SECTION 03: THANH 4 THÔNG SỐ SỐNG (DẢI VÀNG)</span>
+            </div>
+            <button type="button" class="remove-widget-btn text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">✕ Gỡ hiển thị</button>
+          </div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1 cursor-pointer section-header select-none">
+            <span class="text-[10px] font-black text-slate-400 tracking-wider uppercase">Cấu hình dải số hiệu ứng</span>
+            <button type="button" class="collapse-toggle-btn p-1 text-slate-400 hover:text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+          </div>
+          <div class="section-content space-y-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-amber-400/10 rounded-2xl border border-dashed border-amber-400">
+              <div class="bg-white p-3 rounded-xl border border-slate-200 text-center space-y-1">
+                <span class="block text-[9px] font-bold text-slate-400 uppercase">Thông số 1</span>
+                <input type="text" id="statNumber1" class="w-full text-center px-2 py-1 bg-slate-50 rounded border text-xs font-black text-amber-600" placeholder="Ví dụ: 1B+" />
+              </div>
+              <div class="bg-white p-3 rounded-xl border border-slate-200 text-center space-y-1">
+                <span class="block text-[9px] font-bold text-slate-400 uppercase">Thông số 2</span>
+                <input type="text" id="statNumber2" class="w-full text-center px-2 py-1 bg-slate-50 rounded border text-xs font-black text-amber-600" placeholder="Ví dụ: 100%" />
+              </div>
+              <div class="bg-white p-3 rounded-xl border border-slate-200 text-center space-y-1">
+                <span class="block text-[9px] font-bold text-slate-400 uppercase">Thông số 3</span>
+                <input type="text" id="statNumber3" class="w-full text-center px-2 py-1 bg-slate-50 rounded border text-xs font-black text-amber-600" placeholder="Ví dụ: 5 SAO" />
+              </div>
+              <div class="bg-white p-3 rounded-xl border border-slate-200 text-center space-y-1">
+                <span class="block text-[9px] font-bold text-slate-400 uppercase">Thông số 4</span>
+                <input type="text" id="statNumber4" class="w-full text-center px-2 py-1 bg-slate-50 rounded border text-xs font-black text-amber-600" placeholder="Ví dụ: 39TR/M2" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-section-id="promo" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 section-card">
+          <div class="canvas-drag-handle flex items-center justify-between bg-slate-50 px-4 py-2 rounded-xl mb-2 border border-slate-100 cursor-move select-none" draggable="true">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-sm">⣿</span>
+              <span class="canvas-index-badge text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded font-mono">#</span>
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">SECTION 04: CHƯƠNG TRÌNH ƯU ĐÃI CHIẾT KHẤU</span>
+            </div>
+            <button type="button" class="remove-widget-btn text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">✕ Gỡ hiển thị</button>
+          </div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1 cursor-pointer section-header select-none">
+            <span class="text-[10px] font-black text-slate-400 tracking-wider uppercase">Chính sách quà tặng quà tặng</span>
+            <button type="button" class="collapse-toggle-btn p-1 text-slate-400 hover:text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+          </div>
+          <div class="section-content space-y-4">
+            <div class="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm space-y-4">
+              <input type="text" id="promoTitle" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800" placeholder="Tiêu đề khối chiết khấu" />
+              <textarea id="promoDesc" rows="2" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium resize-none outline-none" placeholder="Nội dung chính sách ưu đãi chi tiết..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div data-section-id="overview" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 section-card">
+          <div class="canvas-drag-handle flex items-center justify-between bg-slate-50 px-4 py-2 rounded-xl mb-2 border border-slate-100 cursor-move select-none" draggable="true">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-sm">⣿</span>
+              <span class="canvas-index-badge text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded font-mono">#</span>
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">SECTION 05: TỔNG QUAN DỰ ÁN</span>
+            </div>
+            <button type="button" class="remove-widget-btn text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">✕ Gỡ hiển thị</button>
+          </div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1 cursor-pointer section-header select-none">
+            <span class="text-[10px] font-black text-slate-400 tracking-wider uppercase">Bảng cấu hình thông tin quy mô</span>
+            <div class="flex items-center gap-3">
+              <span class="direction-badge text-[10px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md uppercase font-mono" id="badge_overview">Bố cục: Mặc định</span>
+              <button type="button" class="collapse-toggle-btn p-1 text-slate-400 hover:text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+            </div>
+          </div>
+          <div class="section-content space-y-4">
+            <div id="container_overview" class="flex flex-col lg:flex-row gap-6 items-stretch transition-all duration-300 dynamic-flex-row" data-direction="normal" data-badge="badge_overview">
+              <div class="w-full lg:w-[58%] bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col justify-between gap-5 relative group/col draggable-column" draggable="true">
+                <div class="absolute top-2 right-2 opacity-0 group-hover/col:opacity-100 transition-opacity cursor-move bg-slate-200 text-slate-600 text-[9px] font-black px-2 py-1 rounded-md shadow-sm select-none">⣿ KÉO ĐỔI BÊN</div>
+                <h2 class="text-base font-black text-slate-800 tracking-tight">TỔNG QUAN DỰ ÁN</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Tên thương mại</label>
+                    <div class="w-8 h-0.5 bg-[#fac72e] mb-1 rounded-full"></div>
+                    <input type="text" id="overviewName" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" placeholder="BCONS CENTER CITY" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Chủ đầu tư</label>
+                    <div class="w-8 h-0.5 bg-[#fac72e] mb-1 rounded-full"></div>
+                    <input type="text" id="overviewInvestor" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" placeholder="TẬP ĐOÀN BCONS" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Vị trí dự án</label>
+                    <div class="w-8 h-0.5 bg-[#fac72e] mb-1 rounded-full"></div>
+                    <input type="text" id="overviewLocation" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" placeholder="PHƯỜNG ĐÔNG HOÀ, TP. DĨ AN" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Quy mô tháp</label>
+                    <div class="w-8 h-0.5 bg-[#fac72e] mb-1 rounded-full"></div>
+                    <input type="text" id="overviewScale" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" placeholder="1.950 CĂN" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Loại hình phát triển</label>
+                    <div class="w-8 h-0.5 bg-[#fac72e] mb-1 rounded-full"></div>
+                    <input type="text" id="overviewType" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" placeholder="CĂN HỘ, SHOPHOUSE" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Pháp lý dự án</label>
+                    <div class="w-8 h-0.5 bg-[#fac72e] mb-1 rounded-full"></div>
+                    <input type="text" id="overviewLegal" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" placeholder="SỔ HỒNG SỞ HỮU LÂU DÀI" />
+                  </div>
+                </div>
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-inner">
+                  <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Điểm nhấn nổi bật chân khối</label>
+                  <input type="text" id="overviewHighlights" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none" placeholder="Biểu tượng Làng Đại Học" />
+                </div>
+              </div>
+              <div class="w-full lg:w-[42%] flex flex-col min-h-[280px] relative group/col draggable-column" draggable="true">
+                <div class="absolute top-2 right-2 opacity-0 group-hover/col:opacity-100 transition-opacity cursor-move bg-slate-200 text-slate-600 text-[9px] font-black px-2 py-1 rounded-md shadow-sm select-none">⣿ KÉO ĐỔI BÊN</div>
+                <div class="flex-1 border-2 border-dashed border-slate-300 hover:border-orange-500 bg-slate-50 rounded-2xl flex flex-col items-center justify-center p-4 text-center cursor-pointer relative overflow-hidden transition-all group" id="overviewDropzone">
+                  <div class="pointer-events-none space-y-1 text-slate-400"><span class="text-2xl">📸</span><div class="text-xs font-bold text-slate-700">ẢNH PHỐI CẢNH TỔNG QUAN</div></div>
+                  <img id="overviewPreviewImg" class="absolute inset-0 w-full h-full object-cover hidden" />
+                </div>
+                <input type="file" id="overviewFileInput" accept="image/*" class="hidden" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-section-id="location_links" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 section-card">
+          <div class="canvas-drag-handle flex items-center justify-between bg-slate-50 px-4 py-2 rounded-xl mb-2 border border-slate-100 cursor-move select-none" draggable="true">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-sm">⣿</span>
+              <span class="canvas-index-badge text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded font-mono">#</span>
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">SECTION 06: BẢN ĐỒ VỊ TRÍ & KẾT NỐI VÙNG</span>
+            </div>
+            <button type="button" class="remove-widget-btn text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">✕ Gỡ hiển thị</button>
+          </div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1 cursor-pointer section-header select-none">
+            <span class="text-[10px] font-black text-slate-400 tracking-wider uppercase">Cấu hình liên kết bán kính hạ tầng</span>
+            <div class="flex items-center gap-3">
+              <span class="direction-badge text-[10px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md uppercase font-mono" id="badge_location">Bố cục: Mặc định</span>
+              <button type="button" class="collapse-toggle-btn p-1 text-slate-400 hover:text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+            </div>
+          </div>
+          <div class="section-content space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-2">
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Tiêu đề khối vị trí</label>
+                <input type="text" id="locationTitle" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" placeholder="Ví dụ: VỊ TRÍ KIM CƯƠNG KẾT NỐI LIÊN VÙNG" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Mô tả chi tiết vị trí</label>
+                <textarea id="locationDescription" rows="1" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 outline-none resize-none" placeholder="Ví dụ: Tọa lạc ngay tâm điểm kết nối..."></textarea>
+              </div>
+            </div>
+            <div id="container_location" class="flex flex-col lg:flex-row gap-6 items-stretch transition-all duration-300 dynamic-flex-row" data-direction="normal" data-badge="badge_location">
+              <div class="w-full lg:w-[42%] flex flex-col min-h-[260px] relative group/col draggable-column" draggable="true">
+                <div class="absolute top-2 right-2 opacity-0 group-hover/col:opacity-100 transition-opacity cursor-move bg-slate-200 text-slate-600 text-[9px] font-black px-2 py-1 rounded-md shadow-sm select-none">⣿ KÉO ĐỔI BÊN</div>
+                <div class="flex-1 border-2 border-dashed border-slate-300 hover:border-orange-500 bg-slate-50 rounded-2xl flex flex-col items-center justify-center p-4 text-center cursor-pointer relative overflow-hidden transition-all group" id="locationDropzone">
+                  <div class="pointer-events-none space-y-1 text-slate-400"><span class="text-2xl">🗺️</span><div class="text-xs font-bold text-slate-700">ẢNH SƠ ĐỒ VỊ TRÍ VỆ TINH</div></div>
+                  <img id="locationPreviewImg" class="absolute inset-0 w-full h-full object-cover hidden" />
+                </div>
+                <input type="file" id="locationFileInput" accept="image/*" class="hidden" />
+              </div>
+              <div class="w-full lg:w-[58%] bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between gap-3 relative group/col draggable-column" draggable="true">
+                <div class="absolute top-2 right-2 opacity-0 group-hover/col:opacity-100 transition-opacity cursor-move bg-slate-200 text-slate-600 text-[9px] font-black px-2 py-1 rounded-md shadow-sm select-none">⣿ KÉO ĐỔI BÊN</div>
+                <div class="space-y-3 w-full">
+                  <span class="block text-[10px] font-bold text-slate-400 uppercase font-mono">Danh mục liên kết hạ tầng lân cận</span>
+                  {[1,2,3,4,5].map((i) => (
+                    <div class="grid grid-cols-12 gap-2 items-center">
+                      <div class="col-span-8"><input type="text" id={`locationItem${i}`} class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold" placeholder={`Địa điểm ${i}`} /></div>
+                      <div class="col-span-4"><input type="text" id={`locationTime${i}`} class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-orange-600 text-center" placeholder="2 Phút" /></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-section-id="floorplan" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 section-card">
+          <div class="canvas-drag-handle flex items-center justify-between bg-slate-50 px-4 py-2 rounded-xl mb-2 border border-slate-100 cursor-move select-none" draggable="true">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-sm">⣿</span>
+              <span class="canvas-index-badge text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded font-mono">#</span>
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">SECTION 07: BẢN ĐỒ MẶT BẰNG & THÔNG SỐ TẦNG</span>
+            </div>
+            <button type="button" class="remove-widget-btn text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">✕ Gỡ hiển thị</button>
+          </div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1 cursor-pointer section-header select-none">
+            <span class="text-[10px] font-black text-slate-400 tracking-wider uppercase">Cấu hình mặt bằng tháp căn hộ</span>
+            <div class="flex items-center gap-3">
+              <span class="direction-badge text-[10px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md uppercase font-mono" id="badge_plan">Bố cục: Mặc định</span>
+              <button type="button" class="collapse-toggle-btn p-1 text-slate-400 hover:text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+            </div>
+          </div>
+          <div class="section-content space-y-4">
+            <div id="container_plan" class="flex flex-col lg:flex-row gap-6 items-stretch transition-all duration-300 dynamic-flex-row" data-direction="normal" data-badge="badge_plan">
+              <div class="w-full lg:w-[58%] bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between gap-4 relative group/col draggable-column" draggable="true">
+                <div class="absolute top-2 right-2 opacity-0 group-hover/col:opacity-100 transition-opacity cursor-move bg-slate-200 text-slate-600 text-[9px] font-black px-2 py-1 rounded-md shadow-sm select-none">⣿ KÉO ĐỔI BÊN</div>
+                <div class="space-y-4 w-full">
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase font-mono mb-1">Mục 1: Văn bản giới thiệu thiết kế mặt bằng</label>
+                    <textarea id="planDescriptionText" rows="3" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-medium resize-none outline-none focus:border-orange-500" placeholder="Thiết kế căn hộ vuông vức..."></textarea>
+                  </div>
+                  <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                      <label class="block text-[10px] font-bold text-slate-400 uppercase font-mono">Mục 2: Các thông số/điểm quan trọng</label>
+                      <button type="button" id="addPlanPointBtn" class="px-2.5 py-1 bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-bold rounded-lg transition-all flex items-center gap-1 cursor-pointer"><span>＋</span> Thêm điểm mới</button>
+                    </div>
+                    <div id="planPointsContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="w-full lg:w-[42%] flex flex-col min-h-[220px] relative group/col draggable-column" draggable="true">
+                <div class="absolute top-2 right-2 opacity-0 group-hover/col:opacity-100 transition-opacity cursor-move bg-slate-200 text-slate-600 text-[9px] font-black px-2 py-1 rounded-md shadow-sm select-none">⣿ KÉO ĐỔI BÊN</div>
+                <div class="flex-1 border-2 border-dashed border-slate-300 hover:border-orange-500 bg-slate-50 rounded-2xl flex flex-col items-center justify-center p-4 text-center cursor-pointer relative overflow-hidden transition-all group" id="planDropzone">
+                  <div class="pointer-events-none space-y-1 text-slate-400"><span class="text-2xl">🗺️</span><div class="text-xs font-bold text-slate-700">TẢI FILE ẢNH MẶT BẰNG TỔNG THỂ</div></div>
+                  <img id="planPreviewImg" class="absolute inset-0 w-full h-full object-contain p-2 bg-white hidden" />
+                </div>
+                <input type="file" id="planFileInput" accept="image/*" class="hidden" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-section-id="amenities" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 section-card">
+          <div class="canvas-drag-handle flex items-center justify-between bg-slate-50 px-4 py-2 rounded-xl mb-2 border border-slate-100 cursor-move select-none" draggable="true">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-sm">⣿</span>
+              <span class="canvas-index-badge text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded font-mono">#</span>
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">SECTION 08: KHỐI 6 TIỆN ÍCH NỘI KHU ĐẶC QUYỀN</span>
+            </div>
+            <button type="button" class="remove-widget-btn text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">✕ Gỡ hiển thị</button>
+          </div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1 cursor-pointer section-header select-none">
+            <span class="text-[10px] font-black text-slate-400 tracking-wider uppercase">Ma trận ảnh tiện ích cao cấp</span>
+            <button type="button" class="collapse-toggle-btn p-1 text-slate-400 hover:text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+          </div>
+          <div class="section-content space-y-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-slate-900 rounded-2xl border border-slate-800">
+              {[1,2,3,4,5,6].map((i) => (
+                <div class="amenity-node bg-slate-800 p-3 rounded-xl border border-slate-700 space-y-2 flex flex-col justify-between">
+                  <input type="text" class="amenity-title-input w-full px-2 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-[11px] font-bold text-white text-center outline-none focus:border-orange-500" placeholder={`Tên tiện ích ${i}`} />
+                  <div class="amenity-dropzone w-full aspect-video border border-dashed border-slate-600 bg-slate-900/50 hover:bg-slate-900 rounded-lg flex flex-col items-center justify-center text-[9px] text-slate-500 font-bold cursor-pointer relative overflow-hidden transition-all group" data-index={i}>
+                    <span class="group-hover:text-slate-300 transition-colors">📸 CHỌN ẢNH {i}</span>
+                    <img class="amenity-preview absolute inset-0 w-full h-full object-cover hidden" />
+                  </div>
+                  <input type="file" class="amenity-file-input hidden" accept="image/*" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div data-section-id="unit_designs" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 section-card">
+          <div class="canvas-drag-handle flex items-center justify-between bg-slate-50 px-4 py-2 rounded-xl mb-2 border border-slate-100 cursor-move select-none" draggable="true">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-sm">⣿</span>
+              <span class="canvas-index-badge text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded font-mono">#</span>
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">SECTION 09: CHI TIẾT LAYOUT THIẾT KẾ MẪU CĂN HỘ</span>
+            </div>
+            <button type="button" class="remove-widget-btn text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">✕ Gỡ hiển thị</button>
+          </div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1 cursor-pointer section-header select-none">
+            <span class="text-[10px] font-black text-slate-400 tracking-wider uppercase">Bóc tách layout mặt bằng căn hộ mẫu</span>
+            <div class="flex items-center gap-3">
+              <span class="direction-badge text-[10px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md uppercase font-mono" id="badge_unit">Bố cục: Mặc định</span>
+              <button type="button" class="collapse-toggle-btn p-1 text-slate-400 hover:text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+            </div>
+          </div>
+          <div class="section-content space-y-4">
+            <div id="container_unit" class="flex flex-col lg:flex-row gap-6 items-stretch transition-all duration-300 dynamic-flex-row" data-direction="normal" data-badge="badge_unit">
+              <div class="w-full lg:w-[58%] bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between gap-4 relative group/col draggable-column" draggable="true">
+                <div class="absolute top-2 right-2 opacity-0 group-hover/col:opacity-100 transition-opacity cursor-move bg-slate-200 text-slate-600 text-[9px] font-black px-2 py-1 rounded-md shadow-sm select-none">⣿ KÉO ĐỔI BÊN</div>
+                <div class="space-y-3 w-full">
+                  <div class="flex flex-col gap-1 mb-4">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">Mô tả phân khu Layout</label>
+                    <input type="text" id="unitSectionDesc" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 outline-none focus:border-orange-500" placeholder="Ví dụ: Thiết kế thông minh..." />
+                  </div>
+                  <div class="flex items-center justify-between border-b border-slate-200 pb-2 mb-2">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase font-mono">Danh sách các mẫu thiết kế căn hộ</span>
+                    <button type="button" id="addUnitBtn" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-bold rounded-xl transition-all flex items-center gap-1 cursor-pointer"><span>＋</span> Thêm mẫu mới</button>
+                  </div>
+                  <div id="unitRepeaterContainer" class="space-y-4 max-h-[380px] overflow-y-auto pr-1"></div>
+                </div>
+              </div>
+              <div class="w-full lg:w-[42%] flex flex-col min-h-[260px] relative group/col draggable-column" draggable="true">
+                <div class="absolute top-2 right-2 opacity-0 group-hover/col:opacity-100 transition-opacity cursor-move bg-slate-200 text-slate-600 text-[9px] font-black px-2 py-1 rounded-md shadow-sm select-none">⣿ KÉO ĐỔI BÊN</div>
+                <div class="flex-1 border-2 border-dashed border-slate-300 hover:border-orange-500 bg-white rounded-2xl flex flex-col items-center justify-center p-4 text-center cursor-pointer relative overflow-hidden transition-all group" id="unitDropzone">
+                  <div class="pointer-events-none space-y-1 text-slate-400">
+                    <span class="text-3xl">📐</span><div class="text-xs font-bold text-slate-700" id="unitDropzoneLabel">UP ẢNH LAYOUT CHI TIẾT</div>
+                    <div class="text-[9px] text-slate-400 italic">(Vui lòng click chọn 1 mẫu bên trái trước khi tải ảnh)</div>
+                  </div>
+                  <img id="unitPreviewImg" class="absolute inset-0 w-full h-full object-contain p-2 hidden bg-white" />
+                </div>
+                <input type="file" id="unitFileInput" accept="image/*" class="hidden" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-section-id="furniture" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 section-card">
+          <div class="canvas-drag-handle flex items-center justify-between bg-slate-50 px-4 py-2 rounded-xl mb-2 border border-slate-100 cursor-move select-none" draggable="true">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-sm">⣿</span>
+              <span class="canvas-index-badge text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded font-mono">#</span>
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">SECTION 10: TIÊU CHUẨN VÀ VẬT LIỆU NỘI THẤT BÀN GIAO</span>
+            </div>
+            <button type="button" class="remove-widget-btn text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">✕ Gỡ hiển thị</button>
+          </div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1 cursor-pointer section-header select-none">
+            <span class="text-[10px] font-black text-slate-400 tracking-wider uppercase">Bảng danh mục thiết bị bàn giao phòng</span>
+            <div class="flex items-center gap-3">
+              <span class="direction-badge text-[10px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md uppercase font-mono" id="badge_furniture">Bố cục: Mặc định</span>
+              <button type="button" class="collapse-toggle-btn p-1 text-slate-400 hover:text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+            </div>
+          </div>
+          <div class="section-content space-y-4">
+            <div id="container_furniture" class="flex flex-col lg:flex-row gap-6 items-stretch transition-all duration-300 dynamic-flex-row" data-direction="normal" data-badge="badge_furniture">
+              <div class="w-full lg:w-[58%] bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between gap-4 relative group/col draggable-column" draggable="true">
+                <div class="absolute top-2 right-2 opacity-0 group-hover/col:opacity-100 transition-opacity cursor-move bg-slate-200 text-slate-600 text-[9px] font-black px-2 py-1 rounded-md shadow-sm select-none">⣿ KÉO ĐỔI BÊN</div>
+                <div class="space-y-3 w-full">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Tiêu đề chính Section 10</label>
+                      <input type="text" id="furnitureMainTitle" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" placeholder="Ví dụ: NỘI THẤT BÀN GIAO" />
+                    </div>
+                    <div>
+                      <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Mô tả tóm tắt chính sách</label>
+                      <input type="text" id="furnitureSubtitle" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 outline-none" placeholder="Ví dụ: Tiêu chuẩn bàn giao vượt trội..." />
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between border-b border-slate-200 pb-2 mb-2 mt-4">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase font-mono">Danh sách các không gian phòng bàn giao</span>
+                    <button type="button" id="addFurnitureRoomBtn" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-bold rounded-xl transition-all flex items-center gap-1 cursor-pointer"><span>＋</span> Thêm phòng mới</button>
+                  </div>
+                  <div id="furnitureRoomRepeaterContainer" class="space-y-4 max-h-[380px] overflow-y-auto pr-1"></div>
+                </div>
+              </div>
+              <div class="w-full lg:w-[42%] flex flex-col min-h-[260px] relative group/col draggable-column" draggable="true">
+                <div class="absolute top-2 right-2 opacity-0 group-hover/col:opacity-100 transition-opacity cursor-move bg-slate-200 text-slate-600 text-[9px] font-black px-2 py-1 rounded-md shadow-sm select-none">⣿ KÉO ĐỔI BÊN</div>
+                <div class="flex-1 border-2 border-dashed border-slate-300 hover:border-orange-500 bg-white rounded-2xl flex flex-col items-center justify-center p-4 text-center cursor-pointer relative overflow-hidden transition-all group" id="furnitureRoomDropzone">
+                  <div class="pointer-events-none space-y-1 text-slate-400">
+                    <span class="text-3xl">📸</span><div class="text-xs font-bold text-slate-700" id="furnitureRoomDropzoneLabel">UP ẢNH KHÔNG GIAN NỘI THẤT</div>
+                    <div class="text-[9px] text-slate-400 italic">(Vui lòng click chọn 1 phòng bên trái trước khi tải ảnh)</div>
+                  </div>
+                  <img id="furnitureRoomPreviewImg" class="absolute inset-0 w-full h-full object-cover hidden bg-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-section-id="payment_methods" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 section-card">
+          <div class="canvas-drag-handle flex items-center justify-between bg-slate-50 px-4 py-2 rounded-xl mb-2 border border-slate-100 cursor-move select-none" draggable="true">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-sm">⣿</span>
+              <span class="canvas-index-badge text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded font-mono">#</span>
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">SECTION 11: CHÍNH SÁCH & PHƯƠNG THỨC THANH TOÁN</span>
+            </div>
+            <button type="button" class="remove-widget-btn text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">✕ Gỡ hiển thị</button>
+          </div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1 cursor-pointer section-header select-none">
+            <span class="text-[10px] font-black text-slate-400 tracking-wider uppercase">Bảng quản trị dòng tiền đính kèm file</span>
+            <div class="flex items-center gap-2">
+              <button type="button" id="addPaymentBtn" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-bold rounded-xl transition-all flex items-center gap-1 cursor-pointer"><span>＋</span> Thêm phương thức</button>
+              <button type="button" class="collapse-toggle-btn p-1 text-slate-400 hover:text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+            </div>
+          </div>
+          <div class="section-content space-y-4">
+            <div id="paymentRepeaterContainer" class="grid grid-cols-1 gap-4"></div>
+          </div>
+        </div>
+
+        <div data-section-id="apartments" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 section-card">
+          <div class="canvas-drag-handle flex items-center justify-between bg-slate-50 px-4 py-2 rounded-xl mb-2 border border-slate-100 cursor-move select-none" draggable="true">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-sm">⣿</span>
+              <span class="canvas-index-badge text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded font-mono">#</span>
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">SECTION 12: LIVE INVENTORY GIỎ HÀNG</span>
+            </div>
+            <button type="button" class="remove-widget-btn text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">✕ Gỡ hiển thị</button>
+          </div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1 cursor-pointer section-header select-none">
+            <span class="text-[10px] font-black text-slate-400 tracking-wider uppercase">Tiêu đề phân khu liên kết giỏ hàng CRM</span>
+            <button type="button" class="collapse-toggle-btn p-1 text-slate-400 hover:text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+          </div>
+          <div class="section-content space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Tiêu đề phân khu căn hộ</label>
+                <input type="text" id="apartmentsTitle" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" placeholder="Ví dụ: Danh Sách Căn Hộ Đang Giao Dịch" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Mô tả ngắn phân khu</label>
+                <input type="text" id="apartmentsSubtitle" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none" placeholder="Ví dụ: Hệ thống giỏ hàng ký gửi chính chủ được kiểm duyệt thực tế..." />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-section-id="lead_form" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 section-card">
+          <div class="canvas-drag-handle flex items-center justify-between bg-slate-50 px-4 py-2 rounded-xl mb-2 border border-slate-100 cursor-move select-none" draggable="true">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-sm">⣿</span>
+              <span class="canvas-index-badge text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded font-mono">#</span>
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">SECTION 13: FORM ĐĂNG KÝ CHÂN TRANG</span>
+            </div>
+            <button type="button" class="remove-widget-btn text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">✕ Gỡ hiển thị</button>
+          </div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1 cursor-pointer section-header select-none">
+            <span class="text-[10px] font-black text-slate-400 tracking-wider uppercase">Cấu hình lời kêu gọi hành động chân trang</span>
+            <button type="button" class="collapse-toggle-btn p-1 text-slate-400 hover:text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+          </div>
+          <div class="section-content space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                <span class="block text-[10px] font-black text-slate-400 uppercase tracking-wider border-b border-slate-200/60 pb-1">CỘT TRÁI: LỜI CHÀO & GIỚI THIỆU HẤP DẪN</span>
+                <div>
+                  <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Tiêu đề khối liên hệ</label>
+                  <input type="text" id="leadFormTitle" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" placeholder="Ví dụ: ĐĂNG KÝ TƯ VẤN & NHẬN BÁO GIÁ SỚM NHẤT" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Mô tả lời chào chi tiết</label>
+                  <textarea id="leadFormSubtitle" rows="4" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 outline-none resize-none" placeholder="Ví dụ: Đừng bỏ lỡ cơ hội sở hữu căn hộ lý tưởng..."></textarea>
+                </div>
+              </div>
+              <div class="bg-amber-400/10 p-5 rounded-2xl border border-dashed border-amber-400 flex flex-col justify-between gap-4">
+                <div>
+                  <span class="block text-[10px] font-black text-amber-800 uppercase tracking-wider mb-3">CỘT PHẢI: MÔ PHỎNG BIỂU MẪU ĐĂNG KÝ KHÁCH HÀNG</span>
+                  <div class="space-y-2.5">
+                    <div class="h-9 bg-white border border-slate-200 rounded-lg flex items-center px-3 text-[10px] text-slate-400 font-medium shadow-sm">Họ và tên của bạn *</div>
+                    <div class="h-9 bg-white border border-slate-200 rounded-lg flex items-center px-3 text-[10px] text-slate-400 font-medium shadow-sm">Số điện thoại liên hệ *</div>
+                    <div class="h-9 bg-white border border-slate-200 rounded-lg flex items-center px-3 text-[10px] text-slate-400 font-medium shadow-sm">Địa chỉ Email (Không bắt buộc)</div>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-[9px] font-bold text-amber-900 uppercase tracking-wider mb-1">Chữ hiển thị trên nút gửi dữ liệu Form</label>
+                  <input type="text" id="leadFormBtnText" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 outline-none" placeholder="Ví dụ: ĐĂNG KÝ NHẬN ƯU ĐÃI NGAY" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
     </form>
   </div>
 </AdminLayout>
 
-<style>
+<style is:global>
+  .animate-fadeIn { animation: fIn 0.25s ease-out forwards; }
+  @keyframes fIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
   .dropdown-container.active .drop-menu {
     opacity: 1;
     visibility: visible;
@@ -124,20 +758,39 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 </style>
 
 <script>
-  import { checkAdminAuth } from '../../../lib/auth'
+  import Swal from 'sweetalert2';
 
-  checkAdminAuth();
-  declare var Swal: any;
-
-  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  const token = localStorage.getItem('admin_token')?.replace(/['"]+/g, '').trim();
   
-  // 🔥 ĐÃ SỬA CHUẨN: Bốc mã ID trực tiếp từ tham số URL (?id=...) giống hệt bên trang bài viết (Posts)
   const urlParams = new URLSearchParams(window.location.search);
-  const id = urlParams.get('id');
+  const projectId = urlParams.get('id');
 
-  const form = document.getElementById('editProjectForm') as HTMLFormElement;
-  const imgPreview = document.getElementById('imgPreview') as HTMLImageElement;
-  const currentImageHidden = document.getElementById('currentImage') as HTMLInputElement;
+  let serverOriginalData: any = null;
+
+  const titleInput = document.getElementById('projectTitle') as HTMLInputElement;
+  const slugInput = document.getElementById('projectSlug') as HTMLInputElement;
+
+  function convertToSlug(text: string): string {
+    let slug = text.toLowerCase();
+    slug = slug.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+    slug = slug.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+    slug = slug.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+    slug = slug.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+    slug = slug.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+    slug = slug.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+    slug = slug.replace(/đ/g, "d");
+    slug = slug.replace(/[^a-z0-9 -]/g, ""); 
+    slug = slug.replace(/\s+/g, "-"); 
+    slug = slug.replace(/-+/g, "-"); 
+    return slug.trim();
+  }
+
+  titleInput?.addEventListener('input', () => {
+    if (titleInput && slugInput) {
+      slugInput.value = convertToSlug(titleInput.value);
+    }
+  });
 
   function setupCustomDropdown(containerId: string) {
     const container = document.getElementById(containerId);
@@ -166,6 +819,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
       });
     });
   }
+  
 
   setupCustomDropdown('dropdown-status');
   setupCustomDropdown('dropdown-legal');
@@ -174,27 +828,727 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     document.querySelectorAll('.dropdown-container').forEach(el => el.classList.remove('active'));
   });
 
-  async function loadData() {
-    // Nếu không có ID trên URL, đá ngược user về trang danh sách dự án ngay lập tức
-    if (!id || id === 'undefined' || id === 'null') {
-      window.location.replace('/admin/projects');
+  document.querySelectorAll('.section-header').forEach((header) => {
+    header.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('label') || target.closest('input') || target.closest('button:not(.collapse-toggle-btn)')) {
+        return;
+      }
+
+      const card = header.closest('.section-card');
+      if (!card) return;
+
+      const content = card.querySelector('.section-content');
+      const chevron = header.querySelector('.chevron-icon');
+
+      if (content) {
+        content.classList.toggle('hidden');
+        if (chevron) {
+          chevron.classList.toggle('rotate-180');
+        }
+      }
+    });
+  });
+
+  const restoreContainerDirection = (containerId: string, badgeId: string, direction: string) => {
+    const parentFlex = document.getElementById(containerId);
+    const badgeEl = document.getElementById(badgeId);
+    if (!parentFlex) return;
+
+    if (direction === 'reverse') {
+      parentFlex.classList.add('lg:flex-row-reverse');
+      parentFlex.setAttribute('data-direction', 'reverse');
+      if (badgeEl) {
+        badgeEl.textContent = "Bố cục: Đảo chiều";
+        badgeEl.className = "direction-badge text-[10px] font-bold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-md uppercase font-mono border border-orange-200";
+      }
+    } else {
+      parentFlex.classList.remove('lg:flex-row-reverse');
+      parentFlex.setAttribute('data-direction', 'normal');
+      if (badgeEl) {
+        badgeEl.textContent = "Bố cục: Mặc định";
+        badgeEl.className = "direction-badge text-[10px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md uppercase font-mono";
+      }
+    }
+  };
+
+  function getFullImageUrl(path: string | null | undefined): string {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
+    const cleanBase = BACKEND_URL.endsWith('/') ? BACKEND_URL.slice(0, -1) : BACKEND_URL;
+    return cleanBase + (path.startsWith('/') ? path : '/' + path);
+  }
+
+  const initVisualDropzone = (zoneId: string, inputId: string, previewId: string) => {
+    const zone = document.getElementById(zoneId);
+    const input = document.getElementById(inputId) as HTMLInputElement;
+    const img = document.getElementById(previewId) as HTMLImageElement;
+
+    zone?.addEventListener('click', () => input.click());
+    input?.addEventListener('change', () => {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (img && e.target?.result) {
+            img.src = e.target.result as string;
+            img.classList.remove('hidden');
+          }
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    });
+  };
+
+  initVisualDropzone('heroDropzone', 'heroFileInput', 'heroPreviewImg');
+  initVisualDropzone('overviewDropzone', 'overviewFileInput', 'overviewPreviewImg');
+  initVisualDropzone('locationDropzone', 'locationFileInput', 'locationPreviewImg');
+  initVisualDropzone('planDropzone', 'planFileInput', 'planPreviewImg');
+
+  const projInput = document.getElementById('projectFileInput') as HTMLInputElement;
+  const projImg = document.getElementById('projectPreviewImg') as HTMLImageElement;
+  const projPlaceholder = document.getElementById('projectPreviewPlaceholder');
+  projInput?.addEventListener('change', () => {
+    if (projInput.files && projInput.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (projImg && e.target?.result) {
+          projImg.src = e.target.result as string;
+          projImg.classList.remove('hidden');
+          if (projPlaceholder) projPlaceholder.classList.add('hidden');
+        }
+      };
+      reader.readAsDataURL(projInput.files[0]);
+    }
+  });
+
+  document.querySelectorAll('.amenity-node').forEach(node => {
+    const dropzone = node.querySelector('.amenity-dropzone') as HTMLDivElement;
+    const fileInput = node.querySelector('.amenity-file-input') as HTMLInputElement;
+    const previewImg = node.querySelector('.amenity-preview') as HTMLImageElement;
+
+    dropzone?.addEventListener('click', () => fileInput.click());
+    fileInput?.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (previewImg && e.target?.result) {
+            previewImg.src = e.target.result as string;
+            previewImg.classList.remove('hidden');
+          }
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      }
+    });
+  });
+
+  function setActiveUnit(itemEl: HTMLElement) {
+    document.querySelectorAll('.unit-repeater-item').forEach(el => {
+      el.classList.remove('border-orange-500', 'bg-orange-50/40', 'ring-2', 'ring-orange-500/10');
+      el.classList.add('bg-white', 'border-slate-200');
+    });
+
+    itemEl.classList.remove('bg-white', 'border-slate-200');
+    itemEl.classList.add('border-orange-500', 'bg-orange-50/40', 'ring-2', 'ring-orange-500/10');
+
+    const previewImg = document.getElementById('unitPreviewImg') as HTMLImageElement;
+    const labelEl = document.getElementById('unitDropzoneLabel');
+
+    if (labelEl) {
+      const nameInp = itemEl.querySelector('.unit-name-input') as HTMLInputElement;
+      labelEl.textContent = `ẢNH LAYOUT: ${nameInp?.value.trim() || 'CHƯA ĐẶT TÊN'}`;
+    }
+
+    const localBase64 = itemEl.getAttribute('data-base64');
+    const existingUrl = itemEl.getAttribute('data-image-url');
+
+    if (localBase64 && previewImg) {
+      previewImg.src = localBase64;
+      previewImg.classList.remove('hidden');
+    } else if (existingUrl && previewImg) {
+      previewImg.src = getFullImageUrl(existingUrl);
+      previewImg.classList.remove('hidden');
+    } else if (previewImg) {
+      previewImg.classList.add('hidden');
+      previewImg.src = '';
+    }
+  }
+
+  function bindUnitItemEvents(itemEl: HTMLElement) {
+    itemEl.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('delete-unit-btn')) return;
+      setActiveUnit(itemEl);
+    });
+
+    const nameInp = itemEl.querySelector('.unit-name-input') as HTMLInputElement;
+    nameInp?.addEventListener('input', () => {
+      const activeItem = document.querySelector('.unit-repeater-item.border-orange-500');
+      const labelEl = document.getElementById('unitDropzoneLabel');
+      if (activeItem === itemEl && labelEl) {
+        labelEl.textContent = `ẢNH LAYOUT: ${nameInp.value.trim() || 'CHƯA ĐẶT TÊN'}`;
+      }
+    });
+
+    const fileInput = itemEl.querySelector('.unit-item-file-input') as HTMLInputElement;
+    fileInput?.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            const base64Str = e.target.result as string;
+            itemEl.setAttribute('data-base64', base64Str);
+            
+            const statusBadge = itemEl.querySelector('.unit-image-status');
+            if (statusBadge) {
+              statusBadge.textContent = '🟢 Đã nạp ảnh mới';
+              statusBadge.className = 'unit-image-status text-[9px] px-1.5 py-1 rounded font-bold bg-green-50 text-green-600 border border-green-200';
+            }
+
+            const activeItem = document.querySelector('.unit-repeater-item.border-orange-500');
+            const previewImg = document.getElementById('unitPreviewImg') as HTMLImageElement;
+            if (activeItem === itemEl && previewImg) {
+              previewImg.src = base64Str;
+              previewImg.classList.remove('hidden');
+            }
+          }
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      }
+    });
+  }
+
+  document.getElementById('unitDropzone')?.addEventListener('click', () => {
+    const activeItem = document.querySelector('.unit-repeater-item.border-orange-500');
+    if (!activeItem) {
+      Swal.fire('Thông báo', 'Vui lòng chọn một mẫu thiết kế căn hộ ở cột bên trái trước khi nạp ảnh!', 'info');
       return;
     }
+    (activeItem.querySelector('.unit-item-file-input') as HTMLInputElement)?.click();
+  });
+
+  function recalculateUnitLabels() {
+    document.querySelectorAll('.unit-repeater-item').forEach((item, idx) => {
+      const label = item.querySelector('.unit-title-label');
+      if (label) label.textContent = `Mẫu thiết kế #${idx + 1}`;
+    });
+  }
+
+  function setActiveFurnitureRoom(itemEl: HTMLElement) {
+    document.querySelectorAll('.furniture-room-item').forEach(el => {
+      el.classList.remove('border-orange-500', 'bg-orange-50/40', 'ring-2', 'ring-orange-500/10');
+      el.classList.add('bg-white', 'border-slate-200');
+    });
+
+    itemEl.classList.remove('bg-white', 'border-slate-200');
+    itemEl.classList.add('border-orange-500', 'bg-orange-50/40', 'ring-2', 'ring-orange-500/10');
+
+    const previewImg = document.getElementById('furnitureRoomPreviewImg') as HTMLImageElement;
+    const labelEl = document.getElementById('furnitureRoomDropzoneLabel');
+
+    if (labelEl) {
+      const nameInp = itemEl.querySelector('.room-name-input') as HTMLInputElement;
+      labelEl.textContent = `ẢNH KHÔNG GIAN: ${nameInp?.value.trim() || 'CHƯA ĐẶT TÊN'}`;
+    }
+
+    const localBase64 = itemEl.getAttribute('data-base64');
+    const existingUrl = itemEl.getAttribute('data-image-url');
+
+    if (localBase64 && previewImg) {
+      previewImg.src = localBase64;
+      previewImg.classList.remove('hidden');
+    } else if (existingUrl && previewImg) {
+      previewImg.src = getFullImageUrl(existingUrl);
+      previewImg.classList.remove('hidden');
+    } else if (previewImg) {
+      previewImg.classList.add('hidden');
+      previewImg.src = '';
+    }
+  }
+
+  function bindRoomItemEvents(itemEl: HTMLElement) {
+    itemEl.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('delete-room-btn') || target.classList.contains('add-room-item-btn') || target.closest('.room-material-row')) return;
+      setActiveFurnitureRoom(itemEl);
+    });
+
+    const nameInp = itemEl.querySelector('.room-name-input') as HTMLInputElement;
+    nameInp?.addEventListener('input', () => {
+      const activeItem = document.querySelector('.furniture-room-item.border-orange-500');
+      const labelEl = document.getElementById('furnitureRoomDropzoneLabel');
+      if (activeItem === itemEl && labelEl) {
+        labelEl.textContent = `ẢNH KHÔNG GIAN: ${nameInp.value.trim() || 'CHƯA ĐẶT TÊN'}`;
+      }
+    });
+
+    const addMatBtn = itemEl.querySelector('.add-room-item-btn');
+    const matContainer = itemEl.querySelector('.room-items-container');
+    addMatBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const row = document.createElement('div');
+      row.className = "flex items-center gap-2 room-material-row animate-fadeIn";
+      row.innerHTML = `
+        <input type="text" class="mat-title-input w-1/3 px-2 py-1 bg-white border border-slate-200 rounded text-xs font-bold" placeholder="Mục (CỬA CHÍNH)" />
+        <input type="text" class="mat-desc-input w-2/3 px-2 py-1 bg-white border border-slate-200 rounded text-xs" placeholder="Thương hiệu & chất liệu..." />
+        <button type="button" class="delete-mat-row-btn text-slate-400 hover:text-red-500 p-1 text-xs cursor-pointer">✕</button>
+      `;
+      matContainer?.appendChild(row);
+    });
+
+    matContainer?.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('delete-mat-row-btn')) {
+        target.closest('.room-material-row')?.remove();
+      }
+    });
+
+    const fileInput = itemEl.querySelector('.room-item-file-input') as HTMLInputElement;
+    fileInput?.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            const base64Str = e.target.result as string;
+            itemEl.setAttribute('data-base64', base64Str);
+            
+            const statusBadge = itemEl.querySelector('.room-image-status');
+            if (statusBadge) {
+              statusBadge.textContent = '🟢 Đã nạp ảnh mới';
+              statusBadge.className = 'room-image-status text-[9px] px-1.5 py-1 rounded font-bold bg-green-50 text-green-600 border border-green-200';
+            }
+
+            const activeItem = document.querySelector('.furniture-room-item.border-orange-500');
+            const previewImg = document.getElementById('furnitureRoomPreviewImg') as HTMLImageElement;
+            if (activeItem === itemEl && previewImg) {
+              previewImg.src = base64Str;
+              previewImg.classList.remove('hidden');
+            }
+          }
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      }
+    });
+  }
+
+  document.getElementById('furnitureRoomDropzone')?.addEventListener('click', () => {
+    const activeItem = document.querySelector('.furniture-room-item.border-orange-500');
+    if (!activeItem) {
+      Swal.fire('Thông báo', 'Vui lòng chọn một phân khu phòng ở cột bên trái trước khi nạp ảnh!', 'info');
+      return;
+    }
+    (activeItem.querySelector('.room-item-file-input') as HTMLInputElement)?.click();
+  });
+
+  function recalculateRoomLabels() {
+    document.querySelectorAll('.furniture-room-item').forEach((item, idx) => {
+      const label = item.querySelector('.room-title-label');
+      if (label) label.textContent = `Không gian / Phòng #${idx + 1}`;
+    });
+  }
+
+  const addFurnitureRoomBtn = document.getElementById('addFurnitureRoomBtn');
+  addFurnitureRoomBtn?.addEventListener('click', () => {
+    const container = document.getElementById('furnitureRoomRepeaterContainer');
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = "furniture-room-item bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 animate-fadeIn cursor-pointer transition-all";
+    div.innerHTML = `
+      <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider room-title-label">Không gian / Phòng</span>
+        <button type="button" class="delete-room-btn text-xs font-bold text-red-500 hover:text-red-600 transition-colors flex items-center gap-1">✕ XÓA PHÒNG</button>
+      </div>
+      <div>
+        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Tên không gian / phòng bàn giao</label>
+        <input type="text" class="room-name-input w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none" placeholder="Ví dụ: PHÒNG KHÁCH & BẾP" />
+      </div>
+      <div class="space-y-2 mt-2">
+        <div class="flex items-center justify-between">
+          <label class="block text-[9px] font-bold text-slate-400 uppercase font-mono">Danh mục vật liệu chi tiết trong phòng</label>
+          <button type="button" class="add-room-item-btn px-2 py-0.5 bg-slate-800 text-white text-[9px] font-bold rounded hover:bg-slate-700 transition-all cursor-pointer">＋ Thêm dòng vật liệu</button>
+        </div>
+        <div class="room-items-container space-y-2"></div>
+      </div>
+      <div class="flex justify-end mt-2">
+        <span class="room-image-status text-[9px] px-1.5 py-1 rounded font-bold bg-slate-100 text-slate-400 border border-slate-200/60">✕ Chưa có ảnh</span>
+      </div>
+      <input type="file" class="room-item-file-input hidden" accept="image/*" />
+    `;
+    container.appendChild(div);
+    bindRoomItemEvents(div);
+    recalculateRoomLabels();
+    setActiveFurnitureRoom(div);
+  });
+
+  document.getElementById('furnitureRoomRepeaterContainer')?.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('delete-room-btn')) {
+      const item = target.closest('.furniture-room-item') as HTMLElement;
+      const wasActive = item.classList.contains('border-orange-500');
+      item.remove();
+      recalculateRoomLabels();
+      if (wasActive) {
+        const remaining = document.querySelector('.furniture-room-item') as HTMLElement;
+        if (remaining) {
+          setActiveFurnitureRoom(remaining);
+        } else {
+          const previewImg = document.getElementById('furnitureRoomPreviewImg') as HTMLImageElement;
+          if (previewImg) previewImg.classList.add('hidden');
+          const labelEl = document.getElementById('furnitureRoomDropzoneLabel');
+          if (labelEl) labelEl.textContent = 'UP ẢNH KHÔNG GIAN NỘI THẤT';
+        }
+      }
+    }
+  });
+
+  // HÀM ĐỔI VỊ TRÍ CỘT TRONG CÁC KHỐI CARD SECTION NATIVE DRAG
+  const draggableColumns = document.querySelectorAll('.draggable-column');
+  let draggedItem: Element | null = null;
+
+  draggableColumns.forEach(col => {
+    col.addEventListener('dragstart', () => {
+      draggedItem = col;
+      col.classList.add('opacity-40', 'scale-[0.99]');
+    });
+
+    col.addEventListener('dragend', () => {
+      draggedItem = null;
+      draggableColumns.forEach(c => c.classList.remove('opacity-40', 'scale-[0.99]', 'bg-orange-500/5'));
+    });
+
+    col.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (draggedItem && draggedItem !== col) col.classList.add('bg-orange-50/5');
+    });
+
+    col.addEventListener('dragleave', () => col.classList.remove('bg-orange-500/5'));
+
+    col.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (draggedItem && draggedItem !== col) {
+        const parentFlex = col.closest('.dynamic-flex-row') as HTMLDivElement;
+        if (!parentFlex) return;
+
+        const currentDir = parentFlex.getAttribute('data-direction');
+        const badgeId = parentFlex.getAttribute('data-badge');
+        const badgeEl = document.getElementById(badgeId || '');
+
+        if (currentDir === 'normal') {
+          parentFlex.classList.add('lg:flex-row-reverse');
+          parentFlex.setAttribute('data-direction', 'reverse');
+          if (badgeEl) {
+            badgeEl.textContent = "Bố cục: Đảo chiều";
+            badgeEl.className = "direction-badge text-[10px] font-bold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-md uppercase font-mono border border-orange-200";
+          }
+        } else {
+          parentFlex.classList.remove('lg:flex-row-reverse');
+          parentFlex.setAttribute('data-direction', 'normal');
+          if (badgeEl) {
+            badgeEl.textContent = "Bố cục: Mặc định";
+            badgeEl.className = "direction-badge text-[10px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md uppercase font-mono";
+          }
+        }
+      }
+    });
+  });
+
+  const setupRepeater = (btnId: string, containerId: string, htmlTemplate: string, deleteClass: string, itemClass: string) => {
+    const btn = document.getElementById(btnId);
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    btn?.addEventListener('click', () => {
+      const div = document.createElement('div');
+      div.className = itemClass;
+      if (containerId === 'paymentRepeaterContainer') {
+        const currentItems = container.querySelectorAll('.payment-repeater-item').length;
+        div.setAttribute('data-index', String(currentItems + 1));
+        div.className = "payment-repeater-item bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4 animate-fadeIn relative";
+      }
+      if (containerId === 'planPointsContainer') {
+        div.className = "flex items-center gap-2 plan-point-item relative group/btn animate-fadeIn";
+      }
+      div.innerHTML = htmlTemplate;
+      container.appendChild(div);
+      
+      if (containerId === 'paymentRepeaterContainer') {
+        bindSinglePaymentFileEvent(div);
+        recalculatePaymentIndices();
+      }
+    });
+
+    container.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest(`.` + deleteClass)) {
+        target.closest(`.` + itemClass)?.remove();
+        if (containerId === 'paymentRepeaterContainer') recalculatePaymentIndices();
+      }
+    });
+  };
+
+  const planPointTemplate = `
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full pr-8">
+      <input type="text" class="plan-point-block-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" placeholder="Block / Tháp" />
+      <input type="text" class="plan-point-title-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" placeholder="Tên thông số" />
+      <input type="text" class="plan-point-desc-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-600 outline-none" placeholder="Mô tả chi tiết..." />
+    </div>
+    <button type="button" class="delete-point-btn absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 text-xs font-bold transition-colors p-1">✕</button>
+  `;
+  setupRepeater('addPlanPointBtn', 'planPointsContainer', planPointTemplate, 'delete-point-btn', 'plan-point-item');
+
+  const unitTemplate = `
+      <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider unit-title-label">Thông số kỹ thuật mẫu</span>
+        <button type="button" class="delete-unit-btn text-xs font-bold text-red-500 hover:text-red-600 transition-colors flex items-center gap-1">✕ XÓA MẪU</button>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Tên căn hộ</label>
+          <input type="text" class="unit-name-input w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none" placeholder="Ví dụ: Căn hộ 2PN" />
+        </div>
+        <div>
+          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Diện tích</label>
+          <input type="text" class="unit-area-input w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 outline-none" placeholder="Ví dụ: 62.1 m²" />
+        </div>
+      </div>
+      <div class="grid grid-cols-1 gap-2">
+        <div>
+          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Số Phòng Ngủ - Số Toilet</label>
+          <input type="text" class="unit-specs-input w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 outline-none" placeholder="Ví dụ: 2 phòng ngủ - 2 WC" />
+        </div>
+        <div class="flex items-end gap-3">
+          <div class="flex-1">
+            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Giới thiệu ngắn</label>
+            <input type="text" class="unit-desc-input w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 outline-none" placeholder="Thiết kế hiện đại..." />
+          </div>
+          <div class="mb-1 shrink-0">
+            <span class="unit-image-status text-[9px] px-1.5 py-1 rounded font-bold bg-slate-100 text-slate-400 border border-slate-200/60">✕ Chưa có ảnh</span>
+          </div>
+        </div>
+      </div>
+      <input type="file" class="unit-item-file-input hidden" accept="image/*" />
+  `;
+
+  document.getElementById('addUnitBtn')?.addEventListener('click', () => {
+    const container = document.getElementById('unitRepeaterContainer');
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = "unit-repeater-item bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 animate-fadeIn cursor-pointer transition-all";
+    div.innerHTML = unitTemplate;
+    container.appendChild(div);
+    bindUnitItemEvents(div);
+    recalculateUnitLabels();
+    setActiveUnit(div);
+  });
+
+  document.getElementById('unitRepeaterContainer')?.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('delete-unit-btn')) {
+      const item = target.closest('.unit-repeater-item') as HTMLElement;
+      const wasActive = item.classList.contains('border-orange-500');
+      item.remove();
+      recalculateUnitLabels();
+      if (wasActive) {
+        const remaining = document.querySelector('.unit-repeater-item') as HTMLElement;
+        if (remaining) {
+          setActiveUnit(remaining);
+        } else {
+          const previewImg = document.getElementById('unitPreviewImg') as HTMLImageElement;
+          if (previewImg) previewImg.classList.add('hidden');
+          const labelEl = document.getElementById('unitDropzoneLabel');
+          if (labelEl) labelEl.textContent = 'UP ẢNH LAYOUT CHI TIẾT';
+        }
+      }
+    }
+  });
+
+  const paymentTemplateHTML = `
+    <div class="flex justify-between items-center border-b border-slate-200/60 pb-2">
+      <span class="payment-index-label text-[10px] font-black text-slate-400 uppercase tracking-wider font-mono">Phương thức thanh toán</span>
+      <button type="button" class="delete-payment-btn text-xs font-bold text-red-500 hover:text-red-600 transition-colors">✕ XÓA PHƯƠNG THỨC</button>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+      <div class="lg:col-span-8 space-y-3">
+        <div class="grid grid-cols-3 gap-3">
+          <div class="col-span-2">
+            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Tên Phương Thức</label>
+            <input type="text" class="payment-name-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" placeholder="Tên phương thức..." />
+          </div>
+          <div>
+            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Chiết Khấu (%)</label>
+            <input type="text" class="payment-discount-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-black text-orange-600 outline-none" placeholder="5%" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Mô tả tóm tắt phương thức dòng tiền</label>
+          <textarea rows="2" class="payment-desc-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium resize-none outline-none" placeholder="Tóm tắt tiến độ..."></textarea>
+        </div>
+      </div>
+      <div class="lg:col-span-4 flex flex-col min-h-[110px]">
+        <div class="payment-file-dropzone flex-1 border border-dashed border-slate-300 hover:border-orange-500 bg-white rounded-xl flex flex-col items-center justify-center p-3 text-center cursor-pointer relative overflow-hidden group transition-all">
+          <div class="pointer-events-none space-y-0.5 text-slate-400">
+            <span class="text-lg">📄</span>
+            <div class="text-[10px] font-bold text-slate-700">FILE PHƯƠNG THỨC</div>
+          </div>
+          <div class="payment-file-preview absolute inset-0 bg-slate-900/90 text-white p-2 text-[9px] font-mono hidden items-center justify-center text-center">
+            <div class="truncate px-2">✓ Đã nạp file tài liệu thành công</div>
+          </div>
+        </div>
+        <input type="file" class="payment-file-input hidden" accept="image/*,application/pdf" />
+      </div>
+    </div>
+  `;
+  setupRepeater('addPaymentBtn', 'paymentRepeaterContainer', paymentTemplateHTML, 'delete-payment-btn', 'payment-repeater-item');
+
+  const bindSinglePaymentFileEvent = (itemElement: HTMLElement) => {
+    const dropzone = itemElement.querySelector('.payment-file-dropzone') as HTMLDivElement;
+    const fileInput = itemElement.querySelector('.payment-file-input') as HTMLInputElement;
+    const preview = itemElement.querySelector('.payment-file-preview') as HTMLDivElement;
+
+    dropzone?.addEventListener('click', () => fileInput.click());
+    fileInput?.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files[0] && preview) {
+        preview.querySelector('div')!.textContent = `✓ ` + fileInput.files[0].name;
+        preview.classList.remove('hidden');
+        preview.classList.add('flex');
+      }
+    });
+  };
+
+  const recalculatePaymentIndices = () => {
+    document.querySelectorAll('.payment-repeater-item').forEach((item, idx) => {
+      item.setAttribute('data-index', String(idx + 1));
+      const label = item.querySelector('.payment-index-label');
+      if (label) label.textContent = `Phương thức thanh toán #${idx + 1}`;
+    });
+  };
+
+  // SỬA: Thay vì gán vào window, khai báo thành hàm chuẩn TypeScript ở top-level của <script>
+function recalculateCanvasIndices() {
+  const canvas = document.getElementById('activeCanvas');
+  const pool = document.getElementById('widgetPool');
+  if (!canvas || !pool) return;
+
+  const activeSections = canvas.querySelectorAll('.section-card');
+  const activeIds = new Set<string>();
+
+  activeSections.forEach((card, idx) => {
+    const sId = card.getAttribute('data-section-id');
+    if (sId) activeIds.add(sId);
     
-    const token = localStorage.getItem('admin_token')?.replace(/['"]+/g, '').trim();
-    if (!token) {
-      localStorage.clear();
-      window.location.replace('/admin');
+    const indexBadge = card.querySelector('.canvas-index-badge');
+    if (indexBadge) indexBadge.textContent = `#${idx + 1}`;
+  });
+
+  // Quét Kho để cập nhật Style nút Bật/Tắt
+  pool.querySelectorAll('[data-widget-id]').forEach(widgetNode => {
+    const wId = widgetNode.getAttribute('data-widget-id');
+    const btn = widgetNode.querySelector('.activate-widget-btn');
+    if (!wId || !btn) return;
+
+    if (activeIds.has(wId)) {
+      widgetNode.classList.add('border-green-500', 'bg-slate-800/40');
+      widgetNode.classList.remove('border-slate-700');
+      btn.textContent = 'Đang hiện';
+      btn.className = 'activate-widget-btn text-[10px] bg-green-600 px-2 py-1 rounded-lg text-white font-bold cursor-default';
+    } else {
+      widgetNode.classList.remove('border-green-500', 'bg-slate-800/40');
+      widgetNode.classList.add('border-slate-700');
+      btn.textContent = 'Bật';
+      btn.className = 'activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all';
+    }
+  });
+}
+  
+
+  // 🔥 THUẬT TOÁN KÉO THẢ VÀ ĐỒNG BỘ TRỰC QUAN MỚI (WIDGET LAYOUT BUILDER)
+  function initWidgetLayoutBuilder() {
+  const pool = document.getElementById('widgetPool');
+  const canvas = document.getElementById('activeCanvas');
+  const storage = document.getElementById('hiddenWidgetStorage');
+  if (!pool || !canvas || !storage) return;
+
+  // XÓA BỎ đoạn window.recalculateCanvasIndices = function() {...} vì đã đưa ra ngoài ở Bước 1
+
+  // Click vào Widget ở Kho để đẩy vào Bàn Làm Việc Canvas
+  pool.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const widgetItem = target.closest('[data-widget-id]');
+    if (!widgetItem) return;
+
+    const sId = widgetItem.getAttribute('data-widget-id');
+    if (!sId) return;
+
+    const alreadyInCanvas = canvas.querySelector(`[data-section-id="${sId}"]`);
+    if (!alreadyInCanvas) {
+      const sectionCard = storage.querySelector(`[data-section-id="${sId}"]`);
+      if (sectionCard) {
+        canvas.appendChild(sectionCard);
+        recalculateCanvasIndices(); // 🔥 FIX: Gọi trực tiếp
+        sectionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  });
+
+  // Click nút "Gỡ hiển thị" trong Canvas để ném trả về Kho dữ liệu ngầm
+  canvas.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('remove-widget-btn')) {
+      const card = target.closest('.section-card');
+      if (card) {
+        storage.appendChild(card);
+        recalculateCanvasIndices(); // 🔥 FIX: Gọi trực tiếp
+      }
+    }
+  });
+
+  let draggedCard: HTMLElement | null = null;
+
+  canvas.addEventListener('dragstart', (e) => {
+    const target = e.target as HTMLElement;
+    const card = target.closest('.section-card') as HTMLElement;
+    if (card && target.closest('.canvas-drag-handle')) {
+      draggedCard = card;
+      card.classList.add('opacity-40', 'border-orange-500', 'scale-[0.99]');
+    }
+  });
+
+  canvas.addEventListener('dragend', () => {
+    if (draggedCard) {
+      draggedCard.classList.remove('opacity-40', 'border-orange-500', 'scale-[0.99]');
+      draggedCard = null;
+    }
+    recalculateCanvasIndices(); // 🔥 FIX: Gọi trực tiếp
+  });
+
+  canvas.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    if (!draggedCard) return;
+
+    const target = e.target as HTMLElement;
+    const overCard = target.closest('.section-card') as HTMLElement;
+
+    if (overCard && overCard !== draggedCard && overCard.parentElement === canvas) {
+      const bounding = overCard.getBoundingClientRect();
+      const offset = e.clientY - bounding.top;
+      if (offset > bounding.height / 2) {
+        canvas.insertBefore(draggedCard, overCard.nextSibling);
+      } else {
+        canvas.insertBefore(draggedCard, overCard);
+      }
+    }
+  });
+}
+
+  async function loadProjectLandingData() {
+    if (!projectId || projectId === 'null' || projectId === 'undefined') {
+      window.location.replace('/admin/projects');
       return;
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/admin/projects/${id}`, {
+      const res = await fetch(`${BACKEND_URL}/api/admin/projects/${projectId}`, {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        }
+        headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
       });
 
       if (res.status === 401) {
@@ -210,141 +1564,698 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
           window.location.href = '/403'; 
       }
 
-      if (!res.ok) throw new Error("Không thể bóc tách dữ liệu từ hệ thống Laravel.");
+      if (!res.ok) throw new Error("Không thể liên kết bóc tách dữ liệu.");
+      const serverData = await res.json();
       
-      const data = await res.json();
+      const setInput = (id: string, value: any) => {
+        const el = document.getElementById(id) as HTMLInputElement;
+        if (el) el.value = value || '';
+      };
 
-      (document.getElementById('title') as HTMLInputElement).value = data.title || '';
-      (document.getElementById('address') as HTMLInputElement).value = data.address || data.location || '';
-      currentImageHidden.value = data.image_url || data.image || '';
+      setInput('projectTitle', serverData.title);
+      setInput('projectSlug', serverData.slug);
+      setInput('projectLat', serverData.lat);
+      setInput('projectLng', serverData.lng);
+      setInput('projectAddress', serverData.address);
 
       const statusInput = document.getElementById('status') as HTMLInputElement;
-      const inputLat = document.getElementById('edit-lat') as HTMLInputElement;
-      const inputLng = document.getElementById('edit-lng') as HTMLInputElement;
-      
-      statusInput.value = data.status || 'dang_xay_dung';
-
-      if (inputLat) inputLat.value = data.lat || '';
-      if (inputLng) inputLng.value = data.lng || '';
-
-      const statusText = document.querySelector(`#dropdown-status [data-value="${statusInput.value}"]`)?.innerHTML;
-      if (statusText) document.querySelector('#dropdown-status .selected-text')!.innerHTML = statusText;
+      if (statusInput) {
+        statusInput.value = serverData.status || 'dang_xay_dung';
+        const statusText = document.querySelector(`#dropdown-status [data-value="${statusInput.value}"]`)?.innerHTML;
+        if (statusText) document.querySelector('#dropdown-status .selected-text')!.innerHTML = statusText;
+      }
 
       const legalInput = document.getElementById('legal') as HTMLInputElement;
-      legalInput.value = data.legal || 'hdmb';
-      const legalText = document.querySelector(`#dropdown-legal [data-value="${legalInput.value}"]`)?.innerHTML;
-      if (legalText) document.querySelector('#dropdown-legal .selected-text')!.innerHTML = legalText;
-
-      const currentImgPath = data.image_url || data.image;
-      if (currentImgPath) {
-        imgPreview.src = currentImgPath.startsWith('http') ? currentImgPath : `${API_BASE}${currentImgPath}`;
+      if (legalInput) {
+        legalInput.value = serverData.legal || 'hdmb';
+        const legalText = document.querySelector(`#dropdown-legal [data-value="${legalInput.value}"]`)?.innerHTML;
+        if (legalText) document.querySelector('#dropdown-legal .selected-text')!.innerHTML = legalText;
       }
-    } catch (err: any) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Lỗi nạp dữ liệu',
-        text: err.message || 'Không thể đồng bộ thông tin từ API Laravel',
-        confirmButtonColor: '#ea580c'
-      });
+
+      if (serverData.image && projImg) {
+        projImg.src = getFullImageUrl(serverData.image);
+        projImg.classList.remove('hidden');
+        if (projPlaceholder) projPlaceholder.classList.add('hidden');
+      }
+
+      const data = typeof serverData.landing_data === 'string' ? JSON.parse(serverData.landing_data) : serverData.landing_data;
+      if (!data) return;
+      
+      serverOriginalData = data;
+
+      const setImg = (previewId: string, url: string) => {
+        const img = document.getElementById(previewId) as HTMLImageElement;
+        if (img && url) {
+          img.src = getFullImageUrl(url);
+          img.classList.remove('hidden');
+        }
+      };
+
+      // --- PHỤC HỒI THỨ TỰ CANVAS & TRẠNG THÁI HIỂN THỊ CHUẨN CMS ---
+      const canvas = document.getElementById('activeCanvas');
+      const storage = document.getElementById('hiddenWidgetStorage');
+      const visibility = data.visibility || {};
+
+      // Nếu hệ thống đã có lưu cấu trúc mảng thứ tự layout_order từ trước
+      if (data.layout_order && Array.isArray(data.layout_order)) {
+        data.layout_order.forEach((sId: string) => {
+          const card = storage?.querySelector(`[data-section-id="${sId}"]`);
+          if (card && canvas) canvas.appendChild(card);
+        });
+      } else {
+        // Hỗ trợ Legacy: Quét mảng boolean visibility cũ để xếp tuần tự vào Canvas
+        const defaultOrder = ['hero', 'highlights', 'stats', 'promo', 'overview', 'location_links', 'floorplan', 'amenities', 'unit_designs', 'furniture', 'payment_methods', 'apartments', 'lead_form'];
+        defaultOrder.forEach((sId) => {
+          const legacyKey = sId === 'location_links' ? 'location_links' : (sId === 'floorplan' ? 'floorplan' : sId);
+          if (visibility[legacyKey] === true || visibility[legacyKey] === undefined) {
+            const card = storage?.querySelector(`[data-section-id="${sId}"]`);
+            if (card && canvas) canvas.appendChild(card);
+          }
+        });
+      }
+      
+      // Kích hoạt tính toán đồng bộ chỉ mục giao diện ngay lập tức
+      recalculateCanvasIndices();
+
+      // 1. Hero
+      setInput('heroTitle', data.hero?.title);
+      setInput('heroSubtitle', data.hero?.subtitle);
+      setInput('heroDescription', data.hero?.description); 
+      setInput('heroBtnText', data.hero?.btn_text);
+      setImg('heroPreviewImg', data.hero?.bg_url);
+      restoreContainerDirection('container_hero', 'badge_hero', data.hero?.direction);
+
+      // 2. Highlights
+      if (data.highlights) {
+        if (data.highlights.trust_points && Array.isArray(data.highlights.trust_points)) {
+          data.highlights.trust_points.forEach((tp: any, index: number) => {
+            const i = index + 1;
+            setInput(`trustTitle${i}`, tp.title);
+            setInput(`trustDesc${i}`, tp.desc);
+            setInput(`trustIcon${i}`, tp.icon);
+          });
+        }
+        if (data.highlights.partners && Array.isArray(data.highlights.partners)) {
+          data.highlights.partners.forEach((partner: string, index: number) => {
+            setInput(`partner${index + 1}`, partner);
+          });
+        }
+      }
+
+      // 3. Stats
+      if (data.stats) {
+        const sList = Array.isArray(data.stats) ? data.stats : (data.stats.items || []);
+        setInput('statNumber1', sList[0]);
+        setInput('statNumber2', sList[1]);
+        setInput('statNumber3', sList[2]);
+        setInput('statNumber4', sList[3]);
+      }
+
+      // 4. Promo
+      setInput('promoTitle', data.promo?.title);
+      setInput('promoDesc', data.promo?.description);
+
+      // 5. Overview
+      setInput('overviewName', data.overview?.name);
+      setInput('overviewInvestor', data.overview?.investor);
+      setInput('overviewLocation', data.overview?.location);
+      setInput('overviewScale', data.overview?.scale);
+      setInput('overviewType', data.overview?.type);
+      setInput('overviewLegal', data.overview?.legal);
+      setInput('overviewHighlights', data.overview?.highlights);
+      setImg('overviewPreviewImg', data.overview?.image_url);
+      restoreContainerDirection('container_overview', 'badge_overview', data.overview?.direction);
+
+      // 6. Location
+      setInput('locationTitle', data.location_links?.title);
+      setInput('locationDescription', data.location_links?.description);
+      if (data.location_links?.links && Array.isArray(data.location_links.links)) {
+        data.location_links.links.forEach((link: any, index: number) => {
+          const i = index + 1;
+          if (link && typeof link === 'object') {
+            setInput(`locationItem${i}`, link.name);
+            setInput(`locationTime${i}`, link.time);
+          }
+        });
+      }
+      setImg('locationPreviewImg', data.location_links?.image_url);
+      restoreContainerDirection('container_location', 'badge_location', data.location_links?.direction);
+
+      // 7. Floorplan
+      setInput('planDescriptionText', data.floorplan?.description);
+      setImg('planPreviewImg', data.floorplan?.image_url);
+      restoreContainerDirection('container_plan', 'badge_plan', data.floorplan?.direction);
+
+      const planPointsContainer = document.getElementById('planPointsContainer');
+      if (planPointsContainer && data.floorplan?.key_points) {
+        planPointsContainer.innerHTML = '';
+        data.floorplan.key_points.forEach((point: any) => {
+          const div = document.createElement('div');
+          div.className = "flex items-center gap-2 plan-point-item relative group/btn animate-fadeIn";
+          
+          const block = typeof point === 'object' ? (point.block || '') : '';
+          const title = typeof point === 'object' ? (point.title || '') : point;
+          const desc = typeof point === 'object' ? (point.desc || '') : '';
+
+          div.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full pr-8">
+              <input type="text" class="plan-point-block-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" value="${escapeHTML(block)}" placeholder="Block A" />
+              <input type="text" class="plan-point-title-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" value="${escapeHTML(title)}" placeholder="Tổng số căn" />
+              <input type="text" class="plan-point-desc-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-600 outline-none" value="${escapeHTML(desc)}" placeholder="Mô tả..." />
+            </div>
+            <button type="button" class="delete-point-btn absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 text-xs font-bold transition-colors p-1">✕</button>
+          `;
+          planPointsContainer.appendChild(div);
+        });
+      }
+
+      // 8. Amenities
+      if (data.amenities) {
+        const aList = Array.isArray(data.amenities) ? data.amenities : (data.amenities.items || []);
+        document.querySelectorAll('.amenity-node').forEach(node => {
+          const dropzone = node.querySelector('.amenity-dropzone') as HTMLDivElement;
+          const idx = Number(dropzone.getAttribute('data-index'));
+          const input = node.querySelector('.amenity-title-input') as HTMLInputElement;
+          const previewImg = node.querySelector('.amenity-preview') as HTMLImageElement;
+
+          const matchedAmenity = aList.find((a: any) => a.index === idx);
+          if (matchedAmenity) {
+            if (input) input.value = matchedAmenity.title || '';
+            if (previewImg && matchedAmenity.image_url) {
+              previewImg.src = getFullImageUrl(matchedAmenity.image_url);
+              previewImg.classList.remove('hidden');
+            }
+          }
+        });
+      }
+
+      // 9. Unit Designs
+      setInput('unitSectionDesc', data.unit_designs?.description || '');
+      restoreContainerDirection('container_unit', 'badge_unit', data.unit_designs?.direction);
+
+      const unitRepeaterContainer = document.getElementById('unitRepeaterContainer');
+      if (unitRepeaterContainer && data.unit_designs?.units) {
+        unitRepeaterContainer.innerHTML = '';
+        data.unit_designs.units.forEach((unit: any, uIdx: number) => {
+          const div = document.createElement('div');
+          div.className = "unit-repeater-item bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 animate-fadeIn cursor-pointer transition-all";
+          
+          const savedUrl = unit.image_url || unit.image || '';
+          if (savedUrl) div.setAttribute('data-image-url', savedUrl);
+          
+          div.innerHTML = `
+              <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider unit-title-label">Mẫu thiết kế #${uIdx + 1}</span>
+                <button type="button" class="delete-unit-btn text-xs font-bold text-red-500 hover:text-red-600 transition-colors flex items-center gap-1">✕ XÓA MẪU</button>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Tên căn hộ</label>
+                  <input type="text" class="unit-name-input w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none" value="${escapeHTML(unit.name)}" />
+                </div>
+                <div>
+                  <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Diện tích</label>
+                  <input type="text" class="unit-area-input w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 outline-none" value="${escapeHTML(unit.area)}" />
+                </div>
+              </div>
+              <div class="grid grid-cols-1 gap-2">
+                <div>
+                  <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Số Phòng Ngủ - Số Toilet</label>
+                  <input type="text" class="unit-specs-input w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 outline-none" value="${escapeHTML(unit.specs)}" />
+                </div>
+                <div class="flex items-end gap-3">
+                  <div class="flex-1">
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Giới thiệu ngắn</label>
+                    <input type="text" class="unit-desc-input w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 outline-none" value="${escapeHTML(unit.desc)}" />
+                  </div>
+                  <div class="mb-1 shrink-0">
+                    <span class="unit-image-status text-[9px] px-1.5 py-1 rounded font-bold ${savedUrl ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-slate-100 text-slate-400 border border-slate-200/60'}">
+                      ${savedUrl ? '📁 Đã có ảnh' : '✕ Chưa có ảnh'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <input type="file" class="unit-item-file-input hidden" accept="image/*" />
+          `;
+          unitRepeaterContainer.appendChild(div);
+          bindUnitItemEvents(div);
+          if (uIdx === 0) setActiveUnit(div);
+        });
+      }
+
+      // 10. Furniture
+      setInput('furnitureMainTitle', data.furniture?.title || 'NỘI THẤT BÀN GIAO');
+      setInput('furnitureSubtitle', data.furniture?.subtitle || '');
+      restoreContainerDirection('container_furniture', 'badge_furniture', data.furniture?.direction);
+
+      const fRoomContainer = document.getElementById('furnitureRoomRepeaterContainer');
+      if (fRoomContainer) {
+        fRoomContainer.innerHTML = '';
+        if (data.furniture?.rooms && Array.isArray(data.furniture.rooms)) {
+          data.furniture.rooms.forEach((room: any, rIdx: number) => {
+            const div = document.createElement('div');
+            div.className = "furniture-room-item bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 animate-fadeIn cursor-pointer transition-all";
+            
+            const savedUrl = room.image_url || '';
+            if (savedUrl) div.setAttribute('data-image-url', savedUrl);
+
+            let innerRowsHtml = '';
+            if (room.items && Array.isArray(room.items)) {
+              room.items.forEach((item: any) => {
+                innerRowsHtml += `
+                  <div class="flex items-center gap-2 room-material-row animate-fadeIn">
+                    <input type="text" class="mat-title-input w-1/3 px-2 py-1 bg-white border border-slate-200 rounded text-xs font-bold" value="${escapeHTML(item.title)}" placeholder="Tên vật liệu" />
+                    <input type="text" class="mat-desc-input w-2/3 px-2 py-1 bg-white border border-slate-200 rounded text-xs" value="${escapeHTML(item.description)}" placeholder="Mô tả..." />
+                    <button type="button" class="delete-mat-row-btn text-slate-400 hover:text-red-500 p-1 text-xs cursor-pointer">✕</button>
+                  </div>
+                `;
+              });
+            }
+
+            div.innerHTML = `
+              <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider room-title-label">Không gian / Phòng #${rIdx + 1}</span>
+                <button type="button" class="delete-room-btn text-xs font-bold text-red-500 hover:text-red-600 transition-colors flex items-center gap-1">✕ XÓA PHÒNG</button>
+              </div>
+              <div>
+                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Tên không gian / phòng bàn giao</label>
+                <input type="text" class="room-name-input w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none" value="${escapeHTML(room.name)}" />
+              </div>
+              <div class="space-y-2 mt-2">
+                <div class="flex items-center justify-between">
+                  <label class="block text-[9px] font-bold text-slate-400 uppercase font-mono">Danh mục vật liệu chi tiết</label>
+                  <button type="button" class="add-room-item-btn px-2 py-0.5 bg-slate-800 text-white text-[9px] font-bold rounded hover:bg-slate-700 transition-all cursor-pointer">＋ Thêm dòng vật liệu</button>
+                </div>
+                <div class="room-items-container space-y-2">${innerRowsHtml}</div>
+              </div>
+              <div class="flex justify-end mt-2">
+                <span class="room-image-status text-[9px] px-1.5 py-1 rounded font-bold ${savedUrl ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-slate-100 text-slate-400 border border-slate-200/60'}">
+                  ${savedUrl ? '📁 Đã có ảnh' : '✕ Chưa có ảnh'}
+                </span>
+              </div>
+              <input type="file" class="room-item-file-input hidden" accept="image/*" />
+            `;
+            fRoomContainer.appendChild(div);
+            bindRoomItemEvents(div);
+            if (rIdx === 0) setActiveFurnitureRoom(div);
+          });
+        }
+        recalculateRoomLabels();
+      }
+
+      // 11. Payment Methods
+      const paymentRepeaterContainer = document.getElementById('paymentRepeaterContainer');
+      if (paymentRepeaterContainer && data.payment_methods) {
+        const pList = Array.isArray(data.payment_methods) ? data.payment_methods : (data.payment_methods.items || []);
+        pList.forEach((pay: any, index: number) => {
+          const currentIdx = pay.key_index || (index + 1);
+          const div = document.createElement('div');
+          div.className = "payment-repeater-item bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4 animate-fadeIn relative";
+          div.setAttribute('data-index', String(currentIdx));
+          
+          if (pay.file_url) div.setAttribute('data-file-url', pay.file_url);
+          const filePreClass = pay.file_url ? 'flex' : 'hidden';
+
+          div.innerHTML = `
+            <div class="flex justify-between items-center border-b border-slate-200/60 pb-2">
+              <span class="payment-index-label text-[10px] font-black text-slate-400 uppercase tracking-wider font-mono">Phương thức thanh toán #${index + 1}</span>
+              <button type="button" class="delete-payment-btn text-xs font-bold text-red-500 hover:text-red-600 transition-colors">✕ XÓA PHƯƠNG THỨC</button>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+              <div class="lg:col-span-8 space-y-3">
+                <div class="grid grid-cols-3 gap-3">
+                  <div class="col-span-2">
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Tên Phương Thức</label>
+                    <input type="text" class="payment-name-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none" value="${escapeHTML(pay.name)}" />
+                  </div>
+                  <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Chiết Khấu (%)</label>
+                    <input type="text" class="payment-discount-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-black text-orange-600 outline-none" value="${escapeHTML(pay.discount)}" />
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Mô tả tóm tắt phương thức dòng tiền</label>
+                  <textarea rows="2" class="payment-desc-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium resize-none outline-none" >${escapeHTML(pay.description)}</textarea>
+                </div>
+              </div>
+              <div class="lg:col-span-4 flex flex-col min-h-[110px]">
+                <div class="payment-file-dropzone flex-1 border border-dashed border-slate-300 hover:border-orange-500 bg-white rounded-xl flex flex-col items-center justify-center p-3 text-center cursor-pointer relative overflow-hidden group transition-all">
+                  <div class="pointer-events-none space-y-0.5 text-slate-400">
+                    <span class="text-lg">📄</span>
+                    <div class="text-[10px] font-bold text-slate-700">FILE PHƯƠNG THỨC</div>
+                  </div>
+                  <div class="payment-file-preview absolute inset-0 bg-slate-900/90 text-white p-2 text-[9px] font-mono ${filePreClass} items-center justify-center text-center">
+                    <div class="truncate px-2">✓ Đã có tài liệu dòng tiền</div>
+                  </div>
+                </div>
+                <input type="file" class="payment-file-input hidden" accept="image/*,application/pdf" />
+              </div>
+            </div>
+          `;
+          paymentRepeaterContainer.appendChild(div);
+          bindSinglePaymentFileEvent(div);
+        });
+        recalculatePaymentIndices();
+      }
+
+      // 12. Inventory
+      setInput('apartmentsTitle', data.apartments?.title || 'Danh Sách Căn Hộ Đang Giao Dịch');
+      setInput('apartmentsSubtitle', data.apartments?.subtitle || 'Hệ thống giỏ hàng ký gửi chính chủ được kiểm duyệt thực tế.');
+
+      // 13. Lead Form
+      setInput('leadFormTitle', data.lead_form?.title || 'ĐĂNG KÝ TƯ VẤN & NHẬN BÁO GIÁ SỚM NHẤT');
+      setInput('leadFormSubtitle', data.lead_form?.subtitle || '');
+      setInput('leadFormBtnText', data.lead_form?.btn_text || 'ĐĂNG KÝ NHẬN ƯU ĐÃI NGAY');
+
+      // Thực thi tính toán lại Pool sau khi nạp data hoàn chỉnh
+      recalculateCanvasIndices();
+
+    } catch (e) {
+      Swal.fire("Lỗi nạp dữ liệu", "Không thể liên kết đồng bộ Landing Page.", "error");
     }
   }
 
+  const escapeHTML = (str: string): string => {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, (match) => {
+      const map: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+      return map[match] || match;
+    });
+  };
+
+  const form = document.getElementById('projectLandingForm');
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
-    const imageInput = document.getElementById('imageInput') as HTMLInputElement;
-    if (imageInput && imageInput.files && imageInput.files.length > 0) {
-      const file = imageInput.files[0];
-      if (file.size > 5 * 1024 * 1024) {
-        Swal.fire({ icon: 'error', title: 'Tệp quá lớn', text: 'Kích thước hình ảnh dự án tối đa là 5MB!', confirmButtonColor: '#ef4444' });
-        return;
+
+    Swal.fire({ title: 'Đang xử lý cập nhật...', text: 'Vui lòng chờ trong giây lát', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+    // Thu thập cấu trúc mảng thứ tự sắp xếp thực tế trong vùng Canvas
+    const layoutOrderArr: string[] = [];
+    const canvas = document.getElementById('activeCanvas');
+    if (canvas) {
+      canvas.querySelectorAll('.section-card').forEach(card => {
+        const sId = card.getAttribute('data-section-id');
+        if (sId) layoutOrderArr.push(sId);
+      });
+    }
+
+    const isSectionActive = (id: string) => layoutOrderArr.includes(id);
+
+    const listAmenitiesText: Array<{title: string, index: number, image_url: string}> = [];
+    document.querySelectorAll('.amenity-node').forEach(node => {
+      const input = node.querySelector('.amenity-title-input') as HTMLInputElement;
+      const zone = node.querySelector('.amenity-dropzone') as HTMLDivElement;
+      const indexStr = zone.getAttribute('data-index');
+      const idx = Number(indexStr);
+
+      let oldUrl = '';
+      if (serverOriginalData && serverOriginalData.amenities) {
+        const matched = serverOriginalData.amenities.find((a: any) => a.index === idx);
+        if (matched) oldUrl = matched.image_url || '';
       }
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
-      if (!allowedTypes.includes(file.type)) {
-        Swal.fire({ icon: 'error', title: 'Sai định dạng', text: 'Chỉ chấp nhận các file ảnh định dạng JPG, PNG hoặc WEBP!', confirmButtonColor: '#ef4444' });
-        return;
+      listAmenitiesText.push({ title: input.value || `Tiện ích ${indexStr}`, index: idx, image_url: oldUrl });
+    });
+
+    const planPointsArr: Array<{block: string, title: string, desc: string}> = [];
+    document.querySelectorAll('.plan-point-item').forEach(item => {
+      const blockInp = item.querySelector('.plan-point-block-input') as HTMLInputElement;
+      const titleInp = item.querySelector('.plan-point-title-input') as HTMLInputElement;
+      const descInp = item.querySelector('.plan-point-desc-input') as HTMLInputElement;
+      if (titleInp && titleInp.value.trim()) {
+        planPointsArr.push({
+          block: blockInp ? blockInp.value.trim() : '',
+          title: titleInp.value.trim(),
+          desc: descInp ? descInp.value.trim() : ''
+        });
+      }
+    });
+
+    const formData = new FormData();
+
+    const unitDesignArr: Array<{name: string, area: string, specs: string, desc: string, image_url: string}> = [];
+    document.querySelectorAll('.unit-repeater-item').forEach((item, idx) => {
+      const nameEl = item.querySelector('.unit-name-input') as HTMLInputElement;
+      const areaEl = item.querySelector('.unit-area-input') as HTMLInputElement;
+      const specsEl = item.querySelector('.unit-specs-input') as HTMLInputElement;
+      const descEl = item.querySelector('.unit-desc-input') as HTMLInputElement;
+      
+      let targetImgSource = item.getAttribute('data-base64') || item.getAttribute('data-image-url') || '';
+      if (nameEl && nameEl.value.trim()) {
+        unitDesignArr.push({
+          name: nameEl.value.trim(),
+          area: areaEl.value.trim(),
+          specs: specsEl.value.trim(),
+          desc: descEl.value.trim(),
+          image_url: targetImgSource
+        });
+        
+        const fileInput = item.querySelector('.unit-item-file-input') as HTMLInputElement;
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+          formData.append(`unit_layout_files[${idx}]`, fileInput.files[0]);
+        }
+      }
+    });
+
+    const furnitureRoomsArr: Array<{name: string, image_url: string, items: Array<{title: string, description: string}>}> = [];
+    document.querySelectorAll('.furniture-room-item').forEach((roomItem, rIdx) => {
+      const roomNameEl = roomItem.querySelector('.room-name-input') as HTMLInputElement;
+      let targetRoomImgSource = roomItem.getAttribute('data-base64') || roomItem.getAttribute('data-image-url') || '';
+      
+      const innerMaterialsArr: Array<{title: string, description: string}> = [];
+      roomItem.querySelectorAll('.room-material-row').forEach(row => {
+        const titleEl = row.querySelector('.mat-title-input') as HTMLInputElement;
+        const descEl = row.querySelector('.mat-desc-input') as HTMLInputElement;
+        if (titleEl && titleEl.value.trim()) {
+          innerMaterialsArr.push({
+            title: titleEl.value.trim(),
+            description: descEl ? descEl.value.trim() : ''
+          });
+        }
+      });
+
+      if (roomNameEl && roomNameEl.value.trim()) {
+        furnitureRoomsArr.push({
+          name: roomNameEl.value.trim(),
+          image_url: targetRoomImgSource,
+          items: innerMaterialsArr
+        });
+
+        const fileInput = roomItem.querySelector('.room-item-file-input') as HTMLInputElement;
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+          formData.append(`furniture_room_files[${rIdx}]`, fileInput.files[0]);
+        }
+      }
+    });
+
+    const paymentMethodsArr: Array<{name: string, discount: string, description: string, key_index: number, file_url: string}> = [];
+    document.querySelectorAll('.payment-repeater-item').forEach((item, idx) => {
+      const name = (item.querySelector('.payment-name-input') as HTMLInputElement).value.trim();
+      const discount = (item.querySelector('.payment-discount-input') as HTMLInputElement).value.trim();
+      const description = (item.querySelector('.payment-desc-input') as HTMLTextAreaElement).value.trim();
+      const currentIdx = idx + 1;
+      
+      let oldUrl = item.getAttribute('data-file-url') || '';
+      if (!oldUrl && serverOriginalData && serverOriginalData.payment_methods) {
+        const pList = Array.isArray(serverOriginalData.payment_methods) ? serverOriginalData.payment_methods : (serverOriginalData.payment_methods.items || []);
+        if (pList[idx]) oldUrl = pList[idx].file_url || '';
+      }
+
+      if (name) {
+        paymentMethodsArr.push({ name, discount, description, key_index: currentIdx, file_url: oldUrl });
+        const fileInput = item.querySelector('.payment-file-input') as HTMLInputElement;
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+          formData.append(`payment_document_files[${idx}]`, fileInput.files[0]);
+        }
+      }
+    });
+
+    const locationLinksArr: Array<{name: string, time: string}> = [];
+    for (let i = 1; i <= 5; i++) {
+      const itemInput = document.getElementById(`locationItem${i}`) as HTMLInputElement;
+      const timeInput = document.getElementById(`locationTime${i}`) as HTMLInputElement;
+      if (itemInput) {
+        locationLinksArr.push({
+          name: itemInput.value.trim(),
+          time: timeInput ? timeInput.value.trim() : ''
+        });
       }
     }
 
-    Swal.fire({
-      title: 'Đang xử lý...',
-      text: 'Vui lòng chờ trong giây lát',
-      allowOutsideClick: false,
-      didOpen: () => { Swal.showLoading(); }
+    const getDir = (id: string) => document.getElementById(id)?.getAttribute('data-direction') || 'normal';
+
+    const flatTitle = (document.getElementById('projectTitle') as HTMLInputElement).value.trim();
+    const flatLat = (document.getElementById('projectLat') as HTMLInputElement).value.trim();
+    const flatLng = (document.getElementById('projectLng') as HTMLInputElement).value.trim();
+    const flatSlug = (document.getElementById('projectSlug') as HTMLInputElement).value.trim();
+    const flatAddress = (document.getElementById('projectAddress') as HTMLInputElement).value.trim();
+    const flatStatus = (document.getElementById('status') as HTMLInputElement).value;
+    const flatLegal = (document.getElementById('legal') as HTMLInputElement).value;
+
+    const visibilityJson = {
+      hero: isSectionActive('hero'),
+      highlights: isSectionActive('highlights'),
+      stats: isSectionActive('stats'),
+      promo: isSectionActive('promo'),
+      overview: isSectionActive('overview'),
+      location_links: isSectionActive('location_links'),
+      floorplan: isSectionActive('floorplan'),
+      amenities: isSectionActive('amenities'),
+      unit_designs: isSectionActive('unit_designs'),
+      furniture: isSectionActive('furniture'),
+      payment_methods: isSectionActive('payment_methods'),
+      apartments: isSectionActive('apartments'),
+      lead_form: isSectionActive('lead_form')
+    };
+
+    const structuralTextJson = {
+      layout_order: layoutOrderArr, // 🔥 ĐỒNG BỘ: Gửi mảng thứ tự CMS lên Database Laravel
+      visibility: visibilityJson,
+      hero: {
+        direction: getDir('container_hero'),
+        title: (document.getElementById('heroTitle') as HTMLInputElement).value || flatTitle,
+        subtitle: (document.getElementById('heroSubtitle') as HTMLInputElement).value,
+        description: (document.getElementById('heroDescription') as HTMLTextAreaElement).value, 
+        btn_text: (document.getElementById('heroBtnText') as HTMLInputElement).value,
+        bg_url: serverOriginalData?.hero?.bg_url || ''
+      },
+      highlights: {
+        trust_points: [
+          {
+            title: (document.getElementById('trustTitle1') as HTMLInputElement).value,
+            desc: (document.getElementById('trustDesc1') as HTMLTextAreaElement).value,
+            icon: (document.getElementById('trustIcon1') as HTMLInputElement).value
+          },
+          {
+            title: (document.getElementById('trustTitle2') as HTMLInputElement).value,
+            desc: (document.getElementById('trustDesc2') as HTMLTextAreaElement).value,
+            icon: (document.getElementById('trustIcon2') as HTMLInputElement).value
+          },
+          {
+            title: (document.getElementById('trustTitle3') as HTMLInputElement).value,
+            desc: (document.getElementById('trustDesc3') as HTMLTextAreaElement).value,
+            icon: (document.getElementById('trustIcon3') as HTMLInputElement).value
+          }
+        ],
+        partners: [
+          (document.getElementById('partner1') as HTMLInputElement).value,
+          (document.getElementById('partner2') as HTMLInputElement).value,
+          (document.getElementById('partner3') as HTMLInputElement).value,
+          (document.getElementById('partner4') as HTMLInputElement).value,
+          (document.getElementById('partner5') as HTMLInputElement).value,
+          (document.getElementById('partner6') as HTMLInputElement).value,
+          (document.getElementById('partner7') as HTMLInputElement).value
+        ]
+      },
+      stats: [
+        (document.getElementById('statNumber1') as HTMLInputElement).value,
+        (document.getElementById('statNumber2') as HTMLInputElement).value,
+        (document.getElementById('statNumber3') as HTMLInputElement).value,
+        (document.getElementById('statNumber4') as HTMLInputElement).value
+      ],
+      promo: {
+        title: (document.getElementById('promoTitle') as HTMLInputElement).value,
+        description: (document.getElementById('promoDesc') as HTMLTextAreaElement).value
+      },
+      overview: {
+        direction: getDir('container_overview'),
+        name: (document.getElementById('overviewName') as HTMLInputElement).value || flatTitle,
+        investor: (document.getElementById('overviewInvestor') as HTMLInputElement).value,
+        location: (document.getElementById('overviewLocation') as HTMLInputElement).value || flatAddress,
+        scale: (document.getElementById('overviewScale') as HTMLInputElement).value,
+        type: (document.getElementById('overviewType') as HTMLInputElement).value,
+        legal: (document.getElementById('overviewLegal') as HTMLInputElement).value || flatLegal,
+        highlights: (document.getElementById('overviewHighlights') as HTMLInputElement).value,
+        image_url: serverOriginalData?.overview?.image_url || ''
+      },
+      location_links: {
+        direction: getDir('container_location'),
+        title: (document.getElementById('locationTitle') as HTMLInputElement).value.trim(),
+        description: (document.getElementById('locationDescription') as HTMLTextAreaElement).value.trim(),
+        links: locationLinksArr,
+        image_url: serverOriginalData?.location_links?.image_url || ''
+      },
+      floorplan: {
+        direction: getDir('container_plan'),
+        description: (document.getElementById('planDescriptionText') as HTMLTextAreaElement).value,
+        key_points: planPointsArr,
+        image_url: serverOriginalData?.floorplan?.image_url || ''
+      },
+      amenities: listAmenitiesText,
+      unit_designs: {
+        direction: getDir('container_unit'),
+        description: (document.getElementById('unitSectionDesc') as HTMLInputElement).value.trim(),
+        units: unitDesignArr,
+        image_url: serverOriginalData?.unit_designs?.image_url || ''
+      },
+      furniture: {
+        direction: getDir('container_furniture'),
+        title: (document.getElementById('furnitureMainTitle') as HTMLInputElement).value || 'NỘI THẤT BÀN GIAO',
+        subtitle: (document.getElementById('furnitureSubtitle') as HTMLInputElement).value || '',
+        rooms: furnitureRoomsArr,
+        items: furnitureRoomsArr[0] ? furnitureRoomsArr[0].items.map(i => ({ space: i.title, brand: i.description })) : [],
+        image_url: furnitureRoomsArr[0] ? furnitureRoomsArr[0].image_url : ''
+      },
+      payment_methods: paymentMethodsArr,
+      apartments: {
+        title: (document.getElementById('apartmentsTitle') as HTMLInputElement).value.trim(),
+        subtitle: (document.getElementById('apartmentsSubtitle') as HTMLInputElement).value.trim()
+      },
+      lead_form: {
+        title: (document.getElementById('leadFormTitle') as HTMLInputElement).value.trim(),
+        subtitle: (document.getElementById('leadFormSubtitle') as HTMLTextAreaElement).value.trim(),
+        btn_text: (document.getElementById('leadFormBtnText') as HTMLInputElement).value.trim()
+      }
+    };
+
+    formData.append('_method', 'PUT'); 
+    formData.append('landing_structure', JSON.stringify(structuralTextJson));
+    
+    formData.append('title', flatTitle);
+    formData.append('slug', flatSlug);
+    formData.append('status', flatStatus);
+    formData.append('legal', flatLegal);
+    formData.append('lat', flatLat);
+    formData.append('lng', flatLng);
+    formData.append('address', flatAddress);
+
+    if (projInput && projInput.files && projInput.files[0]) formData.append('image', projInput.files[0]);
+
+    const appendFileField = (inputId: string, paramName: string) => {
+      const fileInput = document.getElementById(inputId) as HTMLInputElement;
+      if (fileInput && fileInput.files && fileInput.files[0]) formData.append(paramName, fileInput.files[0]);
+    };
+    appendFileField('heroFileInput', 'hero_bg');
+    appendFileField('overviewFileInput', 'overview_image');
+    appendFileField('locationFileInput', 'location_image');
+    appendFileField('planFileInput', 'plan_image');
+
+    document.querySelectorAll('.amenity-node').forEach(node => {
+      const fileInput = node.querySelector('.amenity-file-input') as HTMLInputElement;
+      const zone = node.querySelector('.amenity-dropzone') as HTMLDivElement;
+      const idx = zone.getAttribute('data-index');
+      if (fileInput.files && fileInput.files[0]) formData.append(`amenity_file_${idx}`, fileInput.files[0]);
     });
-
-    const btn = document.getElementById('submitBtn') as HTMLButtonElement;
-    btn.disabled = true;
-
-    const formData = new FormData(form);
-    formData.append('_method', 'PUT');
-    formData.append('location', (document.getElementById('address') as HTMLInputElement).value.trim());
-
-    const token = localStorage.getItem('admin_token')?.replace(/['"]+/g, '').trim();
 
     try {
-      const res = await fetch(`${API_BASE}/api/admin/projects/${id}`, {
+      const res = await fetch(`${BACKEND_URL}/api/admin/projects/${projectId}`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        },
+        headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
-
-      if (res.status === 401 || res.status === 403) {
-        throw new Error("Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.");
-      }
-
-      const result = await res.json();
-
-      if (res.ok && result.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Thành công!',
-          text: result.message || 'Dự án đã được cập nhật.',
-          timer: 1500,
-          showConfirmButton: false
-        }).then(() => {
-          window.location.href = '/admin/projects';
-        });
+      const resData = await res.json();
+      if (res.ok && resData.success) {
+        await Swal.fire('Thành công', 'Bố cục Canvas và Landing Page đã cập nhật thành công!', 'success');
+        window.location.href = '/admin/projects';
       } else {
-        throw new Error(result.message || "Có lỗi xảy ra trong quá trình cập nhật dữ liệu.");
+        Swal.fire('Thất bại', resData.message || 'Lỗi lưu thông tin.', 'error');
       }
-    } catch (err: any) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Thất bại',
-        text: err.message || 'Lỗi kết nối API Laravel đường truyền.',
-        confirmButtonColor: '#ef4444'
-      });
-    } finally {
-      btn.disabled = false;
+    } catch (err) {
+      Swal.fire('Lỗi liên kết', 'Không thể kết nối tới máy chủ dữ liệu Laravel.', 'error');
     }
   });
 
-  document.getElementById('backBtn')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    Swal.fire({
-      title: 'Hủy bỏ chỉnh sửa?',
-      text: "Các thông tin vừa nhập sẽ không được lưu lại.",
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#ea580c',
-      cancelButtonColor: '#94a3b8',
-      confirmButtonText: 'Đúng, hủy bỏ',
-      cancelButtonText: 'Tiếp tục sửa'
-    }).then((result: any) => {
-      if (result.isConfirmed) {
-        window.location.href = '/admin/projects';
-      }
-    });
+  document.addEventListener('DOMContentLoaded', () => {
+    initWidgetLayoutBuilder(); // 🔥 Bật tính năng Kéo thả Widget
+    loadProjectLandingData();
   });
-
-  document.getElementById('imageInput')?.addEventListener('change', (e) => {
-    const file = (e.target as HTMLInputElement).files?.[0];
-    if (file) imgPreview.src = URL.createObjectURL(file);
-  });
-
-  loadData();
 </script>

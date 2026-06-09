@@ -11,7 +11,6 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\SettingController;
-use App\Http\Controllers\SystemController; // 🔥 ĐÃ THÊM: Import để tránh lỗi văng Class not found
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\LeadController;
@@ -72,7 +71,7 @@ Route::post('/consignments', [ConsignmentController::class, 'store']);
 // Phân hệ ⚙️ Tiện Ích Hệ Thống & Cấu Hình Trang Chủ
 Route::get('/banks', [BankController::class, 'index']);
 Route::get('/hero-slides', [HeroSlideController::class, 'index']);
-Route::get('/settings', [SystemController::class, 'getSettings']);
+Route::get('/settings', [SettingController::class, 'getSettings']);
 Route::get('/settings/info', [SettingController::class, 'getSettings']);
 
 
@@ -111,9 +110,9 @@ Route::middleware([\App\Http\Middleware\AdminAuthMiddleware::class])->prefix('ad
         });
 
         // 📁 Phân hệ 2: Quản lý danh mục Dự Án tổng thể
-        Route::prefix('projects')->group(function () {
-            Route::get('/', [ProjectController::class, 'index']);
-            Route::post('/add', [ProjectController::class, 'store']);
+        Route::middleware(['auth:sanctum', 'check_role:admin'])->prefix('projects')->group(function () {
+            Route::get('/', [ProjectController::class, 'index']); // Quản lý vào được danh sách
+            Route::post('/add', [ProjectController::class, 'store']); // Quản lý vào được hàm lưu
             Route::get('/{id}', [ProjectController::class, 'show']);
             Route::match(['POST', 'PUT'], '/{id}', [ProjectController::class, 'update']);
             Route::delete('/{id}', [ProjectController::class, 'destroy']);

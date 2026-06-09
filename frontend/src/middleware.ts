@@ -2,8 +2,14 @@
 import { defineMiddleware } from "astro:middleware";
 
 const PROTECTED_ROUTES: Record<string, string[]> = {
+  "/admin/projects": ["admin"],
+
+  
   "/admin/dashboard": ["admin", "manager", "broker"], 
-  "/admin": ["admin"],                               
+  
+  // 🟢 SỬA TẠI ĐÂY: Mở khóa vùng /admin chung cho cả Manager và Broker vào các trang con
+  "/admin": ["admin", "manager", "broker"],                               
+  
   "/manager": ["admin", "manager"],                  
   "/dashboard": ["admin", "manager", "broker"],       
 };

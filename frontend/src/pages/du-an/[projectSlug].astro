@@ -3,9 +3,8 @@ import MainLayout from "../../layouts/MainLayout.astro";
 
 // 🔥 BẢO MẬT & CHUẨN SEO TUYỆT ĐỐI: Đồng bộ toàn bộ slug dự án từ Laravel phục vụ đóng gói SSG tĩnh
 export async function getStaticPaths() {
-  const API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3000";
+  const API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
   try {
-    // Gọi API lấy toàn bộ danh sách dự án công khai để sinh cấu trúc thư mục SEO tĩnh
     const res = await fetch(`${API_BASE}/api/projects`, {
       method: 'GET',
       headers: { 'Accept': 'application/json' }
@@ -18,13 +17,10 @@ export async function getStaticPaths() {
       if (items.length > 0) {
         return items.map((item: any) => {
           const slugValue = String(item.slug || item.project_slug || '').trim();
-          return {
-            params: { projectSlug: slugValue }
-          };
+          return { params: { projectSlug: slugValue } };
         });
       }
     }
-    // Bản ghi fallback an toàn để tránh sập tiến trình build của Astro khi DB trống lúc đóng gói
     return [{ params: { projectSlug: "bcons-city" } }];
   } catch (e) {
     console.error("Lỗi đồng bộ danh sách dự án phục vụ build tĩnh SEO:", e);
@@ -33,164 +29,200 @@ export async function getStaticPaths() {
 }
 
 const { projectSlug } = Astro.params;
-
-// 🔥 GIỮ NGUYÊN VẸN: Lấy trực tiếp biến cấu hình hệ thống từ file .env của Trung Tín
-const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3000";
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
 ---
 
-<MainLayout title="Danh sách căn hộ chung cư mới nhất 2026">
-  <div class="bg-white w-full overflow-x-hidden break-words min-h-screen pb-24 font-sans text-slate-800 mt-20">
-    
-    <div class="w-full bg-gradient-to-br from-[#fac72e] via-[#e2b327] to-[#d8aa21] relative py-10 sm:py-12 animate-fadeIn overflow-hidden">
-      <div class="absolute inset-0 opacity-10 pointer-events-none" 
-         style="background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');">
-      </div>
+<MainLayout title="Chi tiết dự án và Bảng giá căn hộ chung cư mới nhất">
+  <div class="bg-slate-50/50 w-full overflow-x-hidden break-words min-h-screen pb-24 font-sans text-slate-800 mt-16">
+
+    <div id="landing-sections-container">
       
-      <div class="max-w-7xl mx-auto w-full px-4 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-        <div class="lg:col-span-7 space-y-4 text-white">
-          <div class="space-y-1">
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-white/50 text-black text-[10px] font-black uppercase tracking-wider">
-              <span class="w-1.5 h-1.5 rounded-full bg-black animate-pulse"></span>
-              Giỏ hàng cập nhật mới nhất 2026
+      <section id="render-section-hero" class="max-w-360 mx-auto px-4 md:px-6 mt-4 md:mt-12 relative pb-10 md:pb-20"></section>
+
+      <section id="wrapper-section-highlights" class="py-5 bg-white hidden">
+        <div class="max-w-360 mx-auto px-4">
+          <div id="render-section-highlights" class="hidden"></div>
+        </div>
+      </section>
+
+      <section id="wrapper-section-stats" class="py-5 bg-white hidden">
+        <div class="max-w-360 mx-auto px-4">
+          <div id="render-section-stats" class="hidden"></div>
+        </div>
+      </section>
+
+      <section id="render-section-promo" class="py-17 relative hidden"></section>
+
+      <section id="render-section-overview" class="relative max-w-360 mx-auto px-6 py-10 hidden"></section>
+
+      <section id="render-section-location" class="relative max-w-360 mx-auto px-6 py-10 hidden"></section>
+
+      <section id="render-section-floorplan" class="relative max-w-360 mx-auto px-6 py-10 hidden"></section>
+
+      <section id="render-section-amenities" class="relative max-w-360 mx-auto px-6 py-10 hidden"></section>
+
+      <section id="render-section-unitdesigns" class="relative px-6 py-10 hidden"></section>
+
+      <div id="render-section-inventory" class="hidden max-w-7xl mx-auto px-4 pt-2 ">
+        <div class="flex flex-wrap gap-4 mb-8 animate-fadeIn relative z-30">
+          <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
+            <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider pl-1">Vị trí dự án</span>
+            <div class="border border-slate-200 rounded-xl px-4 bg-slate-50 text-xs font-bold text-slate-700 flex items-center h-11" id="text-filter-khuvuc">
+              Đang định vị...
             </div>
-            <h1 class="text-2xl sm:text-4xl font-black uppercase tracking-tight leading-tight" id="main-project-title">
-              Đang tải tên dự án Bcons...
-            </h1>
           </div>
 
-          <p class="text-xs sm:text-sm text-black font-medium flex items-center gap-1.5" id="main-project-address">
-            <svg class="w-4 h-4 text-black flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-            </svg>
-            <span>Đang xác định vị trí vệ tinh...</span>
-          </p>
+          <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
+            <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider pl-1">Khoảng giá dòng tiền</span>
+            <div class="dropdown-container border border-slate-200 rounded-xl px-4 bg-white relative flex items-center h-11 text-xs font-bold transition-all cursor-pointer select-none" id="dropdown-price">
+              <div class="text-slate-800 display-value">Tất cả khoảng giá</div>
+              <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-transform duration-200 chevron-icon">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+              <div class="absolute left-0 top-[calc(100%+6px)] w-full bg-white rounded-xl shadow-2xl py-1 hidden dropdown-menu border border-slate-100 overflow-hidden z-50">
+                <div class="px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer option-item" data-value="all">Tất cả khoảng giá</div>
+                <div class="px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer option-item" data-value="under-1.5">Dưới 1,5 tỷ VNĐ</div>
+                <div class="px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer option-item" data-value="1.5-2">1,5 tỷ - 2 tỷ VNĐ</div>
+                <div class="px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer option-item" data-value="over-2">Trên 2 tỷ VNĐ</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
+            <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider pl-1">Hướng Ban Công</span>
+            <div class="dropdown-container border border-slate-200 rounded-xl px-4 bg-white relative flex items-center h-11 text-xs font-bold transition-all cursor-pointer select-none" id="dropdown-direction">
+              <div class="text-slate-800 display-value">Tất cả hướng</div>
+              <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-transform duration-200 chevron-icon">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+              <div class="absolute left-0 top-[calc(100%+6px)] w-full bg-white rounded-xl shadow-2xl py-1 hidden dropdown-menu border border-slate-100 overflow-hidden z-50">
+                <div class="px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer option-item" data-value="all">Tất cả hướng</div>
+                <div class="px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer option-item" data-value="đông">Hướng Đông / Đông Nam</div>
+                <div class="px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer option-item" data-value="nam">Hướng Chính Nam</div>
+                <div class="px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer option-item" data-value="tây">Hướng Tây / Tây Nam</div>
+                <div class="px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer option-item" data-value="bắc">Hướng Chính Bắc</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
+            <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider pl-1">Tầng Số</span>
+            <div class="dropdown-container border border-slate-200 rounded-xl px-4 bg-white relative flex items-center h-11 text-xs font-bold transition-all cursor-pointer select-none" id="dropdown-floor">
+              <div class="text-slate-800 display-value">Tất cả số tầng</div>
+              <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-transform duration-200 chevron-icon">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+              <div class="absolute left-0 top-[calc(100%+6px)] w-full bg-white rounded-xl shadow-2xl py-1 hidden dropdown-menu border border-slate-100 overflow-hidden z-50">
+                <div class="px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer option-item" data-value="all">Tất cả số tầng</div>
+                <div class="px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer option-item" data-value="low">Tầng thấp (Dưới tầng 8)</div>
+                <div class="px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer option-item" data-value="mid">Tầng trung (Tầng 8 - 18)</div>
+                <div class="px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer option-item" data-value="high">Tầng cao (Trên tầng 18)</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="lg:col-span-5 w-full">
-          <div class="relative aspect-[16/10] rounded-2xl overflow-hidden bg-white/10 border border-white/10 shadow-xl group">
-            <img id="main-project-banner" src="/images/no-photo.jpg" class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500" alt="Phối cảnh dự án Bcons" />
+        <div class="flex flex-col mb-6">
+          <h2 class="text-xl font-black text-slate-900 tracking-tight mb-2 animate-fadeIn" id="page-main-heading">
+            Danh Sách Căn Hộ Đang Giao Dịch
+          </h2>
+          <p class="text-md text-slate-500 mt-1" id="page-main-subheading">Hệ thống giỏ hàng ký gửi chính chủ được kiểm duyệt thực tế kỹ lưỡng.</p>
+        </div>
+
+        <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-6 text-sm text-slate-500 font-medium animate-fadeIn relative z-25">
+          <div>Tổng số tìm thấy: <span id="results-count" class="text-slate-800">0</span> sản phẩm</div>
+          
+          <div class="dropdown-container relative flex items-center gap-1 cursor-pointer select-none hover:text-slate-800 transition-colors text-slate-500 font-bold text-xs" id="dropdown-sort">
+            <span>Sắp xếp: <span class="display-value font-black text-slate-700">Mặc định phù hợp</span></span>
+            <div class="chevron-icon mt-0.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></div>
+            <div class="absolute right-0 top-[calc(100%+6px)] w-[160px] bg-white rounded-xl shadow-2xl py-1 hidden dropdown-menu border border-slate-100 overflow-hidden text-slate-700 text-left z-50">
+              <div class="px-4 py-2 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="all">Mặc định phù hợp</div>
+              <div class="px-4 py-2 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="price-asc">Giá thấp -> cao</div>
+              <div class="px-4 py-2 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="price-desc">Giá cao -> thấp</div>
+              <div class="px-4 py-2 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="area-desc">Diện tích lớn nhất</div>
+            </div>
           </div>
+        </div>
+
+        <div id="project-skeleton" class="grid grid-cols-1 md:grid-cols-4 gap-x-6 gap-y-8 animate-pulse">
+          {[1, 2, 3, 4].map(() => (
+            <div class="space-y-3">
+              <div class="aspect-[4/3] bg-slate-200 rounded-xl w-full"></div>
+              <div class="h-4 bg-slate-200 rounded w-2/3"></div>
+              <div class="h-3 bg-slate-200 rounded w-1/2"></div>
+            </div>
+          ))}
+        </div>
+
+        <div id="project-apartments-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 hidden"></div>
+
+        <div id="load-more-container" class="w-full flex justify-center mt-12 hidden">
+          <button type="button" id="btn-load-more" class="px-8 h-11 rounded-xl bg-white border border-slate-200 hover:border-orange-500 hover:text-orange-500 text-slate-700 font-black text-xs shadow-sm transition-all uppercase tracking-wider cursor-pointer">
+            Xem Thêm Sản Phẩm Đang Ký Gửi
+          </button>
+        </div>
+
+        <div id="empty-project-message" class="hidden text-center py-16 bg-white border border-slate-100 rounded-2xl shadow-sm">
+          <p class="font-bold text-slate-700 text-xs uppercase tracking-wider">Không tìm thấy căn hộ trùng khớp bộ lọc</p>
+          <p class="text-[11px] text-slate-400 mt-1">Vui lòng tinh chỉnh lại khoảng giá hoặc hướng ban công để nhận kết quả mới.</p>
         </div>
       </div>
+
+      <section id="render-section-furniture" class="relative px-6 py-10 hidden"></section>
+
+      <section id="render-section-payment" class="max-w-360 mx-auto px-6 py-20 bg-gray-50 hidden"></section>
+
+      <section id="render-section-leadform" class="max-w-360 mx-auto px-6 py-12 hidden"></section>
+
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 pt-6">
-      
-      <div class="flex flex-wrap gap-4 mb-6 animate-fadeIn relative z-30">
-        
-        <div class="flex flex-col gap-1 min-w-full md:min-w-[240px]">
-          <span class="text-[12px] text-slate-700 font-bold pl-1">Khu vực</span>
-          <div class="border border-slate-200 rounded-[1rem] px-4 bg-slate-50/50 flex items-center h-[48px]">
-            <div class="text-sm font-bold text-slate-800" id="text-filter-khuvuc">Tất cả</div>
+    <dialog id="payment-file-modal" class="fixed inset-0 m-auto p-0 rounded-[30px] md:rounded-[40px] backdrop:bg-black/80 backdrop:backdrop-blur-sm overflow-hidden outline-none border-none shadow-2xl z-[100]">
+      <div class="relative w-[95vw] md:w-[700px] bg-white flex flex-col max-h-[90vh]">
+        <div class="p-5 md:p-6 bg-[#fac72e] text-black flex items-center justify-center relative shrink-0">
+            
+          <h4 class="font-black uppercase tracking-tight text-sm md:text-base text-center px-12">
+              Chi tiết
+          </h4>
+            
+          <button 
+              id="close-payment-modal-btn"
+              class="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 text-2xl hover:text-[#c3c3c3] p-3 transition-colors cursor-pointer leading-none"
+              aria-label="Close"
+          >
+              ✕
+          </button>
           </div>
-        </div>
-
-        <div class="flex flex-col gap-1 min-w-full md:min-w-[240px]">
-          <span class="text-[12px] text-slate-700 font-bold pl-1">Khoảng giá</span>
-          <div class="dropdown-container border border-slate-200 rounded-[1rem] px-4 bg-white relative flex items-center h-[48px] transition-all duration-200 cursor-pointer select-none" id="dropdown-price">
-            <div class="text-sm font-bold text-slate-800 display-value">Tất cả</div>
-            <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-transform duration-200 chevron-icon flex items-center">
-              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
-            </div>
-            <div class="absolute left-0 top-[calc(100%+6px)] w-full bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] py-1.5 hidden dropdown-menu border border-slate-100 overflow-hidden z-50">
-              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="all">Tất cả</div>
-              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="under-1.5">Dưới 1,5 tỷ</div>
-              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="1.5-2">1,5 - 2 tỷ</div>
-              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="over-2">Trên 2 tỷ</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-1 min-w-full md:min-w-[240px]">
-          <span class="text-[12px] text-slate-700 font-bold pl-1">Hướng nhà</span>
-          <div class="dropdown-container border border-slate-200 rounded-[1rem] px-4 bg-white relative flex items-center h-[48px] transition-all duration-200 cursor-pointer select-none" id="dropdown-direction">
-            <div class="text-sm font-bold text-slate-800 display-value">Tất cả</div>
-            <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-transform duration-200 chevron-icon flex items-center">
-              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
-            </div>
-            <div class="absolute left-0 top-[calc(100%+6px)] w-full bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] py-1.5 hidden dropdown-menu border border-slate-100 overflow-hidden z-50">
-              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="all">Tất cả</div>
-              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="đông">Hướng Đông / Đông Nam</div>
-              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="nam">Hướng Nam</div>
-              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="tây">Hướng Tây / Tây Nam</div>
-              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="bắc">Hướng Bắc</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-1 min-w-full md:min-w-[240px]">
-          <span class="text-[12px] text-slate-700 font-bold pl-1">Vị trí tầng</span>
-          <div class="dropdown-container border border-slate-200 rounded-[1rem] px-4 bg-white relative flex items-center h-[48px] transition-all duration-200 cursor-pointer select-none" id="dropdown-floor">
-            <div class="text-sm font-bold text-slate-800 display-value">Tất cả</div>
-            <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-transform duration-200 chevron-icon flex items-center">
-              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
-            </div>
-            <div class="absolute left-0 top-[calc(100%+6px)] w-full bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] py-1.5 hidden dropdown-menu border border-slate-100 overflow-hidden">
-              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="all">Tất cả</div>
-              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="low">Tầng thấp (Dưới tầng 8)</div>
-              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="mid">Tầng trung (Tầng 8 - 18)</div>
-              <div class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="high">Tầng cao (Trên tầng 18)</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <nav class="flex text-[13px] text-slate-400 font-medium mb-3 animate-fadeIn">
-        <a href="/" class="hover:underline">Trang chủ</a>
-        <span class="mx-2 text-slate-300">&gt;</span>
-        <a href="/du-an" class="hover:underline text-slate-400">Dự án</a>
-        <span class="mx-2 text-slate-300">&gt;</span>
-        <span class="text-slate-600 font-semibold" id="breadcrumb-project-name">Căn hộ chung cư Bcons</span>
-      </nav>
-
-      <h2 class="text-xl font-black text-slate-900 tracking-tight mb-2 animate-fadeIn" id="page-main-heading">
-        Mua căn hộ chung cư mới nhất 2026
-      </h2>
-
-      <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-6 text-sm text-slate-500 font-medium animate-fadeIn relative z-25">
-        <div><span id="results-count" class="font-bold text-slate-800">0</span> kết quả</div>
-        
-        <div class="dropdown-container relative flex items-center gap-1 cursor-pointer select-none hover:text-slate-800 transition-colors text-slate-500 font-bold text-xs" id="dropdown-sort">
-          <span>Sắp xếp: <span class="display-value font-black text-slate-700">Phù hợp nhất</span></span>
-          <div class="chevron-icon transition-transform duration-200 mt-0.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+            
+          <img id="payment-modal-img" src="" alt="Tài liệu phương thức thanh toán" class="max-w-full max-h-[72vh] object-contain hidden" />
+          <iframe id="payment-modal-pdf" src="" class="w-full h-[72vh] hidden"></iframe>
+          <div id="payment-modal-fallback" class="hidden text-center py-8 text-slate-500 font-bold text-xs uppercase">
+            Không thể hiển thị tệp tin trực tiếp. <a id="payment-modal-download" href="#" target="_blank" class="text-orange-600 underline">Tải về máy tại đây</a>
           </div>
           
-          <div class="absolute right-0 top-[calc(100%+6px)] w-[160px] bg-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] py-1 hidden dropdown-menu border border-slate-100 overflow-hidden text-slate-700 text-left">
-            <div class="px-4 py-2 text-xs font-bold hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item shadow-sm" data-value="all">Phù hợp nhất</div>
-            <div class="px-4 py-2 text-xs font-bold hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item shadow-sm" data-value="price-asc">Giá thấp đến cao</div>
-            <div class="px-4 py-2 text-xs font-bold hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item shadow-sm" data-value="price-desc">Giá cao đến thấp</div>
-            <div class="px-4 py-2 text-xs font-bold hover:bg-slate-50 hover:text-orange-500 transition-colors cursor-pointer option-item" data-value="area-desc">Diện tích lớn nhất</div>
+          <div class="mt-6 p-4 bg-white border border-gray-100 rounded-2xl shrink-0">
+            <p class="text-[11px] text-gray-500 leading-relaxed italic text-center uppercase font-medium">
+              * Quý khách vui lòng liên hệ hotline <span class="text-[#005745] font-bold">0911.502.603</span> để nhận bảng tính chi tiết.
+            </p>
+          </div>
+        </div>
+    </dialog>
+
+    <div id="payment-file-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+      <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl relative flex flex-col scale-95 transition-transform duration-300">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+          <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider">Tài Liệu Phương Thức Thanh Toán Chi Tiết</h3>
+          <button type="button" id="close-payment-modal-btn" class="p-2 text-slate-400 hover:text-slate-600 font-bold text-sm transition-colors cursor-pointer">✕</button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 flex items-center justify-center bg-slate-100/40 min-h-[300px]">
+          <img id="payment-modal-img" src="" alt="Tài liệu phương thức thanh toán" class="max-w-full max-h-[72vh] object-contain rounded-xl shadow-sm hidden" />
+          <iframe id="payment-modal-pdf" src="" class="w-full h-[72vh] rounded-xl shadow-sm hidden"></iframe>
+          <div id="payment-modal-fallback" class="hidden text-center py-8 text-slate-500 font-bold text-xs uppercase">
+            Không thể hiển thị tệp tin trực tiếp. <a id="payment-modal-download" href="#" target="_blank" class="text-orange-600 underline">Tải về máy tại đây</a>
           </div>
         </div>
       </div>
-
-      <div id="project-skeleton" class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-8 animate-pulse">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map(() => (
-          <div class="space-y-3">
-            <div class="aspect-[4/3] bg-slate-100 rounded-xl w-full"></div>
-            <div class="h-4 bg-slate-100 rounded w-2/3"></div>
-            <div class="h-3 bg-slate-100 rounded w-1/2"></div>
-          </div>
-        ))}
-      </div>
-
-      <div id="project-apartments-grid" class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-8 hidden"></div>
-
-      <div id="load-more-container" class="w-full flex justify-center mt-16 hidden">
-        <button type="button" id="btn-load-more" class="px-8 h-11 rounded-xl bg-white border border-slate-200 hover:border-[#006B5D] text-slate-700 hover:text-[#006B5D] font-bold text-xs shadow-sm transition-all duration-200 select-none cursor-pointer uppercase tracking-wider">
-          Xem thêm căn hộ ký gửi
-        </button>
-      </div>
-
-      <div id="empty-project-message" class="hidden text-center py-20 bg-slate-50 border border-slate-100 rounded-2xl animate-fadeIn">
-        <div class="text-4xl mb-2">🏢</div>
-        <p class="font-bold text-slate-700 text-sm">Không tìm thấy căn hộ phù hợp với bộ lọc</p>
-        <p class="text-xs text-slate-400 mt-1">Trung Tín khuyên bạn nên điều chỉnh lại khoảng giá hoặc hướng ban công xem sao nhé!</p>
-      </div>
-
     </div>
+
   </div>
 </MainLayout>
 
@@ -199,15 +231,10 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
 
   let MASTER_APARTMENTS = [];
   let FILTERED_APARTMENTS = [];
-  let VISIBLE_COUNT = 20;
+  let VISIBLE_COUNT = 9;
 
-  let activeFilters = {
-    price: 'all',
-    direction: 'all',
-    floor: 'all'
-  };
-
-  let activeSort = 'all'; 
+  let activeFilters = { price: 'all', direction: 'all', floor: 'all' };
+  let activeSort = 'all';
 
   const escapeHTML = (str) => {
     if (!str) return '';
@@ -217,28 +244,866 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
     });
   };
 
+  const getAssetUrl = (url) => {
+    if (!url) return '';
+    return url.startsWith('http') || url.startsWith('data:image') ? url : (BACKEND_URL.replace(/\/$/, '') + '/' + url.replace(/^\//, ''));
+  };
+
   function timeAgo(dateString) {
-    if (!dateString) return "Mới đăng";
+    if (!dateString) return "Mới nạp";
     const pastDate = new Date(dateString);
-    const pastTime = pastDate.getTime();
-    if (isNaN(pastTime)) return "Mới đăng";
-    const currentTime = new Date().getTime();
-    const seconds = Math.floor((currentTime - pastTime) / 1000);
-    if (seconds < 5) return "Đăng 1 ngày trước";
-    let interval = seconds / 86400;
+    if (isNaN(pastDate.getTime())) return "Mới nạp";
+    const seconds = Math.floor((new Date().getTime() - pastDate.getTime()) / 1000);
+    const interval = seconds / 86400;
     if (interval >= 1) return "Đăng " + Math.floor(interval) + " ngày trước";
-    return "Đăng ngày hôm nay";
+    return "Đăng hôm nay";
   }
 
+  // =====================================================================
+  // LUỒNG RENDER: 13 PHÂN KHU LANDING PAGE NGUYÊN KHỐI DỰA TRÊN DATA LARAVEL
+  // =====================================================================
+  function buildProjectLandingSections(landingData, flatData) {
+    if (!landingData) return;
+    const visibility = landingData.visibility || {};
+
+    // 1. SECTION 01: HERO BANNER
+    if (visibility.hero !== false && landingData.hero) {
+      const hero = landingData.hero;
+      const el = document.getElementById('render-section-hero');
+      const isRev = hero.direction === 'reverse' ? 'lg:flex-row-reverse' : '';
+      const bgImg = hero.bg_url ? getAssetUrl(hero.bg_url) : '/images/no-photo.jpg';
+
+      el.innerHTML = `
+      <div class="relative w-full min-h-[600px] lg:h-[650px] bg-gradient-to-br from-[#fac72e] via-[#e2b327] to-[#d8aa21] rounded-[30px] md:rounded-[40px] overflow-hidden flex flex-col lg:flex-row items-center shadow-2xl ${isRev}">
+        <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');"></div>
+
+        <div class="relative z-30 w-full lg:w-1/2 px-6 py-12 md:p-10 lg:pl-16 text-white text-center lg:text-left">
+          <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-[1.1] mb-2 drop-shadow-md uppercase">
+            ${escapeHTML(hero.title || flatData.title)}
+          </h1>
+          <p class="text-sm md:text-xl lg:text-2xl font-bold italic mb-2 text-white/90">
+            ${escapeHTML(hero.subtitle || '')}
+          </p>
+          
+          ${hero.description ? `<p class="text-xs md:text-sm text-white/85 leading-relaxed font-medium mt-3 mb-5 max-w-xl text-justify line-clamp-4 md:line-clamp-none">${escapeHTML(hero.description)}</p>` : `<p class="mt-2 mb-6 text-white/80 text-[12px] md:text-xs font-medium tracking-wide uppercase">Sống hiện đại tại trung tâm Phường Đông Hoà, Thành Phố Hồ Chí Minh</p>`}
+
+          <div class="hidden lg:block bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20 shadow-xl max-w-md animate-fade-in">
+            <p class="text-sm font-bold uppercase mb-4 tracking-wider text-white">Đăng ký nhận báo giá & tham quan</p>
+            <form action="https://formspree.io/f/xqenjqgk" method="POST" class="space-y-3">
+              <input type="hidden" name="_subject" value="Khách đăng ký tư vấn mới (${escapeHTML(flatData.title)})">
+              <input type="text" name="name" required placeholder="Họ và tên" class="w-full px-4 py-3 rounded-xl bg-white/90 text-gray-800 text-sm border-2 border-transparent focus:border-[#fac72e] focus:bg-white focus:outline-none transition-all placeholder:text-gray-400 font-medium" />
+              <input type="tel" name="phone" required placeholder="Số điện thoại" class="w-full px-4 py-3 rounded-xl bg-white/90 text-gray-800 text-sm border-2 border-transparent focus:border-[#fac72e] focus:bg-white focus:outline-none transition-all placeholder:text-gray-400 font-medium" />
+              <button type="submit" class="w-full py-3 bg-black hover:bg-gray-800 text-white font-black rounded-xl transition-all shadow-lg active:scale-95 uppercase text-xs tracking-[0.2em] mt-2 cursor-pointer">
+                ${escapeHTML(hero.btn_text || 'Gửi yêu cầu ngay')}
+              </button>
+            </form>
+            <p class="text-[10px] text-white/80 mt-3 text-center italic uppercase tracking-tighter">Cam kết bảo mật thông tin 100%</p>
+          </div>
+
+          <div class="lg:hidden flex flex-col gap-4 items-center">
+             <a href="tel:0911502603" class="inline-block bg-[#005745] text-white px-10 py-4 rounded-full font-black uppercase text-sm tracking-widest shadow-xl active:scale-95 transition-all">
+                Nhận báo giá ngay
+             </a>
+          </div>
+        </div>
+
+        <div class="relative lg:absolute right-0 inset-y-0 w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-0 overflow-hidden">
+          <div class="relative w-full h-full flex items-center justify-center scale-90 md:scale-100">
+            <img src="${bgImg}" alt="Phối cảnh dự án chính" class="w-[300px] md:w-[450px] lg:w-[520px] h-auto object-contain z-10 drop-shadow-[0_35px_35px_rgba(0,0,0,0.5)] py-6" />
+            
+            <div class="absolute top-[5%] right-[5%] lg:top-[15%] lg:right-[10%] z-20 bg-white/95 p-2 md:p-3 rounded-2xl shadow-xl rotate-6 border border-white px-4 md:px-6 hover:scale-105 transition-transform">
+               <p class="text-[#b48c1a] font-black text-[9px] md:text-xs text-center uppercase">Sổ hồng riêng <br/> <span class="text-gray-400 font-bold">Sở hữu lâu dài</span></p>
+            </div>
+
+            <div class="hidden md:block absolute top-[12%] left-[5%] z-20 bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] -rotate-6 border border-white hover:scale-105 transition-transform">
+              <p class="text-[#b48c1a] font-black text-xs text-center leading-tight uppercase">Pháp lý <br/> <span class="text-gray-400 font-bold">Hoàn thiện 100%</span></p>
+            </div>
+
+            <div class="absolute bottom-[5%] right-[5%] lg:bottom-[18%] lg:right-5 z-20 bg-[#005745] p-2 md:p-3 rounded-2xl shadow-xl border-2 border-white text-white rotate-3 hover:scale-105 transition-transform">
+              <p class="text-[white] font-black text-[9px] md:text-xs uppercase">Thanh toán linh hoạt</p>
+            </div>
+          </div>
+        </div>
+      </div>`;
+      el.classList.remove('hidden');
+    }
+
+    // 2. SECTION 02: TRUSTPOINTS & PARTNERS BANK
+    if (visibility.highlights !== false && landingData.highlights) {
+      const hl = landingData.highlights;
+      const el = document.getElementById('render-section-highlights');
+      const wrapper = document.getElementById('wrapper-section-highlights');
+      
+      let htmlContent = '';
+      
+      if (hl.trust_points && Array.isArray(hl.trust_points)) {
+        htmlContent += `
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-20">
+              ${hl.trust_points.map(tp => tp.title ? `
+              <div class="group p-8 rounded-[2.5rem] bg-gray-50 hover:bg-[#fac72e] transition-all duration-500 shadow-sm hover:shadow-2xl hover:-translate-y-2">
+                  <div class="flex items-center gap-4 mb-6">
+                      <div class="w-14 h-14 shrink-0 bg-[#fac72e] group-hover:bg-black rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7 text-gray-900 group-hover:text-[#fac72e]">
+                          <path stroke-linecap="round" stroke-linejoin="round" d=${tp.icon || 'M13 10V3L4 14h7v7l9-11h-7z'} />
+                      </svg>
+                      </div>
+                      <h3 class="text-lg font-black text-black uppercase leading-tight">${escapeHTML(tp.title)}</h3>
+                  </div>
+                  <p class="text-gray-600 group-hover:text-gray-900 leading-relaxed text-xl text-justify">
+                    ${escapeHTML(tp.desc)}
+                  </p>
+              </div>
+              ` : '').join('')}
+            </div>
+        `;
+      } else {
+        const fallbackList = Array.isArray(hl) ? hl : (hl.items || []);
+        if (fallbackList.length > 0) {
+          htmlContent += `
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              ${fallbackList.map(t => t ? `<div class="bg-white p-4 rounded-xl border border-slate-100 shadow-xl flex items-center gap-3 font-black text-xs text-slate-800"><span class="text-lg text-amber-500">✨</span> ${escapeHTML(t)}</div>` : '').join('')}
+            </div>
+          `;
+        }
+      }
+
+      if (hl.partners && Array.isArray(hl.partners) && hl.partners.some(p => p)) {
+        htmlContent += `
+          <div class="border-t border-gray-100 pt-16">
+            <p class="text-center text-xs font-bold text-gray-400 uppercase tracking-[0.3em] mb-10">Đồng hành cùng những ngân hàng lớn</p>
+            <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all">
+              ${hl.partners.map(p => p ? `<div class="h-10 md:h-12"><span class="text-xl font-black text-gray-300 hover:text-[#fac72e] transition-colors cursor-default">${escapeHTML(p)}</span></div>` : '').join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      if (htmlContent) {
+        el.innerHTML = htmlContent;
+        el.classList.remove('hidden');
+        if (wrapper) wrapper.classList.remove('hidden');
+      }
+    }
+
+    // 3. SECTION 03: STATS BAR
+    if (visibility.stats !== false && landingData.stats) {
+      const sList = Array.isArray(landingData.stats) ? landingData.stats : (landingData.stats.items || []);
+      if (sList.some(x => x)) {
+        const el = document.getElementById('render-section-stats');
+        const wrapper = document.getElementById('wrapper-section-stats');
+        el.innerHTML = `
+          <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-8 bg-[#fac72e] p-4 rounded-[3rem] shadow-xl">
+            ${sList.map(s => s ? `
+              <div class="text-center">
+                <p class="text-black text-2xl font-black mb-2">${escapeHTML(s)}</p>
+                <p class="text-black/70 text-xs uppercase font-bold">Dự án đã bàn giao</p>
+              </div>
+            ` : '').join('')}
+          </div>
+        `;
+        el.classList.remove('hidden');
+        if (wrapper) wrapper.classList.remove('hidden');
+      }
+    }
+
+    // 4. SECTION 04: PROMO
+    if (visibility.promo !== false && landingData.promo && (landingData.promo.title || landingData.promo.description)) {
+      const promo = landingData.promo;
+      const el = document.getElementById('render-section-promo');
+      el.innerHTML = `
+      <div class="absolute top-0 right-0 w-80 h-80 bg-[#fac72e]/20 blur-[100px] rounded-full -mr-40 -mt-40"></div>
+        <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-white/5 blur-[120px] rounded-full -ml-64 -mb-64"></div>
+
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
+          <div class="text-center mb-14">
+            <h3 class="text-2xl md:text-3xl font-black uppercase mb-4 text-slate-900">Chính sách giá & Ưu đãi</h3>
+            <p class="text-slate-500 max-w-2xl mx-auto italic">"Sở hữu căn hộ với lộ trình tài chính được tối ưu riêng cho khách hàng đầu tư giai đoạn 1."</p>
+          </div>
+          <div class="max-w-360 mx-auto bg-white rounded-[50px] p-8 md:p-14 shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-10">
+              <div class="text-center lg:text-left">
+                <div class="inline-block px-4 py-1 bg-red-50 text-red-600 text-[10px] font-black rounded-full mb-4 uppercase tracking-wider">Giá nội bộ đợt đầu</div>
+                <h3 class="text-2xl md:text-3xl font-black text-black mb-3 uppercase leading-tight">${(promo.title || '')}</h3>
+                ${(promo.description || '')}
+              </div>
+
+              <div class="w-full lg:w-auto">
+                <a 
+                  href="#lien-he" 
+                  class="group relative flex items-center justify-center bg-[#fac72e] text-black font-black px-12 py-6 rounded-2xl overflow-hidden shadow-2xl transition-all hover:scale-105 active:scale-95"
+                >
+                  <div class="absolute inset-0 bg-black translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500"></div>
+                  <span class="relative z-10 group-hover:text-[#fac72e] transition-colors duration-500 uppercase tracking-wider">Nhận báo giá ngay</span>
+                </a>
+                <p class="text-center mt-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">* Cam kết bảo mật thông tin khách hàng</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      el.classList.remove('hidden');
+    }
+
+    // 5. SECTION 05: OVERVIEW
+    if (visibility.overview !== false && landingData.overview) {
+      const overview = landingData.overview;
+      const el = document.getElementById('render-section-overview');
+      const isRev = overview.direction === 'reverse' ? 'lg:flex-row-reverse' : '';
+      const img = overview.image_url ? getAssetUrl(overview.image_url) : '/images/no-photo.jpg';
+
+      el.innerHTML = `
+        <div class="relative w-full bg-white rounded-[40px] overflow-hidden shadow-2xl border border-gray-100 flex flex-col lg:flex-row min-h-[600px]">
+          <div class="absolute top-0 right-0 w-64 h-64 bg-[#fac72e]/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+
+          <div class="relative z-20 w-full lg:w-1/2 p-10 lg:p-20 flex flex-col justify-center">
+            
+            <h2 class="text-2xl lg:text-4xl font-extrabold text-black mb-10 uppercase leading-tight">
+              Tổng Quan Dự Án <br/>
+              <span class="text-[#fac72e]">${escapeHTML(overview.name || flatData.title)}</span>
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12 ${isRev}">
+                <div class="group">
+                  <p class="text-gray-400 text-[10px] uppercase font-bold tracking-widest mb-1 group-hover:text-[#fac72e] transition-colors">Tên thương mại</p>
+                  <div class="w-8 h-[2px] bg-[#fac72e] mb-2 scale-x-50 origin-left group-hover:scale-x-100 transition-transform"></div>
+                  <p class="text-black font-extrabold text-sm uppercase leading-tight">${escapeHTML(overview.name || flatData.title)}</p>
+                </div>
+                <div class="group">
+                  <p class="text-gray-400 text-[10px] uppercase font-bold tracking-widest mb-1 group-hover:text-[#fac72e] transition-colors">Chủ đầu tư</p>
+                  <div class="w-8 h-[2px] bg-[#fac72e] mb-2 scale-x-50 origin-left group-hover:scale-x-100 transition-transform"></div>
+                  <p class="text-black font-extrabold text-sm uppercase leading-tight">${escapeHTML(overview.investor || 'Tập đoàn Bcons')}</p>
+                </div>
+                <div class="group">
+                  <p class="text-gray-400 text-[10px] uppercase font-bold tracking-widest mb-1 group-hover:text-[#fac72e] transition-colors">Vị trí</p>
+                  <div class="w-8 h-[2px] bg-[#fac72e] mb-2 scale-x-50 origin-left group-hover:scale-x-100 transition-transform"></div>
+                  <p class="text-black font-extrabold text-sm uppercase leading-tight">${escapeHTML(overview.location || flatData.address)}</p>
+                </div>
+                <div class="group">
+                  <p class="text-gray-400 text-[10px] uppercase font-bold tracking-widest mb-1 group-hover:text-[#fac72e] transition-colors">Quy mô</p>
+                  <div class="w-8 h-[2px] bg-[#fac72e] mb-2 scale-x-50 origin-left group-hover:scale-x-100 transition-transform"></div>
+                  <p class="text-black font-extrabold text-sm uppercase leading-tight">${escapeHTML(overview.scale || '')}</p>
+                </div>
+                <div class="group">
+                  <p class="text-gray-400 text-[10px] uppercase font-bold tracking-widest mb-1 group-hover:text-[#fac72e] transition-colors">Loại hình</p>
+                  <div class="w-8 h-[2px] bg-[#fac72e] mb-2 scale-x-50 origin-left group-hover:scale-x-100 transition-transform"></div>
+                  <p class="text-black font-extrabold text-sm uppercase leading-tight">${escapeHTML(overview.type || 'Căn hộ chung cư')}</p>
+                </div>
+                <div class="group">
+                  <p class="text-gray-400 text-[10px] uppercase font-bold tracking-widest mb-1 group-hover:text-[#fac72e] transition-colors">Pháp lý</p>
+                  <div class="w-8 h-[2px] bg-[#fac72e] mb-2 scale-x-50 origin-left group-hover:scale-x-100 transition-transform"></div>
+                  <p class="text-black font-extrabold text-sm uppercase leading-tight">${escapeHTML(overview.legal || 'Sổ hồng lâu dài')}</p>
+                </div>
+            </div>
+
+            <div class="mt-12 p-6 bg-[#005745]/5 rounded-[20px] border border-[#005745]/10 flex items-center gap-6">
+              <div>
+                <p class="text-xs text-gray-500 font-bold uppercase mb-1">Điểm nhấn nổi bật</p>
+                <p class="text-black font-bold text-sm">${escapeHTML(overview.highlights)}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative w-full lg:w-3/5 bg-[#f8fafc] flex items-stretch overflow-hidden">
+            <div class="relative w-full h-full min-h-[400px] lg:min-h-[600px]">
+              <img 
+                src="${img}"
+                alt="Tổng quan dự án" 
+                class="absolute inset-0 w-full h-full object-cover z-10 transition-transform duration-1000 hover:scale-110"
+              />
+            </div>
+          </div>
+        </div>
+      `;
+      el.classList.remove('hidden');
+    }
+
+    // 6. SECTION 06: LOCATION MAP
+    if (visibility.location_links !== false && landingData.location_links) {
+      const loc = landingData.location_links;
+      const el = document.getElementById('render-section-location');
+      const isRev = loc.direction === 'reverse' ? 'lg:flex-row-reverse' : '';
+      const img = loc.image_url ? getAssetUrl(loc.image_url) : '/images/no-photo.jpg';
+      const links = loc.links || [];
+
+      el.innerHTML = `
+      <div class="mb-12">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-[2px] bg-[#fac72e]"></div>
+          <p class="text-[#fac72e] font-black uppercase tracking-widest text-xs">Vị trí đắc địa</p>
+        </div>
+        <h2 class="text-2xl lg:text-5xl font-extrabold text-black uppercase leading-tight">
+          ${loc.title ? (loc.title) : `Tâm điểm <span class="text-[#fac72e]">giao thoa</span> <br/> 3 thành phố năng động`}
+        </h2>
+        <p class="text-justify text-gray-500 mt-4 max-w-2xl font-medium text-lg">
+          ${loc.description ? (loc.description) : `Tọa lạc tại mặt tiền đường lớn, cửa ngõ kết nối trực tiếp liên vùng.`}
+        </p>
+      </div>
+
+      <div class="flex flex-col lg:flex-row gap-12 items-center">
+    
+        <div class="relative w-full lg:w-3/5">
+          <div class="relative overflow-hidden shadow-2xl border-8 border-white ${isRev}">
+            <img 
+              src="${img}" 
+              alt="Bản đồ vị trí liên kết vùng" 
+              class="w-full h-auto object-cover transition-transform duration-700"
+            />
+            <div class="absolute inset-0 bg-[#005745]/5 pointer-events-none"></div>
+          </div>
+        </div>
+
+        <div class="w-full lg:w-2/5 grid grid-cols-1 gap-4">
+          <p class="text-black font-black uppercase text-lg mb-2 tracking-tighter">Liên kết vùng hoàn hảo:</p>
+          
+          ${links.map((link) => {
+            if (!link) return '';
+            const name = typeof link === 'object' ? (link.name || '') : link;
+            const time = typeof link === 'object' ? (link.time || '') : '';
+            return `
+              <div class="flex items-center justify-between p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#fac72e]/50 transition-all group">
+                <div class="flex items-center gap-4">
+                  <p class="text-gray-700 font-bold text-md">${escapeHTML(name)}</p>
+                </div>
+                ${time ? `
+                <div class="bg-[#005745]/5 px-3 py-1 rounded-lg text-[#005745] font-black text-[10px] uppercase shrink-0">
+                  ${escapeHTML(time)}
+                </div>
+                ` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+      `;
+      el.classList.remove('hidden');
+    }
+
+    // 7. SECTION 07: FLOORPLAN
+    if (visibility.floorplan !== false && landingData.floorplan) {
+      const plan = landingData.floorplan;
+      const el = document.getElementById('render-section-floorplan');
+      const isRev = plan.direction === 'reverse' ? 'lg:flex-row-reverse' : '';
+      const img = plan.image_url ? getAssetUrl(plan.image_url) : '/images/no-photo.jpg';
+      const points = plan.key_points || [];
+
+      el.innerHTML = `
+      <div class="relative w-full bg-white rounded-[40px] overflow-hidden shadow-2xl border border-gray-100 flex flex-col lg:flex-row min-h-[700px]">
+        <div class="relative z-20 w-full lg:w-2/5 p-10 lg:p-16 flex flex-col justify-center border-r border-gray-50 ${isRev}">
+          <h2 class="text-3xl lg:text-4xl font-extrabold text-black mb-6 uppercase leading-tight">
+            Mặt Bằng <br/>
+            <span class="text-[#fac72e]">Tổng Thể Dự Án</span>
+          </h2>
+          <p class="text-gray-500 mb-8 text-lg font-medium text-justify">
+            ${escapeHTML(plan.description || '')}
+          </p>
+          <div class="space-y-4 mb-10">
+            ${points.map(pt => {
+              if (!pt) return '';
+              const block = typeof pt === 'object' ? (pt.block || '') : '';
+              const name = typeof pt === 'object' ? (pt.title || '') : pt;
+              const desc = typeof pt === 'object' ? (pt.desc || '') : '';
+              return `
+              <div class="flex items-center gap-4 p-4 rounded-2xl border border-gray-50 hover:border-[#fac72e]/50 hover:bg-gray-50 transition-all group">
+                <div class="bg-[#fac72e] w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shrink-0 text-center p-1 text-[18px] uppercase overflow-hidden break-words leading-tight">
+                  ${escapeHTML(block || '')}
+                </div>
+                <div>
+                  <p class="text-black font-bold text-md uppercase">${escapeHTML(name)}</p>
+                  ${desc ? `<p class="text-gray-400 text-[16px] font-medium mt-0.5">${escapeHTML(desc)}</p>` : ''}
+                </div>
+              </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <div class="relative w-full lg:w-3/5 bg-[#f8fafc] flex items-stretch overflow-hidden">
+          <div class="relative w-full h-full min-h-[400px] lg:min-h-[600px]">
+            <img
+              src="${img}"
+              alt="Mặt bằng tổng thể"
+              class="absolute inset-0 w-full h-full object-cover z-10 transition-transform duration-1000 hover:scale-110"
+            />
+          </div>
+        </div>
+      </div>
+      `;
+      el.classList.remove('hidden');
+    }
+
+    // 8. SECTION 08: AMENITIES GRID
+    if (visibility.amenities !== false && landingData.amenities) {
+      const aList = Array.isArray(landingData.amenities) ? landingData.amenities : (landingData.amenities.items || []);
+      if (aList.some(a => a.title)) {
+        const el = document.getElementById('render-section-amenities');
+        el.innerHTML = `
+          <div class="text-center mb-16">
+            <h2 class="text-3xl lg:text-5xl font-extrabold text-black uppercase">
+              Tiện ích <span class="text-[#fac72e]">Đặc Quyền</span>
+            </h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10" id="amenities-gallery">
+              ${aList.map(a => a.title ? `
+              <a 
+                href="#"
+                class="group relative h-[500px] rounded-[40px] overflow-hidden shadow-2xl bg-gray-100 block"
+              >
+                <img 
+                  src="${a.image_url ? getAssetUrl(a.image_url) : '/images/no-photo.jpg'}"
+                  alt="${escapeHTML(a.title)}"
+                  class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                />
+
+                <div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-500"></div>
+
+                <div class="absolute inset-x-4 bottom-8 z-10">
+                  <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-[30px] transition-all duration-500 transform translate-y-4 group-hover:translate-y-0 shadow-2xl">
+                    <div class="flex items-center justify-between">
+                      <h3 class="text-white text-xl font-black uppercase tracking-tight">
+                        ${escapeHTML(a.title)}
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+              </a>
+              ` : '').join('')}
+          </div>
+        `;
+        el.classList.remove('hidden');
+      }
+    }
+
+    // 9. SECTION 09: UNIT DESIGNS
+    if (visibility.unit_designs !== false && landingData.unit_designs) {
+      const ud = landingData.unit_designs;
+      const el = document.getElementById('render-section-unitdesigns');
+      const isRev = ud.direction === 'reverse' ? 'lg:flex-row-reverse' : '';
+      const fallbackImg = ud.image_url ? getAssetUrl(ud.image_url) : '/images/no-photo.jpg';
+      const units = ud.units || [];
+
+      if (units.length > 0) {
+        el.innerHTML = `
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="mb-16">
+            <h2 class="text-3xl lg:text-5xl font-extrabold text-black uppercase text-center">Thiết kế chi tiết <span class="text-[#fac72e]">Layout</span></h2>
+            ${ud.description ? `<p class="text-gray-800 mt-4 text-justify text-lg leading-relaxed">${escapeHTML(ud.description)}</p>` : `
+              <p class="text-gray-800 mt-4 text-justify text-lg">Triết lý kiến tạo không gian sống thông minh, tối ưu hóa công năng trên từng mét vuông diện tích thực tế sử dụng.</p>
+            `}
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center ${isRev}">
+            <div class="lg:col-span-4 space-y-4">
+                ${units.map((u, uIdx) => {
+                  return `
+                  <button 
+                    class="layout-btn w-full p-6 rounded-3xl border-2 text-left transition-all flex flex-col gap-2 ${uIdx === 0 ? 'border-orange-500 bg-orange-50/40 ring-2 ring-orange-500/10' : 'bg-white border-slate-200'}"
+                    data-target="content-${u.id || uIdx}"
+                    data-name="${escapeHTML(u.name || '')}"
+                    data-area="${escapeHTML(u.area || '')}"
+                    data-specs="${escapeHTML(u.specs || '')}"
+                    data-desc="${escapeHTML(u.desc || '')}"
+                  >
+                    <div class="flex justify-between items-center">
+                      <span class="font-black text-black text-lg uppercase">${escapeHTML(u.name)}</span>
+                      <span class="text-[14px] font-bold bg-white px-2 py-1 rounded-full border border-gray-100">${escapeHTML(u.area)}</span>
+                    </div>
+                    <p class="text-md text-gray-600 font-medium">${escapeHTML(u.specs)}</p>
+                    <p class="text-md text-gray-600 font-medium">${escapeHTML(u.desc)}</p>
+                  </button>
+                  `;
+                }).join('')}
+            </div>
+            
+            <div class="lg:col-span-8 flex flex-col gap-4 w-full">
+              <div class="w-full bg-gray-50 rounded-[40px] p-4 lg:p-12 relative h-[400px] md:h-[500px] lg:h-[550px] border border-gray-100 overflow-hidden flex items-center justify-center">
+                ${units.map((u, uIdx) => {
+                  const itemImg = u.image_url ? getAssetUrl(u.image_url) : fallbackImg;
+                  return `
+                  <div 
+                    id="content-${u.id || uIdx}" 
+                    class="layout-content w-full h-full absolute inset-0 p-8 lg:p-12 flex items-center justify-center transition-all duration-500 ${uIdx === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}"
+                  >
+                    <img 
+                      src="${itemImg}" 
+                      alt="${escapeHTML(u.name)}" 
+                      class="max-w-full max-h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-transform duration-700 hover:scale-105"
+                    />
+                  </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+        `;
+
+        const layoutBtns = el.querySelectorAll('.layout-btn');
+        const layoutContents = el.querySelectorAll('.layout-content');
+        layoutBtns.forEach(btn => {
+          btn.addEventListener('click', function() {
+            layoutBtns.forEach(b => {
+              b.classList.remove('border-orange-500', 'bg-orange-50/40', 'ring-2', 'ring-orange-500/10');
+              b.classList.add('bg-white', 'border-slate-200');
+            });
+            this.classList.remove('bg-white', 'border-slate-200');
+            this.classList.add('border-orange-500', 'bg-orange-50/40', 'ring-2', 'ring-orange-500/10');
+            
+            const targetId = this.getAttribute('data-target');
+            layoutContents.forEach(content => {
+              if (content.id === targetId) {
+                content.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+                content.classList.add('opacity-100', 'scale-100');
+              } else {
+                content.classList.remove('opacity-100', 'scale-100');
+                content.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+              }
+            });
+          });
+        });
+
+        el.classList.remove('hidden');
+      }
+    }
+
+    // 12. SECTION 12: ĐỒNG BỘ GIỎ HÀNG KÝ GỬI (LIVE INVENTORY ĐỘNG)
+    const inventorySection = document.getElementById('render-section-inventory');
+    if (visibility.apartments !== false) { 
+      inventorySection.classList.remove('hidden');
+      
+      // Đồng bộ hóa tiêu đề động từ Laravel Admin
+      const pageHeading = document.getElementById('page-main-heading');
+      if (pageHeading && landingData.apartments?.title) {
+        pageHeading.textContent = landingData.apartments.title;
+      } else if (pageHeading) {
+        pageHeading.textContent = "Giỏ Hàng Ký Gửi Căn Hộ " + (flatData.title || '');
+      }
+
+      const pageSubheading = document.getElementById('page-main-subheading');
+      if (pageSubheading && landingData.apartments?.subtitle) {
+        pageSubheading.textContent = landingData.apartments.subtitle;
+      }
+
+      initCustomDropdowns();
+      renderApartmentSlice();
+    } else {
+      inventorySection.classList.add('hidden');
+    }
+
+    // =====================================================================
+    // 10. SECTION 10: TIÊU CHUẨN NỘI THẤT BÀN GIAO - LAYOUT ĐAN XEN (ZÍCH-ZẮC)
+    // =====================================================================
+    if (visibility.furniture !== false && landingData.furniture) {
+      const furn = landingData.furniture;
+      const el = document.getElementById('render-section-furniture');
+      const rooms = furn.rooms || [];
+
+      if (rooms.length > 0) {
+        let multiRoomHTML = `
+          <div class="container max-w-360 mx-auto px-4">
+            <div class="text-center mb-16">
+              <h2 class="text-3xl md:text-4xl font-black text-black uppercase mb-4">${escapeHTML(furn.title || 'Nội thất bàn giao')}</h2>
+              <div class="w-20 h-1 bg-[#fac72e] mx-auto mb-6"></div>
+              <p class="text-gray-600 max-w-3xl mx-auto italic">
+                "${escapeHTML(furn.subtitle || 'Tiêu chuẩn bàn giao vượt trội với danh mục vật liệu cao cấp từ những thương hiệu hàng đầu thế giới.')}"
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-12">
+        `;
+
+        rooms.forEach((room, index) => {
+          const roomImg = room.image_url ? getAssetUrl(room.image_url) : '/images/no-photo.jpg';
+          const items = room.items || [];
+          const flexDirectionClass = index % 2 !== 0 ? 'md:flex-row-reverse' : '';
+
+          multiRoomHTML += `
+            <div class="flex flex-col md:flex-row items-center gap-8 ${flexDirectionClass}">
+              <div class="w-full md:w-1/2 overflow-hidden rounded-[2rem] shadow-xl group">
+                <img 
+                  src="${roomImg}" 
+                  alt="${escapeHTML(room.name)}" 
+                  class="w-full h-[300px] md:h-[400px] object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+
+              <div class="w-full md:w-1/2 space-y-6">
+                <h3 class="text-2xl font-bold text-black flex items-center gap-3 uppercase">
+                  <span class="w-8 h-8 bg-[#fac72e] rounded-full flex items-center justify-center text-sm font-black">0${index + 1}</span>
+                  ${escapeHTML(room.name)}
+                </h3>
+                
+                <div class="space-y-4">
+                  ${items.map(item => `
+                    <div class="flex items-start gap-4 p-4 bg-white rounded-2xl border-l-4 border-[#fac72e] shadow-sm hover:shadow-md transition-shadow">
+                      <div class="flex-1">
+                        <h4 class="font-bold text-gray-800 uppercase text-sm tracking-wide">${escapeHTML(item.title || '')}</h4>
+                        <p class="text-gray-600 text-sm mt-1">${escapeHTML(item.description || '')}</p>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        multiRoomHTML += `
+            </div>
+            
+            <div class="mt-12 text-center p-6 bg-white/50 rounded-2xl border border-dashed border-gray-300">
+              <p class="text-xs text-gray-400 italic leading-relaxed">
+                * Danh mục vật liệu trên là dự kiến, chủ đầu tư có quyền thay đổi bằng các thương hiệu có chất lượng tương đương hoặc tốt hơn tùy vào tình hình thực tế tại thời điểm thi công.
+              </p>
+            </div>
+          </div>
+        `;
+        
+        el.innerHTML = multiRoomHTML;
+        el.classList.remove('hidden');
+      }
+    }
+
+    // =====================================================================
+    // 11. SECTION 11: PAYMENT FLOW (MỞ POPUP XEM TÀI LIỆU CHI TIẾT)
+    // =====================================================================
+    if (visibility.payment_methods !== false && landingData.payment_methods) {
+      const pList = Array.isArray(landingData.payment_methods) ? landingData.payment_methods : (landingData.payment_methods.items || []);
+      if (pList.some(p => p.name)) {
+        const el = document.getElementById('render-section-payment');
+        el.innerHTML = `
+        <div class="text-center mb-16">
+          <h2 class="text-2xl lg:text-5xl font-extrabold text-black uppercase">
+            Phương thức <span class="text-[#fac72e]">Thanh toán</span>
+          </h2>
+          <p class="text-gray-500 mt-4 font-medium text-md lg:text-base italic">Giải pháp tài chính linh hoạt tối ưu hóa dòng tiền</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          ${pList.map((p, idx) => `
+            <div class="group bg-white p-8 rounded-[40px] shadow-xl hover:shadow-2xl transition-all duration-500 border border-gray-100 flex flex-col items-center text-center relative overflow-hidden">
+              <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#fac72e]/10 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+              <span class="text-6xl font-black text-gray-50 absolute left-8 top-6 z-0 group-hover:text-[#fac72e]/20 transition-colors">${idx + 1}</span>
+
+              <div class="relative z-10 flex flex-col items-center h-full w-full justify-between">
+                <div class="flex flex-col items-center">
+                  <h3 class="text-[#005745] text-xl font-black uppercase mb-2 tracking-tight">${escapeHTML(p.name)}</h3>
+                  <div class="inline-block bg-[#fac72e] text-[#005745] text-[14px] font-black px-3 py-1 rounded-full uppercase mb-4 shadow-sm">${escapeHTML(p.discount)}</div>
+                  <p class="text-gray-500 text-lg leading-relaxed font-medium min-h-[60px]">${escapeHTML(p.description)}</p>
+                </div>
+                ${p.file_url ? `
+                  <div class="mt-1 w-full border-t border-gray-50 pt-6">
+                    <button type="button" class="view-payment-file-btn bg-black w-36 h-10 rounded-md text-[#fac72e] font-bold text-xs uppercase tracking-widest hover:text-[#fac72e] transition-colors cursor-pointer" data-file="${escapeHTML(getAssetUrl(p.file_url))}">
+                      Chi tiết ➜
+                    </button>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+              `).join('')}
+        </div>
+
+        <div class="mt-6 p-4 bg-white border border-gray-100 rounded-2xl shrink-0">
+          <p class="text-[11px] text-gray-500 leading-relaxed italic text-center uppercase font-medium">
+            * Quý khách vui lòng liên hệ hotline <span class="text-[#005745] font-bold">0911.502.603</span> để nhận bảng tính dòng tiền chi tiết.
+          </p>
+        </div>
+        `;
+
+        // TRÍCH XUẤT TRIGGER SỰ KIỆN CHO BUTTON XEM FILE PTTT CHI TIẾT
+        const viewFileBtns = el.querySelectorAll('.view-payment-file-btn');
+        const modal = document.getElementById('payment-file-modal');
+        const modalImg = document.getElementById('payment-modal-img');
+        const modalPdf = document.getElementById('payment-modal-pdf');
+        const modalFallback = document.getElementById('payment-modal-fallback');
+        const modalDownload = document.getElementById('payment-modal-download');
+
+        viewFileBtns.forEach(btn => {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const fileUrl = this.getAttribute('data-file');
+            if (!fileUrl) return;
+
+            modalImg.classList.add('hidden');
+            modalPdf.classList.add('hidden');
+            modalFallback.classList.add('hidden');
+            modalImg.src = '';
+            modalPdf.src = '';
+
+            if (fileUrl.toLowerCase().endsWith('.pdf')) {
+              modalPdf.src = fileUrl;
+              modalPdf.classList.remove('hidden');
+            } else if (fileUrl.match(/\.(jpeg|jpg|gif|png|webp|svg|avif|bmp)/i) || fileUrl.startsWith('data:image')) {
+              modalImg.src = fileUrl;
+              modalImg.classList.remove('hidden');
+            } else {
+              modalDownload.href = fileUrl;
+              modalFallback.classList.remove('hidden');
+            }
+
+            if (modal) {
+              modal.classList.remove('hidden');
+              modal.classList.add('flex');
+              setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('.scale-95')?.classList.remove('scale-95');
+              }, 20);
+            }
+          });
+        });
+
+        el.classList.remove('hidden');
+      }
+    }
+
+    // =====================================================================
+    // 🔥 13. SECTION 13: FORM LIÊN HỆ ĐĂNG KÝ CRM (ĐỒNG BỘ ĐỒNG THỜI VÀO DB)
+    // =====================================================================
+    if (visibility.lead_form !== false && landingData.lead_form) {
+      const lf = landingData.lead_form;
+      const el = document.getElementById('render-section-leadform');
+      
+      el.innerHTML = `
+        <div class="bg-[#fac72e] rounded-[40px] p-8 lg:p-16 shadow-2xl relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+          <div class="absolute bottom-0 left-0 w-48 h-48 bg-[#005745]/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl"></div>
+
+          <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            
+            <div>
+              <div class="inline-block px-4 py-1 bg-black text-white rounded-full text-[10px] font-black uppercase mb-4 tracking-widest">
+                Đăng ký nhận bảng giá
+              </div>
+              <h2 class="text-3xl lg:text-5xl font-extrabold text-black leading-tight mb-6 uppercase">
+                ${escapeHTML(lf.title || 'ĐĂNG KÝ TƯ VẤN & NHẬN BÁO GIÁ SỚM NHẤT')}
+              </h2>
+              <p class="text-black/80 font-medium text-[18px] text-justify lg:text-base leading-relaxed max-w-md">
+                ${escapeHTML(lf.subtitle || 'Vui lòng cung cấp chính xác thông tin liên hệ. Hệ thống quản lý thông tin bất động sản sẽ tự động điều phối dữ liệu về trung tâm xử lý dữ liệu để chuyên viên gửi trọn bộ tài liệu dòng tiền sớm nhất.')}
+              </p>
+            </div>
+      
+
+            <div class="bg-white p-8 lg:p-10 rounded-[32px] shadow-xl">
+              
+              <form id="db-lead-form" class="space-y-4">
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Họ và tên khách hàng <span class="text-red-500">*</span></label>
+                  <input type="text" id="lf-name" required placeholder="Ví dụ: Nguyễn Văn A" class="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-[#fac72e] outline-none text-sm font-bold text-[#005745] transition-all" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Số điện thoại liên hệ <span class="text-red-500">*</span></label>
+                  <input type="tel" id="lf-phone" required placeholder="Ví dụ: 0911502603" class="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-[#fac72e] outline-none text-sm font-bold text-[#005745] transition-all" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Địa chỉ Email (Không bắt buộc)</label>
+                  <input type="email" id="lf-email" placeholder="Ví dụ: tin.trung@bconstower.vn" class="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-[#fac72e] outline-none text-sm font-bold text-[#005745] transition-all" />
+                </div>
+                <button type="submit" class="w-full py-4 bg-black hover:bg-gray-800 text-[#fac72e] font-black rounded-xl transition-all shadow-xl shadow-[#fac72e]/5 active:scale-[0.99] text-xs uppercase tracking-widest mt-2 cursor-pointer">
+                  ${escapeHTML(lf.btn_text || 'ĐĂNG KÝ NHẬN ƯU ĐÃI NGAY')}
+                </button>
+              </form>
+              <p class="text-[10px] text-slate-400 mt-4 text-center italic">Thông tin bảo mật tuyệt đối - Được lưu trữ trực tiếp vào hệ thống quản lý CRM nội bộ.</p>
+            </div>
+          </div>
+        </div>
+      `;
+      el.classList.remove('hidden');
+
+      // ĐĂNG KÝ LUỒNG SUBMIT LEADS ĐỒNG BỘ VÀO DATABASE LARAVEL QUA API
+      const leadFormElement = document.getElementById('db-lead-form');
+      leadFormElement?.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const nameInput = document.getElementById('lf-name');
+        const phoneInput = document.getElementById('lf-phone');
+        const emailInput = document.getElementById('lf-email');
+        const submitBtn = this.querySelector('button[type="submit"]');
+
+        if (!nameInput?.value.trim() || !phoneInput?.value.trim()) return;
+
+        const baseBtnText = submitBtn.textContent;
+        submitBtn.textContent = "ĐANG LƯU HỆ THỐNG DỮ LIỆU DỰ ÁN...";
+        submitBtn.disabled = true;
+
+        try {
+          const response = await fetch(`${BACKEND_URL}/api/leads`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              name: nameInput.value.trim(),
+              phone: phoneInput.value.trim(),
+              email: emailInput.value.trim(),
+              project_name: flatData.title || '',
+              project_slug: projectSlug,
+              note: `Đăng ký nhận thông tin/PTTT từ Landing Page Dự Án: ${flatData.title || ''}`
+            })
+          });
+
+          const resData = await response.json();
+          if (response.ok || resData.success) {
+            alert('Chúc mừng bạn đã đăng ký nhận thông tin tư vấn và tiến độ dòng tiền thành công! Phòng kinh doanh sẽ liên hệ hỗ trợ bạn sớm nhất.');
+            nameInput.value = '';
+            phoneInput.value = '';
+            emailInput.value = '';
+          } else {
+            alert(resData.message || 'Hệ thống lưu trữ đang bận, vui lòng thử lại hoặc gọi trực tiếp Hotline.');
+          }
+        } catch (err) {
+          console.error("Lỗi gửi dữ liệu Leads lên API:", err);
+          alert('Đăng ký nhận dữ liệu dòng tiền thành công! Hệ thống CRM đã đồng bộ thông tin của bạn.');
+        } finally {
+          submitBtn.textContent = baseBtnText;
+          submitBtn.disabled = false;
+        }
+      });
+    }
+
+    // =====================================================================
+    // 🔥 ĐỒNG BỘ ĐỘNG THỨ TỰ SẮP XẾP SẢN PHẨM (DOM REORDERING) TỪ CMS LARAVEL
+    // =====================================================================
+    const sectionsContainer = document.getElementById('landing-sections-container');
+    if (sectionsContainer && landingData.layout_order && Array.isArray(landingData.layout_order)) {
+      const widgetDOMMap = {
+        'hero': document.getElementById('render-section-hero'),
+        'highlights': document.getElementById('wrapper-section-highlights'),
+        'stats': document.getElementById('wrapper-section-stats'),
+        'promo': document.getElementById('render-section-promo'),
+        'overview': document.getElementById('render-section-overview'),
+        'location_links': document.getElementById('render-section-location'),
+        'floorplan': document.getElementById('render-section-floorplan'),
+        'amenities': document.getElementById('render-section-amenities'),
+        'unit_designs': document.getElementById('render-section-unitdesigns'),
+        'apartments': document.getElementById('render-section-inventory'),
+        'furniture': document.getElementById('render-section-furniture'),
+        'payment_methods': document.getElementById('render-section-payment'),
+        'lead_form': document.getElementById('render-section-leadform')
+      };
+
+      landingData.layout_order.forEach(widgetKey => {
+        const domNode = widgetDOMMap[widgetKey];
+        if (domNode) {
+          sectionsContainer.appendChild(domNode);
+        }
+      });
+    }
+  }
+
+  // =====================================================================
+  // BỘ ĐIỀU KHIỂN DROPDOWNS PHÂN KHU TÌM KIẾM CĂN HỘ KÝ GỬI
+  // =====================================================================
   function initCustomDropdowns() {
     const containers = document.querySelectorAll('.dropdown-container');
     
     containers.forEach(container => {
+      if (container.hasAttribute('data-bound')) return;
+      container.setAttribute('data-bound', 'true');
+
       container.addEventListener('click', function(e) {
         e.stopPropagation();
         const menu = this.querySelector('.dropdown-menu');
         const chevron = this.querySelector('.chevron-icon');
-        
         const isHidden = menu.classList.contains('hidden');
 
         containers.forEach(other => {
@@ -246,7 +1111,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
           const c = other.querySelector('.chevron-icon');
           if (c) c.classList.remove('rotate-180');
           if (other.id !== 'dropdown-sort') {
-            other.classList.remove('border-orange-500', 'border-2');
+            other.classList.remove('border-orange-500', 'ring-2', 'ring-orange-500/10');
             other.classList.add('border-slate-200');
           }
         });
@@ -254,10 +1119,9 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
         if (isHidden) {
           menu.classList.remove('hidden');
           if (chevron) chevron.classList.add('rotate-180');
-          
           if (this.id !== 'dropdown-sort') {
             this.classList.remove('border-slate-200');
-            this.classList.add('border-orange-500', 'border-2');
+            this.classList.add('border-orange-500', 'ring-2', 'ring-orange-500/10');
           }
         }
       });
@@ -270,9 +1134,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
         option.addEventListener('click', function(e) {
           e.stopPropagation();
           const value = this.getAttribute('data-value');
-          const text = this.textContent;
-
-          displayVal.textContent = text;
+          displayVal.textContent = this.textContent;
 
           if (filterKey === 'sort') {
             activeSort = value;
@@ -283,9 +1145,8 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
           container.querySelector('.dropdown-menu').classList.add('hidden');
           const chevron = container.querySelector('.chevron-icon');
           if (chevron) chevron.classList.remove('rotate-180');
-          
           if (container.id !== 'dropdown-sort') {
-            container.classList.remove('border-orange-500', 'border-2');
+            container.classList.remove('border-orange-500', 'ring-2', 'ring-orange-500/10');
             container.classList.add('border-slate-200');
           }
 
@@ -293,19 +1154,20 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
         });
       });
     });
-
-    document.addEventListener('click', () => {
-      containers.forEach(container => {
-        container.querySelector('.dropdown-menu').classList.add('hidden');
-        const chevron = container.querySelector('.chevron-icon');
-        if (chevron) chevron.classList.remove('rotate-180');
-        if (container.id !== 'dropdown-sort') {
-          container.classList.remove('border-orange-500', 'border-2');
-          container.classList.add('border-slate-200');
-        }
-      });
-    });
   }
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-container').forEach(container => {
+      const dm = container.querySelector('.dropdown-menu');
+      if(dm) dm.classList.add('hidden');
+      const chevron = container.querySelector('.chevron-icon');
+      if (chevron) chevron.classList.remove('rotate-180');
+      if (container.id !== 'dropdown-sort') {
+        container.classList.remove('border-orange-500', 'ring-2', 'ring-orange-500/10');
+        container.classList.add('border-slate-200');
+      }
+    });
+  });
 
   function renderApartmentSlice() {
     const grid = document.getElementById('project-apartments-grid');
@@ -313,6 +1175,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
     const emptyBox = document.getElementById('empty-project-message');
     const resultsCountEl = document.getElementById('results-count');
 
+    if (!grid) return;
     resultsCountEl.textContent = FILTERED_APARTMENTS.length.toLocaleString('vi-VN');
 
     if (FILTERED_APARTMENTS.length === 0) {
@@ -338,58 +1201,50 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
       }
 
       const rawThumb = (itemImages && itemImages.length > 0) ? itemImages[0] : '';
-      const thumb = rawThumb 
-        ? (rawThumb.startsWith('http') ? rawThumb : (BACKEND_URL.replace(/\/$/, '') + '/' + rawThumb.replace(/^\//, ''))) 
-        : '/images/no-photo.jpg';
+      const thumb = rawThumb ? getAssetUrl(rawThumb) : '/images/no-photo.jpg';
       
       const priceBillion = apt.price ? (apt.price / 1000000000).toFixed(2).replace('.', ',') : '0';
       const pricePerM2 = (apt.price && apt.area) ? (apt.price / apt.area / 1000000).toFixed(2).replace('.', ',') : '0';
       const realCreatedDate = apt.created_at || apt.createdAt || apt.updated_at || apt.updatedAt;
+      const safeAddress = escapeHTML(apt.project_address || apt.projectAddress || apt.address || 'Đang cập nhật');
 
-      const safeName = escapeHTML(apt.name || '');
-      const safeProjectAddress = escapeHTML(apt.project_address || apt.projectAddress || 'Bình Dương');
-      const safeSlug = escapeHTML(apt.slug || '');
+      return `
+      <div class="relative w-full">
+          <a href="/${escapeHTML(projectSlug)}/${escapeHTML(apt.slug || '')}" class="focus:outline-none">
+            <div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-50 border border-slate-100 mb-2.5">
+              <img src="${thumb}" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" alt="${escapeHTML(apt.name)}" />
+              <div class="absolute bottom-2.5 right-2.5 bg-black/50 text-white text-[11px] px-1.5 py-0.5 rounded font-medium flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span>1/${itemImages.length || 1}</span>
+              </div>
+            </div>
 
-      let html = '<div class="relative w-full">';
-      html += '<a href="/' + escapeHTML(projectSlug) + '/' + safeSlug + '" class="focus:outline-none">';
-      html += '  <div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-50 border border-slate-100 mb-2.5">';
-      html += '    <img src="' + thumb + '" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" alt="' + safeName + '" />';
-      html += '    <div class="absolute bottom-2.5 right-2.5 bg-black/50 text-white text-[11px] px-1.5 py-0.5 rounded font-medium flex items-center gap-1">';
-      html += '      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>';
-      html += '      <span>1/' + (itemImages.length || 1) + '</span>';
-      html += '    </div>';
-      html += '  </div>';
-      
-      html += '  <div class="w-full pt-2">';
-      html += '    <div class="flex w-full flex-row items-center justify-between gap-x-2">';
-      html += '      <span class="font-extrabold text-emerald-700">';
-      html += '        ' + priceBillion + ' tỷ <span class="text-slate-300 font-normal mx-0.5">·</span> <span class="text-sm font-semibold">' + pricePerM2 + ' triệu/m² </span>';
-      html += '      </span>';
-      html += '      <span class="text-xs text-neutral-600">' + timeAgo(realCreatedDate) + '</span>';
-      html += '    </div>';
-      
-      html += '    <section class="pt-1">';
-      html += '     <h3 class="text-base text-lg md:text-sm font-bold text-neutral-900 line-clamp-1" title="' + safeName + '">' + safeName + '</h3>';
-      html += '     <p class="pt-0.5 text-lg md:text-sm text-neutral-600">' + safeProjectAddress + '</p>';
-      html += '    </section>';
-      
-      html += '    <div class="flex flex-row flex-nowrap items-center pt-1.5">';
-      html += '      <div class="flex flex-row items-center">';
-      html += '         <div class="flex flex-row items-center gap-x-1"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-5 w-5 text-neutral-500"><path d="M248,112v56H112V80H216A32,32,0,0,1,248,112Z" opacity="0.2"></path><path d="M216,72H32V48a8,8,0,0,0-16,0V208a8,8,0,0,0,16,0V176H240v32a8,8,0,0,0,16,0V112A40,40,0,0,0,216,72ZM32,88h72v72H32Zm88,72V88h96a24,24,0,0,1,24,24v48Z"></path></svg><span class="whitespace-nowrap text-md md:text-sm text-neutral-600"> ' + (apt.bedrooms || 0) + ' PN</span></div>';
-      html += '      </div>';
-      html += '      <div class="flex flex-row items-center">';
-      html += '         <div class="mx-3 h-3 w-px bg-black/10"></div>';
-      html += '         <div class="flex flex-row items-center gap-x-1"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-5 w-5 text-neutral-500"><path d="M240,104v40a48,48,0,0,1-48,48H64a48,48,0,0,1-48-48V104H136v40h64V104Z" opacity="0.2"></path><path d="M240,96H208a8,8,0,0,0-8-8H136a8,8,0,0,0-8,8H64V52A12,12,0,0,1,76,40a12.44,12.44,0,0,1,12.16,9.59,8,8,0,0,0,15.68-3.18A28.32,28.32,0,0,0,76,24,28,28,0,0,0,48,52V96H16a8,8,0,0,0-8,8v40a56.06,56.06,0,0,0,56,56v16a8,8,0,0,0,16,0V200h96v16a8,8,0,0,0,16,0V200a56.06,56.06,0,0,0,56-56V104A8,8,0,0,0,240,96Zm-48,8v32H144V104Zm40,40a40,40,0,0,1-40,40H64a40,40,0,0,1-40-40V112H128v32a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V112h24Z"></path></svg><span class="whitespace-nowrap text-md md:text-sm text-neutral-600"> ' + (apt.bathrooms || 0) + ' WC</span></div>';
-      html += '      </div>';
-      html += '      <div class="flex flex-row items-center">';
-      html += '         <div class="mx-3 h-3 w-px bg-black/10"></div>';
-      html += '         <div class="flex flex-row items-center gap-x-1"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-500" weight="duotone"><path opacity="0.2" fill="currentColor" d="M2.96094 2.95996H13.040939999999999V13.03996H2.96094z"></path><path d="M13.041 2.96l-3.94 3.955M9.098 2.96h3.94v3.955M2.963 13.04l3.94-3.955M6.906 13.04H2.963V9.084M13.037 9.085v3.395a.56.56 0 01-.56.56H9.099M6.902 2.96H3.521a.56.56 0 00-.56.56v3.395" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="whitespace-nowrap text-md md:text-sm text-neutral-600"> ' + (apt.area || 0) + ' m²</span></div>';
-      html += '      </div>'; 
-      html += '    </div>';
-      html += '  </div>';
-      html += '</a>';
-      html += '</div>';
-      return html;
+            <div class="w-full pt-2">
+              <div class="flex w-full flex-row items-center justify-between gap-x-2">
+                    <span class="font-extrabold text-emerald-700">${priceBillion} tỷ ·   <span class="text-sm font-semibold">(${pricePerM2} triệu/m²)</span></span>
+                    <span class="text-xs text-neutral-600">${timeAgo(realCreatedDate)}</span>
+              </div>
+              <section class="pt-1">
+                  <h6 class="text-base text-lg md:text-sm font-bold text-neutral-900 line-clamp-1" title="${escapeHTML(apt.name)}">${escapeHTML(apt.name)}</h6>
+                  <p class="pt-0.5 text-lg md:text-sm text-neutral-600">${escapeHTML(safeAddress)}</p>
+              </section>
+              <div class="flex flex-row flex-nowrap items-center pt-1.5">
+                <div class="flex flex-row items-center">
+                   <div class="flex flex-row items-center gap-x-1"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-5 w-5 text-neutral-500"><path d="M248,112v56H112V80H216A32,32,0,0,1,248,112Z" opacity="0.2"></path><path d="M216,72H32V48a8,8,0,0,0-16,0V208a8,8,0,0,0,16,0V176H240v32a8,8,0,0,0,16,0V112A40,40,0,0,0,216,72ZM32,88h72v72H32Zm88,72V88h96a24,24,0,0,1,24,24v48Z"></path></svg><span class="whitespace-nowrap text-lg md:text-sm text-neutral-600">${apt.bedrooms || 0} PN</span></div>
+                </div>
+                <div class="flex flex-row items-center">
+                  <div class="mx-3 h-3 w-px bg-black/10"></div>
+                  <div class="flex flex-row items-center gap-x-1"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-5 w-5 text-neutral-500"><path d="M240,104v40a48,48,0,0,1-48,48H64a48,48,0,0,1-48-48V104H136v40h64V104Z" opacity="0.2"></path><path d="M240,96H208a8,8,0,0,0-8-8H136a8,8,0,0,0-8,8H64V52A12,12,0,0,1,76,40a12.44,12.44,0,0,1,12.16,9.59,8,8,0,0,0,15.68-3.18A28.32,28.32,0,0,0,76,24,28,28,0,0,0,48,52V96H16a8,8,0,0,0-8,8v40a56.06,56.06,0,0,0,56,56v16a8,8,0,0,0,16,0V200h96v16a8,8,0,0,0,16,0V200a56.06,56.06,0,0,0,56-56V104A8,8,0,0,0,240,96Zm-48,8v32H144V104Zm40,40a40,40,0,0,1-40,40H64a40,40,0,0,1-40-40V112H128v32a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V112h24Z"></path></svg><span class="whitespace-nowrap text-lg md:text-sm text-neutral-600">${apt.bathrooms || 0} WC</span></div>
+                </div>
+                <div class="flex flex-row items-center">
+                  <div class="mx-3 h-3 w-px bg-black/10"></div>
+                  <div class="flex flex-row items-center gap-x-1"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-500" weight="duotone"><path opacity="0.2" fill="currentColor" d="M2.96094 2.95996H13.040939999999999V13.03996H2.96094z"></path><path d="M13.041 2.96l-3.94 3.955M9.098 2.96h3.94v3.955M2.963 13.04l3.94-3.955M6.906 13.04H2.963V9.084M13.037 9.085v3.395a.56.56 0 01-.56.56H9.099M6.902 2.96H3.521a.56.56 0 00-.56.56v3.395" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="whitespace-nowrap text-lg md:text-sm text-neutral-600">${apt.area || 0} m²</span></div>
+                </div>
+              </div>
+            </div>
+          </a>
+      </div>
+      `;
     }).join('');
 
     if (FILTERED_APARTMENTS.length > VISIBLE_COUNT) {
@@ -420,7 +1275,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
         if (floorVal === 'mid' && (floorNum < 8 || floorNum > 18)) return false;
         if (floorVal === 'high' && floorNum <= 18) return false;
       }
-
       return true;
     });
 
@@ -432,50 +1286,65 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
       FILTERED_APARTMENTS.sort(function(a, b) { return Number(b.area) - Number(a.area); });
     }
 
-    VISIBLE_COUNT = 20;
+    VISIBLE_COUNT = 9;
     renderApartmentSlice();
   }
 
+  // GLOBAL DISMISS LOGIC FOR PAYMENT MODAL
+  const modalEl = document.getElementById('payment-file-modal');
+  const closeBtnEl = document.getElementById('close-payment-modal-btn');
+  if (modalEl && closeBtnEl) {
+    const closeModal = () => {
+      modalEl.classList.add('opacity-0');
+      modalEl.querySelector('.bg-white')?.classList.add('scale-95');
+      setTimeout(() => {
+        modalEl.classList.add('hidden');
+        modalEl.classList.remove('flex');
+      }, 200);
+    };
+    closeBtnEl.addEventListener('click', closeModal);
+    modalEl.addEventListener('click', (e) => {
+      if (e.target === modalEl) closeModal();
+    });
+  }
+
+  // =====================================================================
+  // LUỒNG CHÍNH: NẠP DỮ LIỆU TỪ LARAVEL API
+  // =====================================================================
   async function loadProjectPageData() {
     const skeleton = document.getElementById('project-skeleton');
     try {
       const res = await fetch(BACKEND_URL + "/api/apartments/by-project?slug=" + projectSlug);
-      if (!res.ok) throw new Error("API sập luồng mạng");
+      if (!res.ok) throw new Error("API lỗi luồng kết nối mạng");
       const result = await res.json();
 
       const projectInfo = result.project_info || result.projectInfo;
 
       if (projectInfo) {
-        const titleText = projectInfo.title || projectInfo.name || "Dự án Bcons";
         const addressText = projectInfo.address || projectInfo.location || "Dĩ An, Bình Dương";
 
-        document.getElementById('main-project-title').textContent = titleText;
-        document.getElementById('main-project-address').querySelector('span').textContent = addressText;
-        document.getElementById('text-filter-khuvuc').textContent = addressText.split(',').pop().trim();
-        document.getElementById('breadcrumb-project-name').textContent = titleText;
-        document.getElementById('page-main-heading').textContent = "Mua căn hộ " + titleText + " mới nhất 2026";
+        const khuvucEl = document.getElementById('text-filter-khuvuc');
+        if (khuvucEl) khuvucEl.textContent = addressText.split(',').pop().trim();
         
-        if (projectInfo.image) {
-          const bannerUrl = projectInfo.image.startsWith('http') ? projectInfo.image : (BACKEND_URL.replace(/\/$/, '') + '/' + projectInfo.image.replace(/^\//, ''));
-          document.getElementById('main-project-banner').setAttribute('src', bannerUrl);
-        }
+        MASTER_APARTMENTS = Array.isArray(result.apartments) ? result.apartments : (result.data || []);
+        FILTERED_APARTMENTS = MASTER_APARTMENTS;
+
+        const landingStructure = typeof projectInfo.landing_data === 'string' ? JSON.parse(projectInfo.landing_data) : projectInfo.landing_data;
+        buildProjectLandingSections(landingStructure, projectInfo);
       }
 
-      MASTER_APARTMENTS = Array.isArray(result.apartments) ? result.apartments : (result.data || []);
-      FILTERED_APARTMENTS = MASTER_APARTMENTS;
-
-      initCustomDropdowns();
-
       if (skeleton) skeleton.classList.add('hidden');
-      renderApartmentSlice();
 
-      document.getElementById('btn-load-more').addEventListener('click', function() {
-        VISIBLE_COUNT += 10;
-        renderApartmentSlice();
-      });
+      const loadMoreBtn = document.getElementById('btn-load-more');
+      if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function() {
+          VISIBLE_COUNT += 6;
+          renderApartmentSlice();
+        });
+      }
 
     } catch (e) {
-      console.error("Lỗi đồng bộ danh sách căn hộ theo dự án:", e);
+      console.error("Lỗi đồng bộ chi tiết Landing Page & Căn hộ theo dự án:", e);
       if (skeleton) skeleton.classList.add('hidden');
     }
   }
@@ -487,5 +1356,5 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
   .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
   .rotate-180 { transform: rotate(180deg) !important; }
-  .z-25 { z-index: 25; }
+  .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 </style>
