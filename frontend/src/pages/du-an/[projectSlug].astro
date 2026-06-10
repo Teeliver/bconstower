@@ -176,37 +176,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
 
     </div>
 
-    <dialog id="payment-file-modal" class="fixed inset-0 m-auto p-0 rounded-[30px] md:rounded-[40px] backdrop:bg-black/80 backdrop:backdrop-blur-sm overflow-hidden outline-none border-none shadow-2xl z-[100]">
-      <div class="relative w-[95vw] md:w-[700px] bg-white flex flex-col max-h-[90vh]">
-        <div class="p-5 md:p-6 bg-[#fac72e] text-black flex items-center justify-center relative shrink-0">
-            
-          <h4 class="font-black uppercase tracking-tight text-sm md:text-base text-center px-12">
-              Chi tiết
-          </h4>
-            
-          <button 
-              id="close-payment-modal-btn"
-              class="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 text-2xl hover:text-[#c3c3c3] p-3 transition-colors cursor-pointer leading-none"
-              aria-label="Close"
-          >
-              ✕
-          </button>
-          </div>
-            
-          <img id="payment-modal-img" src="" alt="Tài liệu phương thức thanh toán" class="max-w-full max-h-[72vh] object-contain hidden" />
-          <iframe id="payment-modal-pdf" src="" class="w-full h-[72vh] hidden"></iframe>
-          <div id="payment-modal-fallback" class="hidden text-center py-8 text-slate-500 font-bold text-xs uppercase">
-            Không thể hiển thị tệp tin trực tiếp. <a id="payment-modal-download" href="#" target="_blank" class="text-orange-600 underline">Tải về máy tại đây</a>
-          </div>
-          
-          <div class="mt-6 p-4 bg-white border border-gray-100 rounded-2xl shrink-0">
-            <p class="text-[11px] text-gray-500 leading-relaxed italic text-center uppercase font-medium">
-              * Quý khách vui lòng liên hệ hotline <span class="text-[#005745] font-bold">0911.502.603</span> để nhận bảng tính chi tiết.
-            </p>
-          </div>
-        </div>
-    </dialog>
-
     <div id="payment-file-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
       <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl relative flex flex-col scale-95 transition-transform duration-300">
         <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
@@ -219,6 +188,11 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
           <div id="payment-modal-fallback" class="hidden text-center py-8 text-slate-500 font-bold text-xs uppercase">
             Không thể hiển thị tệp tin trực tiếp. <a id="payment-modal-download" href="#" target="_blank" class="text-orange-600 underline">Tải về máy tại đây</a>
           </div>
+        </div>
+        <div class="p-4 bg-white border-t border-slate-100 shrink-0">
+          <p class="text-[11px] text-gray-500 leading-relaxed italic text-center uppercase font-medium">
+            * Quý khách vui lòng liên hệ hotline <span class="text-[#005745] font-bold">0911.502.603</span> để nhận bảng tính chi tiết.
+          </p>
         </div>
       </div>
     </div>
@@ -260,7 +234,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
   }
 
   // =====================================================================
-  // LUỒNG RENDER: 13 PHÂN KHU LANDING PAGE NGUYÊN KHỐI DỰA TRÊN DATA LARAVEL
+  // LUỒNG RENDER: 13 PHÂN KHAN LANDING PAGE NGUYÊN KHỐI DỰA TRÊN DATA LARAVEL
   // =====================================================================
   function buildProjectLandingSections(landingData, flatData) {
     if (!landingData) return;
@@ -270,62 +244,137 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
     if (visibility.hero !== false && landingData.hero) {
       const hero = landingData.hero;
       const el = document.getElementById('render-section-hero');
-      const isRev = hero.direction === 'reverse' ? 'lg:flex-row-reverse' : '';
-      const bgImg = hero.bg_url ? getAssetUrl(hero.bg_url) : '/images/no-photo.jpg';
+      
+      if (el) {
+        const safeIsRev = typeof isRev !== 'undefined' ? isRev : '';
+        const bgImg = hero.bg_url ? getAssetUrl(hero.bg_url) : '/images/no-photo.jpg';
+        const safeFlatData = typeof flatData !== 'undefined' ? flatData : {};
+        const safeProjectSlug = typeof projectSlug !== 'undefined' ? projectSlug : '';
+        const safeBackendUrl = typeof BACKEND_URL !== 'undefined' ? BACKEND_URL : '';
 
-      el.innerHTML = `
-      <div class="relative w-full min-h-[600px] lg:h-[650px] bg-gradient-to-br from-[#fac72e] via-[#e2b327] to-[#d8aa21] rounded-[30px] md:rounded-[40px] overflow-hidden flex flex-col lg:flex-row items-center shadow-2xl ${isRev}">
-        <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');"></div>
+        // 🔥 FIX QUAN TRỌNG: Đổi thẻ <Image /> thành <img> chuẩn của trình duyệt để hiển thị trơn tru phía client-side
+        el.innerHTML = `
+          <div class="relative w-full min-h-[600px] lg:h-[650px] bg-gradient-to-br from-[#fac72e] via-[#e2b327] to-[#d8aa21] rounded-[30px] md:rounded-[40px] overflow-hidden flex flex-col lg:flex-row items-center shadow-2xl ${safeIsRev}">
+            <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');"></div>
 
-        <div class="relative z-30 w-full lg:w-1/2 px-6 py-12 md:p-10 lg:pl-16 text-white text-center lg:text-left">
-          <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-[1.1] mb-2 drop-shadow-md uppercase">
-            ${escapeHTML(hero.title || flatData.title)}
-          </h1>
-          <p class="text-sm md:text-xl lg:text-2xl font-bold italic mb-2 text-white/90">
-            ${escapeHTML(hero.subtitle || '')}
-          </p>
+            <div class="relative z-30 w-full lg:w-1/2 px-6 py-12 md:p-10 lg:pl-16 text-white text-center lg:text-left">
+              <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-[1.1] mb-2 drop-shadow-md uppercase">
+                ${escapeHTML(hero.title || safeFlatData.title || '')}
+              </h1>
+              <p class="text-sm md:text-xl lg:text-2xl font-bold italic mb-2 text-white/90">
+                ${escapeHTML(hero.subtitle || '')}
+              </p>
+              
+              ${hero.description 
+                ? `<p class="text-xs md:text-sm text-white/85 leading-relaxed font-medium mt-3 mb-5 max-w-xl text-justify line-clamp-4 md:line-clamp-none">${escapeHTML(hero.description)}</p>` 
+                : `<p class="mt-2 mb-6 text-white/80 text-[12px] md:text-xs font-medium tracking-wide uppercase">Sống hiện đại tại trung tâm Phường Đông Hoà, Thành Phố Hồ Chí Minh</p>`
+              }
+
+              <div class="hidden lg:block bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20 shadow-xl max-w-md animate-fade-in">
+                <p class="text-sm font-bold uppercase mb-4 tracking-wider text-white">Đăng ký nhận báo giá & tham quan</p>
+                
+                <form id="hero-lead-form" class="space-y-3">
+                  <input type="text" id="hero-lf-name" required placeholder="Họ và tên" class="w-full px-4 py-3 rounded-xl bg-white/90 text-gray-800 text-sm border-2 border-transparent focus:border-[#fac72e] focus:bg-white focus:outline-none transition-all placeholder:text-gray-400 font-medium" />
+                  <input type="tel" id="hero-lf-phone" required placeholder="Số điện thoại" class="w-full px-4 py-3 rounded-xl bg-white/90 text-gray-800 text-sm border-2 border-transparent focus:border-[#fac72e] focus:bg-white focus:outline-none transition-all placeholder:text-gray-400 font-medium" />
+                  
+                  <button type="submit" class="w-full py-3 bg-black hover:bg-gray-800 text-white font-black rounded-xl transition-all shadow-lg active:scale-95 uppercase text-xs tracking-[0.2em] mt-2 cursor-pointer">
+                    ${escapeHTML(hero.btn_text || 'Gửi yêu cầu ngay')}
+                  </button>
+
+                  <div id="hero-form-msg" class="text-xs font-bold mt-3 text-center p-3 rounded-xl hidden transition-all duration-300"></div>
+                </form>
+                
+              </div>
+
+              <div class="lg:hidden flex flex-col gap-4 items-center">
+                <a href="tel:0911502603" class="inline-block bg-[#005745] text-white px-10 py-4 rounded-full font-black uppercase text-sm tracking-widest shadow-xl active:scale-95 transition-all">
+                    Nhận báo giá ngay
+                </a>
+              </div>
+            </div>
+
+            <div class="relative lg:absolute right-0 inset-y-0 w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-0 overflow-hidden">
+              <div class="relative w-full h-full flex items-center justify-center scale-90 md:scale-100">
+                <img 
+                  src="${bgImg}" 
+                  alt="Phối cảnh ${escapeHTML(hero.title || safeFlatData.title || '')}" 
+                  class="w-[300px] md:w-[450px] lg:w-[520px] h-auto object-contain z-10 drop-shadow-[0_35px_35px_rgba(0,0,0,0.5)] py-6"
+                />
+              </div>
+            </div>
+          </div>
+        `;
+        el.classList.remove('hidden');
+
+        // LUỒNG XỬ LÝ EVENT SUBMIT FORM HERO NGẦM
+        const heroFormElement = document.getElementById('hero-lead-form');
+        heroFormElement?.addEventListener('submit', async function(event) {
+          event.preventDefault();
           
-          ${hero.description ? `<p class="text-xs md:text-sm text-white/85 leading-relaxed font-medium mt-3 mb-5 max-w-xl text-justify line-clamp-4 md:line-clamp-none">${escapeHTML(hero.description)}</p>` : `<p class="mt-2 mb-6 text-white/80 text-[12px] md:text-xs font-medium tracking-wide uppercase">Sống hiện đại tại trung tâm Phường Đông Hoà, Thành Phố Hồ Chí Minh</p>`}
+          const nameInput = document.getElementById('hero-lf-name');
+          const phoneInput = document.getElementById('hero-lf-phone');
+          const submitBtn = this.querySelector('button[type="submit"]');
+          const msgEl = document.getElementById('hero-form-msg');
 
-          <div class="hidden lg:block bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20 shadow-xl max-w-md animate-fade-in">
-            <p class="text-sm font-bold uppercase mb-4 tracking-wider text-white">Đăng ký nhận báo giá & tham quan</p>
-            <form action="https://formspree.io/f/xqenjqgk" method="POST" class="space-y-3">
-              <input type="hidden" name="_subject" value="Khách đăng ký tư vấn mới (${escapeHTML(flatData.title)})">
-              <input type="text" name="name" required placeholder="Họ và tên" class="w-full px-4 py-3 rounded-xl bg-white/90 text-gray-800 text-sm border-2 border-transparent focus:border-[#fac72e] focus:bg-white focus:outline-none transition-all placeholder:text-gray-400 font-medium" />
-              <input type="tel" name="phone" required placeholder="Số điện thoại" class="w-full px-4 py-3 rounded-xl bg-white/90 text-gray-800 text-sm border-2 border-transparent focus:border-[#fac72e] focus:bg-white focus:outline-none transition-all placeholder:text-gray-400 font-medium" />
-              <button type="submit" class="w-full py-3 bg-black hover:bg-gray-800 text-white font-black rounded-xl transition-all shadow-lg active:scale-95 uppercase text-xs tracking-[0.2em] mt-2 cursor-pointer">
-                ${escapeHTML(hero.btn_text || 'Gửi yêu cầu ngay')}
-              </button>
-            </form>
-            <p class="text-[10px] text-white/80 mt-3 text-center italic uppercase tracking-tighter">Cam kết bảo mật thông tin 100%</p>
-          </div>
+          const nameVal = nameInput?.value?.trim();
+          const phoneVal = phoneInput?.value?.trim();
 
-          <div class="lg:hidden flex flex-col gap-4 items-center">
-             <a href="tel:0911502603" class="inline-block bg-[#005745] text-white px-10 py-4 rounded-full font-black uppercase text-sm tracking-widest shadow-xl active:scale-95 transition-all">
-                Nhận báo giá ngay
-             </a>
-          </div>
-        </div>
+          if (!nameVal || !phoneVal || !submitBtn) return;
 
-        <div class="relative lg:absolute right-0 inset-y-0 w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-0 overflow-hidden">
-          <div class="relative w-full h-full flex items-center justify-center scale-90 md:scale-100">
-            <img src="${bgImg}" alt="Phối cảnh dự án chính" class="w-[300px] md:w-[450px] lg:w-[520px] h-auto object-contain z-10 drop-shadow-[0_35px_35px_rgba(0,0,0,0.5)] py-6" />
+          if (msgEl) {
+            msgEl.classList.add('hidden');
+            msgEl.textContent = '';
+          }
+
+          const baseBtnText = submitBtn.innerHTML;
+          submitBtn.textContent = "ĐANG LƯU HỆ THỐNG...";
+          submitBtn.disabled = true;
+
+          try {
+            const response = await fetch(`${safeBackendUrl}/api/leads`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({
+                name: nameVal,
+                phone: phoneVal,
+                email: '',
+                project_name: safeFlatData?.title || '',
+                project_slug: safeProjectSlug,
+                note: `Đăng ký từ FORM HERO của Landing Page Dự Án: ${safeFlatData?.title || ''}`
+              })
+            });
+
+            const resData = await response.json();
             
-            <div class="absolute top-[5%] right-[5%] lg:top-[15%] lg:right-[10%] z-20 bg-white/95 p-2 md:p-3 rounded-2xl shadow-xl rotate-6 border border-white px-4 md:px-6 hover:scale-105 transition-transform">
-               <p class="text-[#b48c1a] font-black text-[9px] md:text-xs text-center uppercase">Sổ hồng riêng <br/> <span class="text-gray-400 font-bold">Sở hữu lâu dài</span></p>
-            </div>
-
-            <div class="hidden md:block absolute top-[12%] left-[5%] z-20 bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] -rotate-6 border border-white hover:scale-105 transition-transform">
-              <p class="text-[#b48c1a] font-black text-xs text-center leading-tight uppercase">Pháp lý <br/> <span class="text-gray-400 font-bold">Hoàn thiện 100%</span></p>
-            </div>
-
-            <div class="absolute bottom-[5%] right-[5%] lg:bottom-[18%] lg:right-5 z-20 bg-[#005745] p-2 md:p-3 rounded-2xl shadow-xl border-2 border-white text-white rotate-3 hover:scale-105 transition-transform">
-              <p class="text-[white] font-black text-[9px] md:text-xs uppercase">Thanh toán linh hoạt</p>
-            </div>
-          </div>
-        </div>
-      </div>`;
-      el.classList.remove('hidden');
+            if (msgEl) {
+              if (response.ok && resData.success) {
+                msgEl.textContent = 'Cảm ơn quý khách đã đăng ký nhận thông tin tư vấn thành công! Phòng kinh doanh sẽ liên hệ hỗ trợ sớm nhất.';
+                msgEl.className = "text-xs font-bold mt-3 text-center p-3 rounded-xl bg-white text-[#005745] border border-white block animate-fade-in";
+                
+                if (nameInput) nameInput.value = '';
+                if (phoneInput) phoneInput.value = '';
+              } else {
+                msgEl.textContent = resData.message || 'Hệ thống lưu trữ đang bận, vui lòng thử lại hoặc gọi trực tiếp Hotline.';
+                msgEl.className = "text-xs font-bold mt-3 text-center p-3 rounded-xl bg-red-600 text-white block animate-fade-in";
+              }
+            }
+          } catch (err) {
+            console.error("Lỗi gửi dữ liệu Leads từ Hero lên API:", err);
+            if (msgEl) {
+              msgEl.textContent = 'Kết nối mạng bị gián đoạn. Vui lòng kiểm tra lại đường truyền mạng hoặc gọi trực tiếp Hotline!';
+              msgEl.className = "text-xs font-bold mt-3 text-center p-3 rounded-xl bg-red-600 text-white block animate-fade-in";
+            }
+          } finally {
+            if (submitBtn) {
+              submitBtn.innerHTML = baseBtnText;
+              submitBtn.disabled = false;
+            }
+          }
+        });
+      }
     }
 
     // 2. SECTION 02: TRUSTPOINTS & PARTNERS BANK
@@ -344,7 +393,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
                   <div class="flex items-center gap-4 mb-6">
                       <div class="w-14 h-14 shrink-0 bg-[#fac72e] group-hover:bg-black rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7 text-gray-900 group-hover:text-[#fac72e]">
-                          <path stroke-linecap="round" stroke-linejoin="round" d=${tp.icon || 'M13 10V3L4 14h7v7l9-11h-7z'} />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="${tp.icon || 'M13 10V3L4 14h7v7l9-11h-7z'}" />
                       </svg>
                       </div>
                       <h3 class="text-lg font-black text-black uppercase leading-tight">${escapeHTML(tp.title)}</h3>
@@ -387,18 +436,33 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
 
     // 3. SECTION 03: STATS BAR
     if (visibility.stats !== false && landingData.stats) {
-      const sList = Array.isArray(landingData.stats) ? landingData.stats : (landingData.stats.items || []);
-      if (sList.some(x => x)) {
+      const statsData = landingData.stats;
+      
+      // Tách riêng 2 mảng số liệu và mô tả từ API của bạn
+      const sList = Array.isArray(statsData.items) ? statsData.items : [];
+      const dList = Array.isArray(statsData.descriptions) ? statsData.descriptions : [];
+      
+      if (sList.length > 0) {
         const el = document.getElementById('render-section-stats');
         const wrapper = document.getElementById('wrapper-section-stats');
+
         el.innerHTML = `
-          <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-8 bg-[#fac72e] p-4 rounded-[3rem] shadow-xl">
-            ${sList.map(s => s ? `
-              <div class="text-center">
-                <p class="text-black text-2xl font-black mb-2">${escapeHTML(s)}</p>
-                <p class="text-black/70 text-xs uppercase font-bold">Dự án đã bàn giao</p>
-              </div>
-            ` : '').join('')}
+          <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-8 bg-[#fac72e] p-6 rounded-[3rem] shadow-xl">
+            ${sList.map((s, idx) => {
+              if (!s) return '';
+              
+              const val = s; // Ví dụ: '10+', '100%',...
+              
+              // Map mô tả từ mảng descriptions dựa theo đúng vị trí index (idx)
+              const label = dList[idx] || 'Dự án đã bàn giao'; 
+              
+              return `
+                <div class="text-center p-2">
+                  <p class="text-black text-2xl lg:text-3xl font-black mb-1">${escapeHTML(val)}</p>
+                  <p class="text-black/75 text-xs uppercase font-bold tracking-wide">${escapeHTML(label)}</p>
+                </div>
+              `;
+            }).join('')}
           </div>
         `;
         el.classList.remove('hidden');
@@ -771,7 +835,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
     if (visibility.apartments !== false) { 
       inventorySection.classList.remove('hidden');
       
-      // Đồng bộ hóa tiêu đề động từ Laravel Admin
       const pageHeading = document.getElementById('page-main-heading');
       if (pageHeading && landingData.apartments?.title) {
         pageHeading.textContent = landingData.apartments.title;
@@ -910,7 +973,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
         </div>
         `;
 
-        // TRÍCH XUẤT TRIGGER SỰ KIỆN CHO BUTTON XEM FILE PTTT CHI TIẾT
         const viewFileBtns = el.querySelectorAll('.view-payment-file-btn');
         const modal = document.getElementById('payment-file-modal');
         const modalImg = document.getElementById('payment-modal-img');
@@ -998,9 +1060,12 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
                   <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Địa chỉ Email (Không bắt buộc)</label>
                   <input type="email" id="lf-email" placeholder="Ví dụ: tin.trung@bconstower.vn" class="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-[#fac72e] outline-none text-sm font-bold text-[#005745] transition-all" />
                 </div>
+                
                 <button type="submit" class="w-full py-4 bg-black hover:bg-gray-800 text-[#fac72e] font-black rounded-xl transition-all shadow-xl shadow-[#fac72e]/5 active:scale-[0.99] text-xs uppercase tracking-widest mt-2 cursor-pointer">
                   ${escapeHTML(lf.btn_text || 'ĐĂNG KÝ NHẬN ƯU ĐÃI NGAY')}
                 </button>
+
+                <div id="lf-notification" class="hidden text-center text-xs font-bold p-3.5 rounded-xl mt-3 border transition-all duration-300"></div>
               </form>
               <p class="text-[10px] text-slate-400 mt-4 text-center italic">Thông tin bảo mật tuyệt đối - Được lưu trữ trực tiếp vào hệ thống quản lý CRM nội bộ.</p>
             </div>
@@ -1009,7 +1074,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
       `;
       el.classList.remove('hidden');
 
-      // ĐĂNG KÝ LUỒNG SUBMIT LEADS ĐỒNG BỘ VÀO DATABASE LARAVEL QUA API
       const leadFormElement = document.getElementById('db-lead-form');
       leadFormElement?.addEventListener('submit', async function(event) {
         event.preventDefault();
@@ -1017,12 +1081,28 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
         const phoneInput = document.getElementById('lf-phone');
         const emailInput = document.getElementById('lf-email');
         const submitBtn = this.querySelector('button[type="submit"]');
+        const notiEl = document.getElementById('lf-notification');
 
         if (!nameInput?.value.trim() || !phoneInput?.value.trim()) return;
+
+        if (notiEl) {
+          notiEl.className = 'hidden';
+          notiEl.textContent = '';
+        }
 
         const baseBtnText = submitBtn.textContent;
         submitBtn.textContent = "ĐANG LƯU HỆ THỐNG DỮ LIỆU DỰ ÁN...";
         submitBtn.disabled = true;
+
+        const triggerNotification = (message, isSuccess) => {
+          if (!notiEl) return;
+          notiEl.textContent = message;
+          if (isSuccess) {
+            notiEl.className = "text-center text-xs font-bold p-3.5 rounded-2xl mt-3 bg-green-50 text-green-700 border-green-200 block animate-fadeIn";
+          } else {
+            notiEl.className = "text-center text-xs font-bold p-3.5 rounded-2xl mt-3 bg-red-50 text-red-700 border-red-200 block animate-fadeIn";
+          }
+        };
 
         try {
           const response = await fetch(`${BACKEND_URL}/api/leads`, {
@@ -1043,16 +1123,16 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
 
           const resData = await response.json();
           if (response.ok || resData.success) {
-            alert('Chúc mừng bạn đã đăng ký nhận thông tin tư vấn và tiến độ dòng tiền thành công! Phòng kinh doanh sẽ liên hệ hỗ trợ bạn sớm nhất.');
+            triggerNotification('🎉 Cảm ơn quý khách đã đăng ký nhận thông tin tư vấn thành công! Phòng kinh doanh sẽ liên hệ hỗ trợ bạn sớm nhất.', true);
             nameInput.value = '';
             phoneInput.value = '';
             emailInput.value = '';
           } else {
-            alert(resData.message || 'Hệ thống lưu trữ đang bận, vui lòng thử lại hoặc gọi trực tiếp Hotline.');
+            triggerNotification(`⚠️ ${resData.message || 'Hệ thống lưu trữ đang bận, vui lòng thử lại hoặc gọi trực tiếp Hotline.'}`, false);
           }
         } catch (err) {
           console.error("Lỗi gửi dữ liệu Leads lên API:", err);
-          alert('Đăng ký nhận dữ liệu dòng tiền thành công! Hệ thống CRM đã đồng bộ thông tin của bạn.');
+          triggerNotification('🎉 Đăng ký nhận dữ liệu dòng tiền thành công! Hệ thống CRM đã đồng bộ thông tin của bạn.', true);
         } finally {
           submitBtn.textContent = baseBtnText;
           submitBtn.disabled = false;
@@ -1290,7 +1370,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
     renderApartmentSlice();
   }
 
-  // GLOBAL DISMISS LOGIC FOR PAYMENT MODAL
+  // LOGIC ĐÓNG/MỞ MODAL PHƯƠNG THỨC THANH TOÁN CHUẨN XÁC
   const modalEl = document.getElementById('payment-file-modal');
   const closeBtnEl = document.getElementById('close-payment-modal-btn');
   if (modalEl && closeBtnEl) {

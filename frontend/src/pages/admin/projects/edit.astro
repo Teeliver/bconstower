@@ -170,7 +170,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 
         <div class="xl:col-span-3 space-y-6">
           <div id="activeCanvas" class="space-y-6 min-h-[350px] bg-slate-50/60 border-2 border-dashed border-slate-200 rounded-3xl p-4 md:p-6 transition-all">
-            </div>
+          </div>
           
           <button type="submit" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-4 rounded-2xl transition-all shadow-xl shadow-orange-600/10 active:scale-[0.99] text-sm uppercase tracking-wider cursor-pointer">
             Cập Nhật Landing Page Dự Án
@@ -232,6 +232,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
                 <div class="flex-1 border-2 border-dashed border-slate-300 hover:border-orange-500 bg-white rounded-2xl flex flex-col items-center justify-center p-4 text-center cursor-pointer relative overflow-hidden transition-all group" id="heroDropzone">
                   <div class="pointer-events-none space-y-1 text-slate-400 group-hover:text-slate-600 transition-colors">
                     <span class="text-3xl">📸</span><div class="text-xs font-bold text-slate-700">UP ẢNH PHỐI CẢNH HERO</div>
+                    <div class="text-[9px] text-slate-400 italic">(Vui lòng click chọn 1 mẫu bên trái trước khi tải ảnh)</div>
                   </div>
                   <img id="heroPreviewImg" class="absolute inset-0 w-full h-full object-cover hidden" />
                 </div>
@@ -258,24 +259,37 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
             <div class="space-y-3">
               <span class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">1. Cấu hình 3 khối Điểm Tựa Niềm Tin</span>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
                   <span class="text-[9px] font-bold text-amber-600 uppercase">Khối số #1</span>
-                  <input type="text" id="trustTitle1" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none" />
-                  <textarea id="trustDesc1" rows="3" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium resize-none text-slate-600 outline-none"></textarea>
-                  <input type="hidden" id="trustIcon1" value="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <input type="text" id="trustTitle1" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none" placeholder="Tiêu đề" />
+                  <textarea id="trustDesc1" rows="3" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium resize-none text-slate-600 outline-none" placeholder="Mô tả"></textarea>
+                  <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Mã SVG Path / Link Icon</label>
+                    <input type="text" id="trustIcon1" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 outline-none" value="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" placeholder="Mã path hoặc link SVG" />
+                  </div>
                 </div>
+                
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
                   <span class="text-[9px] font-bold text-amber-600 uppercase">Khối số #2</span>
-                  <input type="text" id="trustTitle2" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none" />
-                  <textarea id="trustDesc2" rows="3" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium resize-none text-slate-600 outline-none"></textarea>
-                  <input type="hidden" id="trustIcon2" value="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04M12 21.48l.342-.161L12 21.48z" />
+                  <input type="text" id="trustTitle2" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none" placeholder="Tiêu đề" />
+                  <textarea id="trustDesc2" rows="3" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium resize-none text-slate-600 outline-none" placeholder="Mô tả"></textarea>
+                  <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Mã SVG Path / Link Icon</label>
+                    <input type="text" id="trustIcon2" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 outline-none" value="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04M12 21.48l.342-.161L12 21.48z" placeholder="Mã path hoặc link SVG" />
+                  </div>
                 </div>
+                
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
                   <span class="text-[9px] font-bold text-amber-600 uppercase">Khối số #3</span>
-                  <input type="text" id="trustTitle3" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none" />
-                  <textarea id="trustDesc3" rows="3" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium resize-none text-slate-600 outline-none"></textarea>
-                  <input type="hidden" id="trustIcon3" value="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138z" />
+                  <input type="text" id="trustTitle3" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none" placeholder="Tiêu đề" />
+                  <textarea id="trustDesc3" rows="3" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium resize-none text-slate-600 outline-none" placeholder="Mô tả"></textarea>
+                  <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Mã SVG Path / Link Icon</label>
+                    <input type="text" id="trustIcon3" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 outline-none" value="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138z" placeholder="Mã path hoặc link SVG" />
+                  </div>
                 </div>
+
               </div>
             </div>
             <div class="space-y-2">
@@ -310,19 +324,23 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-amber-400/10 rounded-2xl border border-dashed border-amber-400">
               <div class="bg-white p-3 rounded-xl border border-slate-200 text-center space-y-1">
                 <span class="block text-[9px] font-bold text-slate-400 uppercase">Thông số 1</span>
-                <input type="text" id="statNumber1" class="w-full text-center px-2 py-1 bg-slate-50 rounded border text-xs font-black text-amber-600" placeholder="Ví dụ: 1B+" />
+                <input type="text" id="statNumber1" class="w-full text-center px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs font-black text-amber-600 outline-none focus:border-orange-500 focus:bg-white transition-all mb-1" placeholder="Ví dụ: 1B+" />
+                <input type="text" id="statDesc1" class="w-full text-center px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs font-semibold text-slate-600 outline-none focus:border-orange-500 focus:bg-white transition-all" placeholder="Nhập mô tả" />
               </div>
               <div class="bg-white p-3 rounded-xl border border-slate-200 text-center space-y-1">
                 <span class="block text-[9px] font-bold text-slate-400 uppercase">Thông số 2</span>
-                <input type="text" id="statNumber2" class="w-full text-center px-2 py-1 bg-slate-50 rounded border text-xs font-black text-amber-600" placeholder="Ví dụ: 100%" />
+                <input type="text" id="statNumber2" class="w-full text-center px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs font-black text-amber-600 outline-none focus:border-orange-500 focus:bg-white transition-all mb-1" placeholder="Ví dụ: 100%" />
+                <input type="text" id="statDesc2" class="w-full text-center px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs font-semibold text-slate-600 outline-none focus:border-orange-500 focus:bg-white transition-all" placeholder="Nhập mô tả" />
               </div>
               <div class="bg-white p-3 rounded-xl border border-slate-200 text-center space-y-1">
                 <span class="block text-[9px] font-bold text-slate-400 uppercase">Thông số 3</span>
-                <input type="text" id="statNumber3" class="w-full text-center px-2 py-1 bg-slate-50 rounded border text-xs font-black text-amber-600" placeholder="Ví dụ: 5 SAO" />
+                <input type="text" id="statNumber3" class="w-full text-center px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs font-black text-amber-600 outline-none focus:border-orange-500 focus:bg-white transition-all mb-1" placeholder="Ví dụ: 5 SAO" />
+                <input type="text" id="statDesc3" class="w-full text-center px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs font-semibold text-slate-600 outline-none focus:border-orange-500 focus:bg-white transition-all" placeholder="Nhập mô tả" />
               </div>
               <div class="bg-white p-3 rounded-xl border border-slate-200 text-center space-y-1">
                 <span class="block text-[9px] font-bold text-slate-400 uppercase">Thông số 4</span>
-                <input type="text" id="statNumber4" class="w-full text-center px-2 py-1 bg-slate-50 rounded border text-xs font-black text-amber-600" placeholder="Ví dụ: 39TR/M2" />
+                <input type="text" id="statNumber4" class="w-full text-center px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs font-black text-amber-600 outline-none focus:border-orange-500 focus:bg-white transition-all mb-1" placeholder="Ví dụ: 39TR/M2" />
+                <input type="text" id="statDesc4" class="w-full text-center px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs font-semibold text-slate-600 outline-none focus:border-orange-500 focus:bg-white transition-all" placeholder="Nhập mô tả" />
               </div>
             </div>
           </div>
@@ -458,13 +476,11 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
               <div class="w-full lg:w-[58%] bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between gap-3 relative group/col draggable-column" draggable="true">
                 <div class="absolute top-2 right-2 opacity-0 group-hover/col:opacity-100 transition-opacity cursor-move bg-slate-200 text-slate-600 text-[9px] font-black px-2 py-1 rounded-md shadow-sm select-none">⣿ KÉO ĐỔI BÊN</div>
                 <div class="space-y-3 w-full">
-                  <span class="block text-[10px] font-bold text-slate-400 uppercase font-mono">Danh mục liên kết hạ tầng lân cận</span>
-                  {[1,2,3,4,5].map((i) => (
-                    <div class="grid grid-cols-12 gap-2 items-center">
-                      <div class="col-span-8"><input type="text" id={`locationItem${i}`} class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold" placeholder={`Địa điểm ${i}`} /></div>
-                      <div class="col-span-4"><input type="text" id={`locationTime${i}`} class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-orange-600 text-center" placeholder="2 Phút" /></div>
-                    </div>
-                  ))}
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase font-mono">Danh mục liên kết hạ tầng lân cận</span>
+                    <button type="button" id="addLocationLinkBtn" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-bold rounded-xl transition-all flex items-center gap-1 cursor-pointer"><span>＋</span> Thêm liên kết</button>
+                  </div>
+                  <div id="locationLinksContainer" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
                 </div>
               </div>
             </div>
@@ -1267,6 +1283,9 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
       if (containerId === 'planPointsContainer') {
         div.className = "flex items-center gap-2 plan-point-item relative group/btn animate-fadeIn";
       }
+      if (containerId === 'locationLinksContainer') {
+        div.className = "grid grid-cols-12 gap-2 items-center relative group/btn pr-6 animate-fadeIn location-link-item";
+      }
       div.innerHTML = htmlTemplate;
       container.appendChild(div);
       
@@ -1294,6 +1313,13 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     <button type="button" class="delete-point-btn absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 text-xs font-bold transition-colors p-1">✕</button>
   `;
   setupRepeater('addPlanPointBtn', 'planPointsContainer', planPointTemplate, 'delete-point-btn', 'plan-point-item');
+
+  const locationLinkTemplate = `
+    <div class="col-span-8"><input type="text" class="location-item-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold" placeholder="Địa điểm" /></div>
+    <div class="col-span-4"><input type="text" class="location-time-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-orange-600 text-center" placeholder="2 Phút" /></div>
+    <button type="button" class="delete-location-link-btn absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 text-xs font-bold transition-colors p-1">✕</button>
+  `;
+  setupRepeater('addLocationLinkBtn', 'locationLinksContainer', locationLinkTemplate, 'delete-location-link-btn', 'location-link-item');
 
   const unitTemplate = `
       <div class="flex justify-between items-center border-b border-slate-100 pb-2">
@@ -1422,122 +1448,115 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     });
   };
 
-  // SỬA: Thay vì gán vào window, khai báo thành hàm chuẩn TypeScript ở top-level của <script>
-function recalculateCanvasIndices() {
-  const canvas = document.getElementById('activeCanvas');
-  const pool = document.getElementById('widgetPool');
-  if (!canvas || !pool) return;
+  function recalculateCanvasIndices() {
+    const canvas = document.getElementById('activeCanvas');
+    const pool = document.getElementById('widgetPool');
+    if (!canvas || !pool) return;
 
-  const activeSections = canvas.querySelectorAll('.section-card');
-  const activeIds = new Set<string>();
+    const activeSections = canvas.querySelectorAll('.section-card');
+    const activeIds = new Set<string>();
 
-  activeSections.forEach((card, idx) => {
-    const sId = card.getAttribute('data-section-id');
-    if (sId) activeIds.add(sId);
-    
-    const indexBadge = card.querySelector('.canvas-index-badge');
-    if (indexBadge) indexBadge.textContent = `#${idx + 1}`;
-  });
+    activeSections.forEach((card, idx) => {
+      const sId = card.getAttribute('data-section-id');
+      if (sId) activeIds.add(sId);
+      
+      const indexBadge = card.querySelector('.canvas-index-badge');
+      if (indexBadge) indexBadge.textContent = `#${idx + 1}`;
+    });
 
-  // Quét Kho để cập nhật Style nút Bật/Tắt
-  pool.querySelectorAll('[data-widget-id]').forEach(widgetNode => {
-    const wId = widgetNode.getAttribute('data-widget-id');
-    const btn = widgetNode.querySelector('.activate-widget-btn');
-    if (!wId || !btn) return;
+    pool.querySelectorAll('[data-widget-id]').forEach(widgetNode => {
+      const wId = widgetNode.getAttribute('data-widget-id');
+      const btn = widgetNode.querySelector('.activate-widget-btn');
+      if (!wId || !btn) return;
 
-    if (activeIds.has(wId)) {
-      widgetNode.classList.add('border-green-500', 'bg-slate-800/40');
-      widgetNode.classList.remove('border-slate-700');
-      btn.textContent = 'Đang hiện';
-      btn.className = 'activate-widget-btn text-[10px] bg-green-600 px-2 py-1 rounded-lg text-white font-bold cursor-default';
-    } else {
-      widgetNode.classList.remove('border-green-500', 'bg-slate-800/40');
-      widgetNode.classList.add('border-slate-700');
-      btn.textContent = 'Bật';
-      btn.className = 'activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all';
-    }
-  });
-}
+      if (activeIds.has(wId)) {
+        widgetNode.classList.add('border-green-500', 'bg-slate-800/40');
+        widgetNode.classList.remove('border-slate-700');
+        btn.textContent = 'Đang hiện';
+        btn.className = 'activate-widget-btn text-[10px] bg-green-600 px-2 py-1 rounded-lg text-white font-bold cursor-default';
+      } else {
+        widgetNode.classList.remove('border-green-500', 'bg-slate-800/40');
+        widgetNode.classList.add('border-slate-700');
+        btn.textContent = 'Bật';
+        btn.className = 'activate-widget-btn text-[10px] bg-slate-700 group-hover:bg-orange-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all';
+      }
+    });
+  }
   
 
-  // 🔥 THUẬT TOÁN KÉO THẢ VÀ ĐỒNG BỘ TRỰC QUAN MỚI (WIDGET LAYOUT BUILDER)
   function initWidgetLayoutBuilder() {
-  const pool = document.getElementById('widgetPool');
-  const canvas = document.getElementById('activeCanvas');
-  const storage = document.getElementById('hiddenWidgetStorage');
-  if (!pool || !canvas || !storage) return;
+    const pool = document.getElementById('widgetPool');
+    const canvas = document.getElementById('activeCanvas');
+    const storage = document.getElementById('hiddenWidgetStorage');
+    if (!pool || !canvas || !storage) return;
 
-  // XÓA BỎ đoạn window.recalculateCanvasIndices = function() {...} vì đã đưa ra ngoài ở Bước 1
+    pool.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const widgetItem = target.closest('[data-widget-id]');
+      if (!widgetItem) return;
 
-  // Click vào Widget ở Kho để đẩy vào Bàn Làm Việc Canvas
-  pool.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    const widgetItem = target.closest('[data-widget-id]');
-    if (!widgetItem) return;
+      const sId = widgetItem.getAttribute('data-widget-id');
+      if (!sId) return;
 
-    const sId = widgetItem.getAttribute('data-widget-id');
-    if (!sId) return;
-
-    const alreadyInCanvas = canvas.querySelector(`[data-section-id="${sId}"]`);
-    if (!alreadyInCanvas) {
-      const sectionCard = storage.querySelector(`[data-section-id="${sId}"]`);
-      if (sectionCard) {
-        canvas.appendChild(sectionCard);
-        recalculateCanvasIndices(); // 🔥 FIX: Gọi trực tiếp
-        sectionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const alreadyInCanvas = canvas.querySelector(`[data-section-id="${sId}"]`);
+      if (!alreadyInCanvas) {
+        const sectionCard = storage.querySelector(`[data-section-id="${sId}"]`);
+        if (sectionCard) {
+          canvas.appendChild(sectionCard);
+          recalculateCanvasIndices(); 
+          sectionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
-    }
-  });
+    });
 
-  // Click nút "Gỡ hiển thị" trong Canvas để ném trả về Kho dữ liệu ngầm
-  canvas.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    if (target.classList.contains('remove-widget-btn')) {
-      const card = target.closest('.section-card');
-      if (card) {
-        storage.appendChild(card);
-        recalculateCanvasIndices(); // 🔥 FIX: Gọi trực tiếp
+    canvas.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('remove-widget-btn')) {
+        const card = target.closest('.section-card');
+        if (card) {
+          storage.appendChild(card);
+          recalculateCanvasIndices(); 
+        }
       }
-    }
-  });
+    });
 
-  let draggedCard: HTMLElement | null = null;
+    let draggedCard: HTMLElement | null = null;
 
-  canvas.addEventListener('dragstart', (e) => {
-    const target = e.target as HTMLElement;
-    const card = target.closest('.section-card') as HTMLElement;
-    if (card && target.closest('.canvas-drag-handle')) {
-      draggedCard = card;
-      card.classList.add('opacity-40', 'border-orange-500', 'scale-[0.99]');
-    }
-  });
-
-  canvas.addEventListener('dragend', () => {
-    if (draggedCard) {
-      draggedCard.classList.remove('opacity-40', 'border-orange-500', 'scale-[0.99]');
-      draggedCard = null;
-    }
-    recalculateCanvasIndices(); // 🔥 FIX: Gọi trực tiếp
-  });
-
-  canvas.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    if (!draggedCard) return;
-
-    const target = e.target as HTMLElement;
-    const overCard = target.closest('.section-card') as HTMLElement;
-
-    if (overCard && overCard !== draggedCard && overCard.parentElement === canvas) {
-      const bounding = overCard.getBoundingClientRect();
-      const offset = e.clientY - bounding.top;
-      if (offset > bounding.height / 2) {
-        canvas.insertBefore(draggedCard, overCard.nextSibling);
-      } else {
-        canvas.insertBefore(draggedCard, overCard);
+    canvas.addEventListener('dragstart', (e) => {
+      const target = e.target as HTMLElement;
+      const card = target.closest('.section-card') as HTMLElement;
+      if (card && target.closest('.canvas-drag-handle')) {
+        draggedCard = card;
+        card.classList.add('opacity-40', 'border-orange-500', 'scale-[0.99]');
       }
-    }
-  });
-}
+    });
+
+    canvas.addEventListener('dragend', () => {
+      if (draggedCard) {
+        draggedCard.classList.remove('opacity-40', 'border-orange-500', 'scale-[0.99]');
+        draggedCard = null;
+      }
+      recalculateCanvasIndices(); 
+    });
+
+    canvas.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (!draggedCard) return;
+
+      const target = e.target as HTMLElement;
+      const overCard = target.closest('.section-card') as HTMLElement;
+
+      if (overCard && overCard !== draggedCard && overCard.parentElement === canvas) {
+        const bounding = overCard.getBoundingClientRect();
+        const offset = e.clientY - bounding.top;
+        if (offset > bounding.height / 2) {
+          canvas.insertBefore(draggedCard, overCard.nextSibling);
+        } else {
+          canvas.insertBefore(draggedCard, overCard);
+        }
+      }
+    });
+  }
 
   async function loadProjectLandingData() {
     if (!projectId || projectId === 'null' || projectId === 'undefined') {
@@ -1552,15 +1571,12 @@ function recalculateCanvasIndices() {
       });
 
       if (res.status === 401) {
-          // Chưa đăng nhập hoặc token hết hạn thật -> Mới đẩy ra Login
           localStorage.clear();
-          // Xoá luôn cookie chạy ngầm
           document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
           window.location.href = '/admin/login';
       } 
 
       else if (res.status === 403) {
-          // Đã đăng nhập nhưng SAI QUYỀN -> Giữ nguyên phiên, đẩy sang trang báo lỗi 403
           window.location.href = '/403'; 
       }
 
@@ -1611,19 +1627,16 @@ function recalculateCanvasIndices() {
         }
       };
 
-      // --- PHỤC HỒI THỨ TỰ CANVAS & TRẠNG THÁI HIỂN THỊ CHUẨN CMS ---
       const canvas = document.getElementById('activeCanvas');
       const storage = document.getElementById('hiddenWidgetStorage');
       const visibility = data.visibility || {};
 
-      // Nếu hệ thống đã có lưu cấu trúc mảng thứ tự layout_order từ trước
       if (data.layout_order && Array.isArray(data.layout_order)) {
         data.layout_order.forEach((sId: string) => {
           const card = storage?.querySelector(`[data-section-id="${sId}"]`);
           if (card && canvas) canvas.appendChild(card);
         });
       } else {
-        // Hỗ trợ Legacy: Quét mảng boolean visibility cũ để xếp tuần tự vào Canvas
         const defaultOrder = ['hero', 'highlights', 'stats', 'promo', 'overview', 'location_links', 'floorplan', 'amenities', 'unit_designs', 'furniture', 'payment_methods', 'apartments', 'lead_form'];
         defaultOrder.forEach((sId) => {
           const legacyKey = sId === 'location_links' ? 'location_links' : (sId === 'floorplan' ? 'floorplan' : sId);
@@ -1634,7 +1647,6 @@ function recalculateCanvasIndices() {
         });
       }
       
-      // Kích hoạt tính toán đồng bộ chỉ mục giao diện ngay lập tức
       recalculateCanvasIndices();
 
       // 1. Hero
@@ -1669,6 +1681,13 @@ function recalculateCanvasIndices() {
         setInput('statNumber2', sList[1]);
         setInput('statNumber3', sList[2]);
         setInput('statNumber4', sList[3]);
+
+        if (!Array.isArray(data.stats) && data.stats.descriptions) {
+          setInput('statDesc1', data.stats.descriptions[0]);
+          setInput('statDesc2', data.stats.descriptions[1]);
+          setInput('statDesc3', data.stats.descriptions[2]);
+          setInput('statDesc4', data.stats.descriptions[3]);
+        }
       }
 
       // 4. Promo
@@ -1689,12 +1708,19 @@ function recalculateCanvasIndices() {
       // 6. Location
       setInput('locationTitle', data.location_links?.title);
       setInput('locationDescription', data.location_links?.description);
-      if (data.location_links?.links && Array.isArray(data.location_links.links)) {
-        data.location_links.links.forEach((link: any, index: number) => {
-          const i = index + 1;
+      const locationLinksContainer = document.getElementById('locationLinksContainer');
+      if (locationLinksContainer && data.location_links?.links && Array.isArray(data.location_links.links)) {
+        locationLinksContainer.innerHTML = '';
+        data.location_links.links.forEach((link: any) => {
           if (link && typeof link === 'object') {
-            setInput(`locationItem${i}`, link.name);
-            setInput(`locationTime${i}`, link.time);
+            const div = document.createElement('div');
+            div.className = "grid grid-cols-12 gap-2 items-center relative group/btn pr-6 animate-fadeIn location-link-item";
+            div.innerHTML = `
+              <div class="col-span-8"><input type="text" class="location-item-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold" value="${escapeHTML(link.name)}" placeholder="Địa điểm" /></div>
+              <div class="col-span-4"><input type="text" class="location-time-input w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-orange-600 text-center" value="${escapeHTML(link.time)}" placeholder="2 Phút" /></div>
+              <button type="button" class="delete-location-link-btn absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 text-xs font-bold transition-colors p-1">✕</button>
+            `;
+            locationLinksContainer.appendChild(div);
           }
         });
       }
@@ -1804,7 +1830,7 @@ function recalculateCanvasIndices() {
       }
 
       // 10. Furniture
-      setInput('furnitureMainTitle', data.furniture?.title || 'NỘI THẤT BÀN GIAO');
+      setInput('furnitureMainTitle', data.furniture?.title || 'NỘI THẤT BÀI GIAO');
       setInput('furnitureSubtitle', data.furniture?.subtitle || '');
       restoreContainerDirection('container_furniture', 'badge_furniture', data.furniture?.direction);
 
@@ -1927,7 +1953,6 @@ function recalculateCanvasIndices() {
       setInput('leadFormSubtitle', data.lead_form?.subtitle || '');
       setInput('leadFormBtnText', data.lead_form?.btn_text || 'ĐĂNG KÝ NHẬN ƯU ĐÃI NGAY');
 
-      // Thực thi tính toán lại Pool sau khi nạp data hoàn chỉnh
       recalculateCanvasIndices();
 
     } catch (e) {
@@ -1949,7 +1974,6 @@ function recalculateCanvasIndices() {
 
     Swal.fire({ title: 'Đang xử lý cập nhật...', text: 'Vui lòng chờ trong giây lát', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
-    // Thu thập cấu trúc mảng thứ tự sắp xếp thực tế trong vùng Canvas
     const layoutOrderArr: string[] = [];
     const canvas = document.getElementById('activeCanvas');
     if (canvas) {
@@ -2070,16 +2094,16 @@ function recalculateCanvasIndices() {
     });
 
     const locationLinksArr: Array<{name: string, time: string}> = [];
-    for (let i = 1; i <= 5; i++) {
-      const itemInput = document.getElementById(`locationItem${i}`) as HTMLInputElement;
-      const timeInput = document.getElementById(`locationTime${i}`) as HTMLInputElement;
-      if (itemInput) {
+    document.querySelectorAll('.location-link-item').forEach(item => {
+      const nameInp = item.querySelector('.location-item-input') as HTMLInputElement;
+      const timeInp = item.querySelector('.location-time-input') as HTMLInputElement;
+      if (nameInp && nameInp.value.trim()) {
         locationLinksArr.push({
-          name: itemInput.value.trim(),
-          time: timeInput ? timeInput.value.trim() : ''
+          name: nameInp.value.trim(),
+          time: timeInp ? timeInp.value.trim() : ''
         });
       }
-    }
+    });
 
     const getDir = (id: string) => document.getElementById(id)?.getAttribute('data-direction') || 'normal';
 
@@ -2108,7 +2132,7 @@ function recalculateCanvasIndices() {
     };
 
     const structuralTextJson = {
-      layout_order: layoutOrderArr, // 🔥 ĐỒNG BỘ: Gửi mảng thứ tự CMS lên Database Laravel
+      layout_order: layoutOrderArr, 
       visibility: visibilityJson,
       hero: {
         direction: getDir('container_hero'),
@@ -2146,12 +2170,20 @@ function recalculateCanvasIndices() {
           (document.getElementById('partner7') as HTMLInputElement).value
         ]
       },
-      stats: [
-        (document.getElementById('statNumber1') as HTMLInputElement).value,
-        (document.getElementById('statNumber2') as HTMLInputElement).value,
-        (document.getElementById('statNumber3') as HTMLInputElement).value,
-        (document.getElementById('statNumber4') as HTMLInputElement).value
-      ],
+      stats: {
+        items: [
+          (document.getElementById('statNumber1') as HTMLInputElement).value,
+          (document.getElementById('statNumber2') as HTMLInputElement).value,
+          (document.getElementById('statNumber3') as HTMLInputElement).value,
+          (document.getElementById('statNumber4') as HTMLInputElement).value
+        ],
+        descriptions: [
+          (document.getElementById('statDesc1') as HTMLInputElement).value,
+          (document.getElementById('statDesc2') as HTMLInputElement).value,
+          (document.getElementById('statDesc3') as HTMLInputElement).value,
+          (document.getElementById('statDesc4') as HTMLInputElement).value
+        ]
+      },
       promo: {
         title: (document.getElementById('promoTitle') as HTMLInputElement).value,
         description: (document.getElementById('promoDesc') as HTMLTextAreaElement).value
@@ -2255,7 +2287,7 @@ function recalculateCanvasIndices() {
   });
 
   document.addEventListener('DOMContentLoaded', () => {
-    initWidgetLayoutBuilder(); // 🔥 Bật tính năng Kéo thả Widget
+    initWidgetLayoutBuilder(); 
     loadProjectLandingData();
   });
 </script>
