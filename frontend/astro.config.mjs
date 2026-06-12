@@ -4,7 +4,20 @@ import node from '@astrojs/node';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 
-// https://astro.build/config
+// export default defineConfig({
+//   // 🔥 BẮT BUỘC: Điền domain production của Frontend để sitemap sinh link tuyệt đối chính xác
+//   site: 'https://bconstower.vn', 
+  
+//   integrations: [
+//     sitemap({
+//       // Cấu hình tùy chọn (nếu cần thiết)
+//       changefreq: 'daily', // Tần suất quét dự kiến báo cho Google Bot
+//       priority: 0.7,       // Độ ưu tiên mặc định cho các trang thành phần
+//       lastmod: new Date(), // Ngày cập nhật cuối cùng (lấy thời gian build)
+//     }),
+//   ],
+// });
+
 export default defineConfig({
   // site: 'https://bconstower.vn',
   output: 'server',

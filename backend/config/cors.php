@@ -19,7 +19,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+        'http://localhost:4321',      // Cho bạn test dưới máy Localhost (Astro)
+        'https://bconstower.vn',      // Domain Frontend chính thức Production
+        'https://www.bconstower.vn',  // Dự phòng trường hợp khách gõ cả www.bconstower.vn
+    ],
 
     'allowed_origins_patterns' => [],
 
