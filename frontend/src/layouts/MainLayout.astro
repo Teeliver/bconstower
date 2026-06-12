@@ -14,8 +14,9 @@ interface Props {
 
 const { title, description, image } = Astro.props;
 
-// 2. Fetch thông tin cấu hình từ Backend (Server-side fetch)
-const BACKEND_URL = 'http://localhost:8000'; // Giữ nguyên URL gốc của ông
+// 2. 🔥 ĐÃ SỬA: Tự động dùng API Production trên VPS, ở local tự quay về cổng 8000
+const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
+
 let settings = {
   siteTitle: "Bcons Portal cc",
   siteDescription: "Hệ thống quản lý bất động sản",
@@ -60,14 +61,25 @@ try {
     }
   }
 } catch (error) {
-  console.error("Layout fetch settings error:", error);
+  // Bọc log êm ái để dù API sập, Frontend vẫn build thành công ra file HTML
+  console.error("Layout fetch settings error nhưng vẫn giữ dữ liệu mặc định:", error);
 }
 
 // 3. Ưu tiên dữ liệu cụ thể của từng trang, nếu không có thì lấy mặc định từ Settings
 const finalTitle = title ? `${title} | ${settings.siteTitle}` : settings.siteTitle;
 const finalDesc = description || settings.siteDescription;
-const finalImage = image ? `${BACKEND_URL}${image}` : `${BACKEND_URL}${settings.ogImage}`;
-const finalFavicon = settings.favicon.startsWith('http') ? settings.favicon : `${BACKEND_URL}${settings.favicon}`;
+
+// 🔥 ĐÃ SỬA LUẬN LÝ GHÉP LINK: Chống trùng lặp hoặc thiếu dấu gạch chéo gầy lỗi link ảnh trên Google
+const formatAbsoluteUrl = (path: string) => {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const cleanBase = BACKEND_URL.replace(/\/$/, '');
+  const cleanPath = path.replace(/^\//, '');
+  return `${cleanBase}/${cleanPath}`;
+};
+
+const finalImage = image ? formatAbsoluteUrl(image) : formatAbsoluteUrl(settings.ogImage);
+const finalFavicon = formatAbsoluteUrl(settings.favicon);
 ---
 
 <!DOCTYPE html>
