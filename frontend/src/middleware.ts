@@ -3,13 +3,8 @@ import { defineMiddleware } from "astro:middleware";
 
 const PROTECTED_ROUTES: Record<string, string[]> = {
   "/admin/projects": ["admin"],
-
-  
   "/admin/dashboard": ["admin", "manager", "broker"], 
-  
-  // 🟢 SỬA TẠI ĐÂY: Mở khóa vùng /admin chung cho cả Manager và Broker vào các trang con
   "/admin": ["admin", "manager", "broker"],                               
-  
   "/manager": ["admin", "manager"],                  
   "/dashboard": ["admin", "manager", "broker"],       
 };
@@ -17,6 +12,14 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
 export const onRequest = defineMiddleware(async (context, next) => {
   const { url, cookies, redirect } = context;
   const pathname = url.pathname;
+
+  // 🔥 VÁ LỖI KIẾN TRÚC ĐÓNG GÓI TĨNH (SSG)
+  // Vì site chạy Static HTML thuần, file middleware này chỉ thực thi lúc gõ lệnh "npm run build".
+  // Để không bị đóng gói CHẾT lệnh redirect bậy bạ vào file giao diện quản trị, ta cho vùng /admin đi qua thẳng.
+  // Quyền bảo mật vùng /admin sẽ nhường trọn vẹn cho hàm checkAdminAuth() ở Client-side JS xử lý trên trình duyệt.
+  if (pathname.startsWith("/admin")) {
+    return next();
+  }
 
   if (
     pathname.includes("/login") ||           
@@ -35,14 +38,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const rawToken = cookies.get("auth_token")?.value;
     const rawRole = cookies.get("user_role")?.value;
 
-    // 🔥 BƯỚC VÁ CHÍ MẠNG: Giải mã URL Cookie để khôi phục chữ "MÔI GIỚI", "NHÂN VIÊN" nguyên vẹn
     const cleanToken = rawToken ? decodeURIComponent(rawToken) : null;
     const cleanRole = rawRole ? decodeURIComponent(rawRole).replace(/^"|"$/g, '').trim().toLowerCase() : null;
 
     const token = (cleanToken && cleanToken !== "undefined" && cleanToken !== "null") ? cleanToken : null;
     const userRole = cleanRole;
 
-    // Quy đổi nhóm quyền chuẩn hóa sau khi đã giải mã thành công
     let userGroup = userRole;
     if (userRole) {
       if (["quan_ly", "quản lý", "manager", "editor"].includes(userRole)) {
@@ -54,7 +55,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
       }
     }
 
-    // In log ra Terminal để ông giám sát dòng chữ Tiếng Việt đổ về chuẩn chưa
     console.log(`[Bcons Cookie Decode] Path: ${pathname} | Role gốc: [${userRole}] -> Nhóm: [${userGroup}]`);
 
     if (!token || !userGroup) {
