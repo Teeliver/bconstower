@@ -3,7 +3,7 @@ import MainLayout from "../../layouts/MainLayout.astro";
 
 // 🔥 BẢO MẬT & CHUẨN SEO TUYỆT ĐỐI: Đồng bộ toàn bộ slug dự án từ Laravel phục vụ đóng gói SSG tĩnh
 export async function getStaticPaths() {
-  const API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
+  const API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
   try {
     const res = await fetch(`${API_BASE}/api/projects`, {
       method: 'GET',
@@ -29,10 +29,41 @@ export async function getStaticPaths() {
 }
 
 const { projectSlug } = Astro.params;
-const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+
+// 🚀 KHỞI TẠO BIẾN CONFIG SEO MẶC ĐỊNH (FALLBACK)
+let seoTitle = "Chi tiết dự án và Bảng giá căn hộ chung cư mới nhất";
+let seoDescription = "Hệ thống giỏ hàng ký gửi chính chủ được kiểm duyệt thực tế kỹ lưỡng.";
+
+// 🔍 ĐỒNG BỘ DỮ LIỆU TỪ API SERVER-SIDE ĐỂ PHỤC VỤ SEO GOOGLE BOT
+try {
+  const res = await fetch(`${PUBLIC_API_BASE}/api/apartments/by-project?slug=${projectSlug}`);
+  if (res.ok) {
+    const result = await res.json();
+    const projectInfo = result.project_info || result.projectInfo;
+    if (projectInfo) {
+      const currentTitle = projectInfo.title || projectInfo.name || "";
+      if (currentTitle) {
+        // Ép tên dự án lên đầu tiên theo đúng yêu cầu cấu trúc SEO của bạn
+        seoTitle = `${currentTitle} - Chi tiết dự án và Bảng giá căn hộ chung cư mới nhất`;
+      }
+      
+      const landingStructure = typeof projectInfo.landing_data === 'string' ? JSON.parse(projectInfo.landing_data) : projectInfo.landing_data;
+      
+      // Quét đa tầng lấy mô tả tối ưu nhất của dự án từ database
+      seoDescription = projectInfo.seo_description || 
+                       landingStructure?.seo?.description || 
+                       landingStructure?.overview?.highlights || 
+                       projectInfo.description || 
+                       `Thông tin chi tiết, bảng giá mới nhất và giỏ hàng ký gửi chính chủ căn hộ chung cư thuộc dự án ${currentTitle}. Liên hệ hotline 0911.502.603 để nhận file dòng tiền chi tiết.`;
+    }
+  }
+} catch (e) {
+  console.error("Lỗi đồng bộ SEO Meta Tags phía Server-side:", e);
+}
 ---
 
-<MainLayout title="Chi tiết dự án và Bảng giá căn hộ chung cư mới nhất">
+<MainLayout title={seoTitle} description={seoDescription}>
   <div class="bg-slate-50/50 w-full overflow-x-hidden break-words min-h-screen pb-24 font-sans text-slate-800 mt-16">
 
     <div id="landing-sections-container">
@@ -252,7 +283,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
         const safeProjectSlug = typeof projectSlug !== 'undefined' ? projectSlug : '';
         const safeBackendUrl = typeof BACKEND_URL !== 'undefined' ? BACKEND_URL : '';
 
-        // 🔥 FIX QUAN TRỌNG: Đổi thẻ <Image /> thành <img> chuẩn của trình duyệt để hiển thị trơn tru phía client-side
         el.innerHTML = `
           <div class="relative w-full min-h-[600px] lg:h-[650px] bg-gradient-to-br from-[#fac72e] via-[#e2b327] to-[#d8aa21] rounded-[30px] md:rounded-[40px] overflow-hidden flex flex-col lg:flex-row items-center shadow-2xl ${safeIsRev}">
             <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');"></div>
@@ -306,7 +336,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
         `;
         el.classList.remove('hidden');
 
-        // LUỒNG XỬ LÝ EVENT SUBMIT FORM HERO NGẦM
         const heroFormElement = document.getElementById('hero-lead-form');
         heroFormElement?.addEventListener('submit', async function(event) {
           event.preventDefault();
@@ -434,27 +463,31 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
       }
     }
 
-    // 3. SECTION 03: STATS BAR
+    // =====================================================================
+    // 3. SECTION 03: STATS BAR (ĐÃ ĐỒNG BỘ HIỂN THỊ MÔ TẢ ĐA TẦNG & TRÙNG INDEX)
+    // =====================================================================
     if (visibility.stats !== false && landingData.stats) {
       const statsData = landingData.stats;
-      
-      // Tách riêng 2 mảng số liệu và mô tả từ API của bạn
-      const sList = Array.isArray(statsData.items) ? statsData.items : [];
+      const sList = Array.isArray(statsData.items) ? statsData.items : (Array.isArray(statsData) ? statsData : []);
       const dList = Array.isArray(statsData.descriptions) ? statsData.descriptions : [];
       
-      if (sList.length > 0) {
+      if (sList.length > 0 || (statsData.items && statsData.items.length > 0)) {
         const el = document.getElementById('render-section-stats');
         const wrapper = document.getElementById('wrapper-section-stats');
+        const finalItems = Array.isArray(statsData.items) ? statsData.items : sList;
+        
+        const sectionDesc = !Array.isArray(statsData) && statsData.description ? statsData.description : '';
 
         el.innerHTML = `
+          ${sectionDesc 
+            ? `<p class="text-center text-slate-500 max-w-2xl mx-auto mb-6 italic text-sm animate-fadeIn">${escapeHTML(sectionDesc)}</p>` 
+            : ''
+          }
           <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-8 bg-[#fac72e] p-6 rounded-[3rem] shadow-xl">
-            ${sList.map((s, idx) => {
+            ${finalItems.map((s, idx) => {
               if (!s) return '';
-              
-              const val = s; // Ví dụ: '10+', '100%',...
-              
-              // Map mô tả từ mảng descriptions dựa theo đúng vị trí index (idx)
-              const label = dList[idx] || 'Dự án đã bàn giao'; 
+              const val = typeof s === 'object' ? (s.value || s.number || '') : s;
+              const label = typeof s === 'object' ? (s.label || s.desc || s.title || 'Dự án đã bàn giao') : (dList[idx] || 'Dự án đã bàn giao');
               
               return `
                 <div class="text-center p-2">

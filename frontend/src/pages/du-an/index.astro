@@ -4,9 +4,12 @@ import BannerAds from '../../components/BannerAds.astro';
 
 // 🔥 ĐỒNG BỘ HỆ THỐNG: Lấy trực tiếp biến cấu hình từ file .env của Trung Tín
 const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
+
+const seoTitle = "Danh sách dự án Bcons mới nhất 2026";
+const seoDesciption = "Khám phá các dự án căn hộ, chung cư và bất động sản nổi bật của Bcons với vị trí chiến lược, tiện ích hiện đại và tiềm năng gia tăng giá trị bền vững."
 ---
 
-<MainLayout title="Danh sách dự án Bcons mới nhất 2026">
+<MainLayout title={seoTitle} description={seoDesciption}>
   <div class="bg-white w-full overflow-x-hidden break-words min-h-screen pb-24 font-sans text-slate-800">
 
     <div class="max-w-7xl mx-auto px-4 pt-36">
