@@ -6,7 +6,7 @@ interface Props {
 }
 
 const { position, className = "" } = Astro.props;
-const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
 
 let banners = [];
 try {

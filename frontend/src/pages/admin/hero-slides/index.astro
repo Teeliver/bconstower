@@ -76,7 +76,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
   checkAdminAuth();
 
   // 🔥 ĐỒNG BỘ ĐƯỜNG DẪN MÔI TRƯỜNG: Bốc chuẩn xác cổng phân phát từ tệp .env toàn cục
-  const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
 
   // 🔥 HÀM BẢO MẬT: Bộ mã hóa thực thể HTML, loại bỏ hoàn toàn nguy cơ Stored XSS tấn công vào Admin Panel
   const escapeHTML = (str: string): string => {

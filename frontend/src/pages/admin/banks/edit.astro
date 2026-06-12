@@ -90,7 +90,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
   import Swal from 'sweetalert2';
   import { checkAdminAuth } from '../../../lib/auth'; // Đã chỉnh sửa cấp import
 
-  const API_BASE_URL = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+  const API_BASE_URL = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
   const form = document.getElementById('bankForm') as HTMLFormElement;
   const btn = document.getElementById('submitBtn') as HTMLButtonElement;
   const logoInput = document.getElementById('logoFile') as HTMLInputElement;

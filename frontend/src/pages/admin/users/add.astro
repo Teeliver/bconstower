@@ -136,7 +136,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
   checkAdminAuth();
 
   // ĐỒNG BỘ: Cổng máy chủ API chuẩn bảo mật của Backend Laravel
-  const BACKEND_URL = 'http://127.0.0.1:8000';
+  const BACKEND_URL = 'http://localhost:8000';
   const form = document.getElementById('addUserForm') as HTMLFormElement;
   const roleSelect = document.getElementById('roleSelect') as HTMLSelectElement;
   const brokerFields = document.getElementById('brokerFields') as HTMLElement;

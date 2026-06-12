@@ -41,7 +41,7 @@ import MainLayout from '../../layouts/MainLayout.astro';
   const msg = document.getElementById('msg') as HTMLParagraphElement;
   const btn = document.getElementById('submitBtn') as HTMLButtonElement;
 
-  const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
 
   const ALLOWED_ROLES = [
     'ADMIN', 'EDITOR', 

@@ -1,7 +1,7 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
 
-const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
 
 const seoTitle = "Liên Hệ Với Chúng Tôi - Phòng Kinh Doanh Bcons";
 const seoDescription = "Kết nối trực tiếp với phòng kinh doanh dự án Bcons. Hỗ trợ tư vấn bảng giá, xem nhà mẫu và thủ tục pháp lý, đòn bẩy tài chính 24/7.";
@@ -205,7 +205,7 @@ const seoImage = "https://placehold.co/800x450?text=Bcons+Contact";
     const projectSelect = document.getElementById('contact-project');
     if (!form) return;
 
-    const BACKEND_URL = form.getAttribute('data-api') || 'http://127.0.0.1:8000';
+    const BACKEND_URL = form.getAttribute('data-api') || 'http://localhost:8000';
 
     if (projectSelect && projectSelect.children.length <= 1) {
       try {

@@ -1,7 +1,7 @@
 ---
 // src/components/home/HeroSlide.astro
 // 🔥 ĐỒNG BỘ HỆ THỐNG: Lấy biến cấu hình URL Server từ tệp .env của Trung Tín
-const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
 ---
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
@@ -36,7 +36,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
     if (section.dataset.sliderLoaded === 'true') return;
     section.dataset.sliderLoaded = 'true';
 
-    const BACKEND_URL = section.getAttribute('data-api') || 'http://127.0.0.1:8000';
+    const BACKEND_URL = section.getAttribute('data-api') || 'http://localhost:8000';
 
     const escapeHTML = (str) => {
       if (!str) return '';
@@ -50,7 +50,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
     const fallbackSlideHtml = `
       <div class="swiper-slide relative w-full h-[420px] sm:h-[500px] md:h-[640px] flex items-end overflow-hidden">
         <div class="absolute inset-0 z-0 w-full h-full">
-          <img src="http://127.0.0.1:8000/upload/heroslider/banenr-1-1779902707.png" alt="Banner Bcons" class="w-full h-full object-cover object-center block" />
+          <img src="http://localhost:8000/upload/heroslider/banenr-1-1779902707.png" alt="Banner Bcons" class="w-full h-full object-cover object-center block" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/35 to-transparent"></div>
           <div class="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent hidden md:block"></div>
         </div>
@@ -94,7 +94,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
           // Ép cứng object-cover object-center cố định tỷ lệ khung hình không lo móp méo ảnh
           let html = `<div class="swiper-slide relative w-full h-[420px] sm:h-[500px] md:h-[640px] flex items-end overflow-hidden">`;
           html += `  <div class="absolute inset-0 z-0 w-full h-full">`;
-          html += `    <img src="${fullImgUrl}" alt="${title}" class="w-full h-full object-cover md:object-fit object-center block" onerror="this.src='http://127.0.0.1:8000/upload/heroslider/banenr-1-1779902707.png'" />`;
+          html += `    <img src="${fullImgUrl}" alt="${title}" class="w-full h-full object-cover md:object-fit object-center block" onerror="this.src='http://localhost:8000/upload/heroslider/banenr-1-1779902707.png'" />`;
           html += `    <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/25 to-transparent"></div>`;
           html += `    <div class="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent hidden md:block"></div>`;
           html += `  </div>`;

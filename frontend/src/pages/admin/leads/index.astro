@@ -2,7 +2,7 @@
 // src/pages/admin/leads/index.astro
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 
-const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
 ---
 
 <AdminLayout title="Quản lý khách hàng">
@@ -109,7 +109,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
   // Khóa bảo vệ trang quản trị
   checkAdminAuth();
 
-  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
 
   const escapeHTML = (val: any): string => {
     if (val === null || val === undefined) return '';

@@ -41,7 +41,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
   import Swal from 'sweetalert2';
   import { checkAdminAuth } from '../../../lib/auth';
 
-  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
   const projectList = document.getElementById('projectList');
 
   // Khởi động lớp kiểm tra quyền hạn Admin bảo mật
@@ -85,14 +85,14 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
       if (res.status === 401) {
           // Chưa đăng nhập hoặc token hết hạn thật -> Mới đẩy ra Login
           localStorage.clear();
-          // Xoá luôn cookie chạy ngầm
           document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
           window.location.href = '/admin/login';
+          return;
       } 
 
       else if (res.status === 403) {
-          // Đã đăng nhập nhưng SAI QUYỀN -> Giữ nguyên phiên, đẩy sang trang báo lỗi 403
           window.location.href = '/403'; 
+          return;
       }
 
       const rawData = await res.json();
@@ -107,7 +107,6 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
       }
 
       data.forEach((item: any) => {
-        // Trích xuất an toàn dữ liệu từ API
         const currentTitle = item.title || item.name || 'Dự án chưa đặt tên';
         const currentSlug = item.slug || '';
         const currentStatus = item.status || 'dang_xay_dung';
@@ -115,18 +114,15 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
         const currentAddress = item.address || 'Chưa cập nhật vị trí';
         const currentCreatedAt = item.created_at || Date.now();
         
-        // 🔥 FIX LỖI HIỂN THỊ ẢNH: Kiểm tra chuẩn xác đường dẫn tương đối từ Laravel để chắp nối domain API
         const currentImage = item.image || '';
         let imageUrl = 'https://placehold.co/100x100?text=Bcons';
         
         if (currentImage) {
           imageUrl = currentImage.startsWith('http') ? currentImage : `${API_BASE}${currentImage}`;
         } else {
-          // Fallback tự động nếu không có ảnh phẳng ngoài DB
           imageUrl = `/upload/projects/${currentSlug}/overview/default.jpg`;
         }
 
-        // Định dạng nhãn hiển thị Trạng thái mở bán
         let statusLabel = 'Đang xây dựng';
         let statusClass = 'bg-blue-100 text-blue-700 border border-blue-200';
 
@@ -141,7 +137,6 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
           statusClass = 'bg-amber-100 text-amber-700 border border-amber-200';
         }
 
-        // 🔥 FIX LỖI HIỂN THỊ PHÁP LÝ: Khớp mảng ENUM chuẩn xác từ CSDL MySQL để dịch sang tiếng Việt có dấu
         let legalLabel = 'Hợp Đồng Mua Bán';
         let legalClass = 'text-slate-600 bg-slate-100 border-slate-200';
         
@@ -229,17 +224,17 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
                 }
               });
 
-              if (res.status === 401) {
-                  // Chưa đăng nhập hoặc token hết hạn thật -> Mới đẩy ra Login
+              // 🔥 ĐÃ FIX BUG SCOPE: Đổi từ "res.status" sang đúng "deleteRes.status"
+              if (deleteRes.status === 401) {
                   localStorage.clear();
-                  // Xoá luôn cookie chạy ngầm
                   document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
                   window.location.href = '/admin/login';
+                  return;
               } 
 
-              else if (res.status === 403) {
-                  // Đã đăng nhập nhưng SAI QUYỀN -> Giữ nguyên phiên, đẩy sang trang báo lỗi 403
+              else if (deleteRes.status === 403) {
                   window.location.href = '/403'; 
+                  return;
               }
 
               const deleteData = await deleteRes.json();

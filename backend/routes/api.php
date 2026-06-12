@@ -110,7 +110,7 @@ Route::middleware([\App\Http\Middleware\AdminAuthMiddleware::class])->prefix('ad
         });
 
         // 📁 Phân hệ 2: Quản lý danh mục Dự Án tổng thể
-        Route::middleware(['auth:sanctum', 'check_role:admin'])->prefix('projects')->group(function () {
+        Route::prefix('projects')->group(function () {
             Route::get('/', [ProjectController::class, 'index']); // Quản lý vào được danh sách
             Route::post('/add', [ProjectController::class, 'store']); // Quản lý vào được hàm lưu
             Route::get('/{id}', [ProjectController::class, 'show']);

@@ -2,7 +2,7 @@
 // src/pages/ky-gui/index.astro
 import MainLayout from '../../layouts/MainLayout.astro'; 
 
-const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
 ---
 
 <MainLayout title="Ký Gửi Căn Hộ Bcons - Nhận Ký Gửi Bán & Cho Thuê Chính Chủ">
@@ -157,7 +157,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
     if (form.dataset.listenerAttached === 'true') return;
     form.dataset.listenerAttached = 'true';
 
-    const BACKEND_URL = root.getAttribute('data-api-base') || 'http://127.0.0.1:8000';
+    const BACKEND_URL = root.getAttribute('data-api-base') || 'http://localhost:8000';
     const btn = document.getElementById('submit-btn') as HTMLButtonElement | null;
     const alertMsg = document.getElementById('alert-msg');
 

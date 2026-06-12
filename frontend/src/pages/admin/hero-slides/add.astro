@@ -104,7 +104,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
   checkAdminAuth();
 
   // 🔥 ĐỒNG BỘ MÔI TRƯỜNG: Tự động bốc URL phân phát cổng Laravel API từ tệp .env toàn cục
-  const API_BASE_URL = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+  const API_BASE_URL = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
 
   const form = document.getElementById('heroForm') as HTMLFormElement;
   const btn = document.getElementById('submitBtn') as HTMLButtonElement;

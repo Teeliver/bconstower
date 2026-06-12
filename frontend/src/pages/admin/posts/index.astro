@@ -89,7 +89,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
   checkAdminAuth();
 
   // ĐỒNG BỘ: Định nghĩa URL gốc của Laravel Backend
-  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
 
   // 🔒 BẢO MẬT: Khử độc dữ liệu đầu ra ngăn chặn tấn công XSS khi render chuỗi innerHTML
   const escapeHTML = (val: any): string => {

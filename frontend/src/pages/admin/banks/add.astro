@@ -82,7 +82,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
   import { checkAdminAuth } from '../../../lib/auth';
 
   // ĐỒNG BỘ: Cấu hình cổng API chạy chính xác độc lập của Laravel Backend
-  const API_BASE_URL = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+  const API_BASE_URL = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
 
   checkAdminAuth();
 

@@ -16,7 +16,7 @@ import { serveStatic } from '@hono/node-server/serve-static'
 const app = new Hono()
 
 app.use(cors({
-  origin: ['http://localhost:4321', 'http://127.0.0.1:4321'], // Port của Astro
+  origin: ['http://localhost:4321', 'http://localhost:4321'], // Port của Astro
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));

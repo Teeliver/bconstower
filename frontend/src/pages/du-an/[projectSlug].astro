@@ -3,7 +3,7 @@ import MainLayout from "../../layouts/MainLayout.astro";
 
 // 🔥 BẢO MẬT & CHUẨN SEO TUYỆT ĐỐI: Đồng bộ toàn bộ slug dự án từ Laravel phục vụ đóng gói SSG tĩnh
 export async function getStaticPaths() {
-  const API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+  const API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
   try {
     const res = await fetch(`${API_BASE}/api/projects`, {
       method: 'GET',
@@ -29,7 +29,7 @@ export async function getStaticPaths() {
 }
 
 const { projectSlug } = Astro.params;
-const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
 ---
 
 <MainLayout title="Chi tiết dự án và Bảng giá căn hộ chung cư mới nhất">

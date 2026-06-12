@@ -1,7 +1,7 @@
 ---
 // src/components/home/CTARegistration.astro
 // 🔥 ĐỒNG BỘ HỆ THỐNG: Lấy biến cấu hình URL Server từ file .env của Trung Tín
-const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
 ---
 
 <!-- 🔥 Đmax ĐÃ CẬP NHẬT MÀU NỀN: Chuyển toàn bộ nền sang màu xanh Bcons, chữ trắng sang trọng -->
@@ -76,7 +76,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
     if (form.dataset.listenerAttached === 'true') return;
     form.dataset.listenerAttached = 'true';
 
-    const BACKEND_URL = root.getAttribute('data-api-base') || 'http://127.0.0.1:8000';
+    const BACKEND_URL = root.getAttribute('data-api-base') || 'http://localhost:8000';
     const btn = document.getElementById('lead-submit-btn') as HTMLButtonElement | null;
     const alertMsg = document.getElementById('lead-alert-msg');
 

@@ -2,7 +2,7 @@
 // src/pages/admin/consignments/index.astro
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 
-const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
 ---
 
 <AdminLayout title="Quản lý ký gửi căn hộ">
@@ -108,7 +108,7 @@ const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
 
   checkAdminAuth();
 
-  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
 
   const escapeHTML = (val: any): string => {
     if (val === null || val === undefined) return '';

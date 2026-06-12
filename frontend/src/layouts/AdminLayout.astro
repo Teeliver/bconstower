@@ -17,7 +17,7 @@ const isSettingActive = pathname.includes("/admin/settings");
 const isDashboardActive = pathname === "/admin/dashboard" || pathname === "/admin/";
 
 // 🔥 ĐỒNG BỘ MÔI TRƯỜNG: Bốc cấu hình URL API động thay thế liên kết cứng
-const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:8000";
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
 
 ---
 
@@ -156,7 +156,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://127.0.0.1:800
       const markReadBtn = document.getElementById("mark-all-read");
 
       const layoutRoot = document.getElementById("admin-layout-root");
-      const API_BASE = layoutRoot ? layoutRoot.getAttribute("data-api-base") : "http://127.0.0.1:8000";
+      const API_BASE = layoutRoot ? layoutRoot.getAttribute("data-api-base") : "http://localhost:8000";
 
       // 🔥 LUỒNG KIỂM TRA PHÂN QUYỀN MENU ĐỘNG (DỰA TRÊN LOCALSTORAGE)
       function applyRoleMenuPrivileges() {

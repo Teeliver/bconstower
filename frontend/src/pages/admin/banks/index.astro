@@ -44,7 +44,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
   import { checkAdminAuth } from '../../../lib/auth';
 
   // ĐỒNG BỘ: Chuyển đổi sang cổng chạy API chuẩn bảo mật của Backend Laravel
-  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
   const bankList = document.getElementById('bankList');
 
   // Kiểm tra quyền hạn Token Admin trước khi render giao diện

@@ -105,7 +105,7 @@ const pageTitle = `Chỉnh sửa Banner | Bcons Portal`;
   checkAdminAuth();
 
   // 🔥 ĐÃ CẬP NHẬT BẢO MẬT: Đọc trực biến môi trường trong thẻ script tiêu chuẩn của Astro
-  const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+  const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
   
   const form = document.getElementById('editHeroForm') as HTMLFormElement;
   const imageInput = document.getElementById('image') as HTMLInputElement;

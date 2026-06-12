@@ -98,8 +98,8 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 <script is:inline>
   // 🔥 ĐÃ SỬA: Đồng bộ môi trường linh hoạt, bốc biến cấu hình API Backend từ hệ thống
   const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? 'http://127.0.0.1:8000' 
-    : (window.import_meta_env_PUBLIC_API_BASE || 'http://127.0.0.1:8000');
+    ? 'http://localhost:8000' 
+    : (window.import_meta_env_PUBLIC_API_BASE || 'http://localhost:8000');
 
   const Swal = window.Swal;
 
