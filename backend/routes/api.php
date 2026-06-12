@@ -150,8 +150,6 @@ Route::middleware([\App\Http\Middleware\AdminAuthMiddleware::class])->prefix('ad
     */
     Route::middleware(['role:admin,manager'])->group(function () {
 
-
-
         // 🏢 [Mục 2 trên ảnh]: Quản lý căn hộ (Apartments Inventory)
         Route::prefix('apartments')->group(function () {
             Route::get('/', [ApartmentController::class, 'index']);

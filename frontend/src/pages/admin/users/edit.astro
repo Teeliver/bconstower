@@ -142,7 +142,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 
   declare var Swal: any;
 
-  const BACKEND_URL = 'http://localhost:8000';
+  const BACKEND_URL = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
   const form = document.getElementById('editUserForm') as HTMLFormElement;
   const roleSelect = document.getElementById('roleSelect') as HTMLSelectElement;
   const brokerFields = document.getElementById('brokerFields') as HTMLDivElement;
