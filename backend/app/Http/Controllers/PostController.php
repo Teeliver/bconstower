@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class PostController extends Controller
 {
@@ -25,11 +26,116 @@ class PostController extends Controller
         if (Schema::hasColumn('posts', 'image_url')) {
             return 'image_url';
         }
-        return 'image'; // Phương án dự phòng cuối cùng
+        return 'image';
     }
 
     /**
-     * Lấy danh sách bài viết
+     * Tự động kiểm tra trạng thái hoạt động dựa trên cột thực tế của DB
+     */
+    private function applyStatusFilter($query, string $status = 'published')
+    {
+        if (Schema::hasColumn('posts', 'status')) {
+            return $query->where('status', $status);
+        }
+        if (Schema::hasColumn('posts', 'is_published')) {
+            return $query->where('is_published', $status === 'published' ? 1 : 0);
+        }
+        return $query;
+    }
+
+    /**
+     * 🟢 BỘ LỌC ĐA TẦNG: Áp dụng chung cho tất cả các API public để bắt tham số từ Postman/Frontend
+     */
+    private function applyCategoryFilter($query, $categoryInput)
+    {
+        $isThiTruong = ($categoryInput === 'thi-truong' || $categoryInput === '1' || $categoryInput == 1);
+        $targetText = $isThiTruong ? 'thi-truong' : 'tien-do';
+        $targetId = $isThiTruong ? 1 : 2;
+
+        return $query->where(function($q) use ($targetText, $targetId, $isThiTruong) {
+            $q->where(function($sub) use ($targetText, $targetId) {
+                if (Schema::hasColumn('posts', 'category') && Schema::hasColumn('posts', 'category_id')) {
+                    $sub->where('category', $targetText)->orWhere('category_id', $targetId);
+                } elseif (Schema::hasColumn('posts', 'category')) {
+                    $sub->where('category', $targetText);
+                } elseif (Schema::hasColumn('posts', 'category_id')) {
+                    $sub->where('category_id', $targetId);
+                }
+            });
+
+            if ($isThiTruong) {
+                if (Schema::hasColumn('posts', 'category_id')) {
+                    $q->orWhere('category_id', 0)->orWhereNull('category_id');
+                }
+                if (Schema::hasColumn('posts', 'category')) {
+                    $q->orWhere('category', '')->orWhereNull('category');
+                }
+                $q->orWhere('title', 'like', '%thị trường%')
+                  ->orWhere('title', 'like', '%thi truong%')
+                  ->orWhere('slug', 'like', '%thi-truong%')
+                  ->orWhere('summary', 'like', '%thị trường%');
+            } else {
+                $q->orWhere('title', 'like', '%tiến độ%')
+                  ->orWhere('title', 'like', '%tien do%')
+                  ->orWhere('slug', 'like', '%tien-do%')
+                  ->orWhere('summary', 'like', '%tiến độ%');
+            }
+        });
+    }
+
+    /**
+     * 🟢 BỘ ĐỊNH DẠNG ĐẦU RA ĐỒNG BỘ: Đảm bảo phân loại nhãn JSON chuẩn chỉ không lệch pha
+     */
+    private function formatPostOutput($post, $imgCol): array
+    {
+        $titleLower = mb_strtolower($post->title ?? '', 'UTF-8');
+        $slugLower = strtolower($post->slug ?? '');
+        $summaryLower = mb_strtolower($post->summary ?? '', 'UTF-8');
+
+        $rawCat = strtolower((string)($post->category ?? ''));
+        $rawCatId = $post->category_id;
+
+        $catString = 'tien-do';
+
+        if (
+            str_contains($rawCat, 'thi') ||
+            str_contains($rawCat, 'truong') ||
+            $rawCatId == 1 ||
+            $rawCatId == 0 ||
+            $rawCatId === null ||
+            $rawCat === '' ||
+            str_contains($titleLower, 'thị trường') ||
+            str_contains($titleLower, 'thi truong') ||
+            str_contains($slugLower, 'thi-truong') ||
+            str_contains($summaryLower, 'thị trường')
+        ) {
+            $catString = 'thi-truong';
+        }
+
+        if (
+            (str_contains($titleLower, 'tiến độ') || str_contains($titleLower, 'tien do') || str_contains($slugLower, 'tien-do')) &&
+            !(str_contains($titleLower, 'thị trường') || str_contains($titleLower, 'thi truong'))
+        ) {
+            $catString = 'tien-do';
+        }
+
+        return [
+            'id'          => $post->id,
+            'title'       => htmlspecialchars($post->title ?? '', ENT_QUOTES, 'UTF-8'),
+            'slug'        => $post->slug,
+            'image'       => $post->{$imgCol} ?? '',
+            'thumbnail'   => $post->{$imgCol} ?? '',
+            'summary'     => htmlspecialchars($post->summary ?? '', ENT_QUOTES, 'UTF-8'),
+            'description' => $post->content ?? '',
+            'views'       => (int)($post->views ?? 0),
+            'created_at'  => $post->created_at,
+            'createdAt'   => $post->created_at,
+            'category'    => $catString,
+        ];
+    }
+
+    /**
+     * Lấy danh sách bài viết (Admin)
      */
     public function index(): JsonResponse
     {
@@ -41,14 +147,29 @@ class PostController extends Controller
             $posts = Post::orderBy('created_at', 'desc')->get();
             $imgCol = $this->getImageColumn();
 
-            $formattedPosts = $posts->map(function ($post) use ($imgCol) {
+            // 🟢 FIX TRIỆT ĐỂ: Check tên cột tồn tại thực tế bên ngoài vòng lặp tránh nghẽn CPU
+            $hasStatusCol = Schema::hasColumn('posts', 'status');
+            $hasIsPublishedCol = Schema::hasColumn('posts', 'is_published');
+
+            $formattedPosts = $posts->map(function ($post) use ($imgCol, $hasStatusCol, $hasIsPublishedCol) {
+                $categoryValue = $post->category_id ?? $post->category ?? 'khac';
+
+                // 🚀 BỘ QUÉT TRẠNG THÁI CHUẨN XÁC: Trả về đúng sự thật của DB cho Admin húp
+                $statusValue = 'draft';
+                if ($hasStatusCol) {
+                    $statusValue = ($post->status === 'published' || $post->status === 'active' || $post->status == 1) ? 'published' : 'draft';
+                } elseif ($hasIsPublishedCol) {
+                    $statusValue = ($post->is_published == 1 || $post->is_published === true || $post->is_published == '1') ? 'published' : 'draft';
+                }
+
                 return [
                     'id' => $post->id,
                     'title' => $post->title ?? 'Không tiêu đề',
                     'slug' => $post->slug ?? '',
-                    'category' => $post->category_id ?? 'khac',
-                    'status' => ($post->is_published ?? true) ? 'published' : 'draft',
+                    'category' => $categoryValue,
+                    'status' => $statusValue, // Trả dữ liệu sạch không fake
                     'thumbnail' => $post->{$imgCol} ?? '',
+                    'created_at' => $post->created_at,
                     'createdAt' => $post->created_at,
                     'views' => $post->views ?? 0,
                 ];
@@ -63,17 +184,15 @@ class PostController extends Controller
     }
 
     /**
-     * Xem chi tiết bài viết
+     * Xem chi tiết bài viết (Admin)
      */
     public function show($id): JsonResponse
     {
         try {
             $post = is_numeric($id) ? Post::find($id) : Post::where('slug', $id)->first();
-
             if (!$post) {
                 return response()->json(['message' => 'Bài viết không tồn tại.'], 404);
             }
-
             return response()->json($post, 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Lỗi: ' . $e->getMessage()], 500);
@@ -101,15 +220,23 @@ class PostController extends Controller
             $post->content = $request->content;
             $post->summary = $request->summary;
 
+            $catInput = $request->category ?? $request->category_id;
+            $isThiTruong = ($catInput === 'thi-truong' || $catInput === '1' || $catInput == 1);
+
             if (Schema::hasColumn('posts', 'category_id')) {
-                $post->category_id = $request->category ?? $request->category_id;
+                $post->category_id = $isThiTruong ? 1 : 2;
+            }
+            if (Schema::hasColumn('posts', 'category')) {
+                $post->category = $isThiTruong ? 'thi-truong' : 'tien-do';
             }
 
+            if (Schema::hasColumn('posts', 'status')) {
+                $post->status = $request->status ?? 'published';
+            }
             if (Schema::hasColumn('posts', 'is_published')) {
                 $post->is_published = ($request->status === 'published');
             }
 
-            // Xử lý upload ảnh vào đúng cột thực tế trong DB
             if ($request->hasFile('image')) {
                 $path = public_path('upload/posts');
                 if (!file_exists($path)) mkdir($path, 0755, true);
@@ -127,14 +254,9 @@ class PostController extends Controller
 
             $post->save();
 
-            // 📝 GHI LOG THÊM MỚI BÀI VIẾT TRỰC TIẾP
             $authUser = $request->user();
             $staffName = $authUser->fullname ?? $authUser->name ?? 'Quản trị viên';
-            ActivityLog::write(
-                'Thêm mới ➕',
-                'Bài viết tin tức',
-                "Người dùng [{$staffName}] đã đăng bài viết tin tức mới [{$post->title}]."
-            );
+            ActivityLog::write('Thêm mới ➕', 'Bài viết tin tức', "Người dùng [{$staffName}] đã đăng bài viết tin tức mới [{$post->title}].");
 
             return response()->json(['success' => true, 'message' => 'Đăng bài viết thành công!', 'data' => $post], 201);
 
@@ -169,19 +291,25 @@ class PostController extends Controller
             $post->content = $request->content;
             $post->summary = $request->summary;
 
+            $catInput = $request->category ?? $request->category_id;
+            $isThiTruong = ($catInput === 'thi-truong' || $catInput === '1' || $catInput == 1);
+
             if (Schema::hasColumn('posts', 'category_id')) {
-                $post->category_id = $request->category;
+                $post->category_id = $isThiTruong ? 1 : 2;
+            }
+            if (Schema::hasColumn('posts', 'category')) {
+                $post->category = $isThiTruong ? 'thi-truong' : 'tien-do';
             }
 
+            if (Schema::hasColumn('posts', 'status')) {
+                $post->status = $request->status ?? 'published';
+            }
             if (Schema::hasColumn('posts', 'is_published')) {
                 $post->is_published = ($request->status === 'published');
             }
 
-            // Xử lý ghi đè ảnh vào đúng cột thực tế của Database
             if ($request->hasFile('image')) {
                 $imgCol = $this->getImageColumn();
-
-                // Xóa file cũ
                 if ($post->{$imgCol} && file_exists(public_path($post->{$imgCol}))) {
                     @unlink(public_path($post->{$imgCol}));
                 }
@@ -194,14 +322,9 @@ class PostController extends Controller
 
             $post->save();
 
-            // 📝 GHI LOG CẬP NHẬT BÀI VIẾT TRỰC TIẾP
             $authUser = $request->user();
             $staffName = $authUser->fullname ?? $authUser->name ?? 'Quản trị viên';
-            ActivityLog::write(
-                'Chỉnh sửa 📝',
-                'Bài viết tin tức',
-                "Tài khoản [{$staffName}] đã chỉnh sửa và cập nhật nội dung bài viết [{$post->title}]."
-            );
+            ActivityLog::write('Chỉnh sửa 📝', 'Bài viết tin tức', "Tài khoản [{$staffName}] đã chỉnh sửa và cập nhật nội dung bài viết [{$post->title}]." );
 
             return response()->json(['success' => true, 'message' => 'Cập nhật bài viết thành công!', 'data' => $post], 200);
 
@@ -222,8 +345,7 @@ class PostController extends Controller
                 return response()->json(['success' => false, 'message' => 'Bài viết không tồn tại.'], 404);
             }
 
-            $postTitle = $post->title ?? 'Không tiêu đề'; // Sao lưu lại tiêu đề trước khi xóa vĩnh viễn
-
+            $postTitle = $post->title ?? 'Không tiêu đề';
             $imgCol = $this->getImageColumn();
             if ($post->{$imgCol} && file_exists(public_path($post->{$imgCol}))) {
                 @unlink(public_path($post->{$imgCol}));
@@ -231,14 +353,9 @@ class PostController extends Controller
 
             $post->delete();
 
-            // 📝 GHI LOG XÓA BÀI VIẾT TRỰC TIẾP
             $authUser = $request->user();
             $staffName = $authUser->fullname ?? $authUser->name ?? 'Quản trị viên';
-            ActivityLog::write(
-                'Xóa bỏ ❌',
-                'Bài viết tin tức',
-                "Tài khoản [{$staffName}] đã gỡ bỏ hoàn toàn bài viết [{$postTitle}] ra khỏi hệ thống."
-            );
+            ActivityLog::write('Xóa bỏ ❌', 'Bài viết tin tức', "Tài khoản [{$staffName}] đã gỡ bỏ hoàn toàn bài viết [{$postTitle}] ra khỏi hệ thống.");
 
             return response()->json(['success' => true, 'message' => 'Đã xóa bài viết thành công.'], 200);
 
@@ -248,74 +365,50 @@ class PostController extends Controller
     }
 
     /**
-     * Lấy danh sách tin tức công khai
+     * Lấy danh sách tin tức công khai tổng quát
      */
-    public function getPublicPosts(): JsonResponse
+    public function getPublicPosts(Request $request): JsonResponse
     {
         try {
-            // Lọc bài viết đã xuất bản và sắp xếp theo thời gian mới nhất
-            $posts = Post::where('status', 'published')
-                ->orderBy('created_at', 'desc')
-                ->get();
+            $query = Post::query();
+            $query = $this->applyStatusFilter($query, 'published');
 
-            // Format và làm sạch dữ liệu
-            $data = $posts->map(function ($post) {
-                return [
-                    'id'          => $post->id,
-                    'title'       => htmlspecialchars($post->title ?? '', ENT_QUOTES, 'UTF-8'),
-                    'slug'        => $post->slug,
-                    'image'       => $post->thumbnail, // Sử dụng cột 'thumbnail' từ table của bạn
-                    'summary'     => htmlspecialchars($post->summary ?? '', ENT_QUOTES, 'UTF-8'),
-                    'description' => htmlspecialchars($post->content ?? '', ENT_QUOTES, 'UTF-8'), // 'content' là nội dung chi tiết
-                    'views'       => (int)($post->views ?? 0),
-                    'createdAt'   => $post->created_at,
-                    'category'    => $post->category ?? 'news', // 'category' là cột bạn đã định nghĩa
-                ];
+            if ($request->has('category')) {
+                $query = $this->applyCategoryFilter($query, $request->query('category'));
+            }
+
+            $posts = $query->orderBy('created_at', 'desc')->get();
+            $imgCol = $this->getImageColumn();
+
+            $data = $posts->map(function ($post) use ($imgCol) {
+                return $this->formatPostOutput($post, $imgCol);
             });
 
             return response()->json($data, 200);
 
         } catch (\Exception $e) {
-            \Log::error('Lỗi khi tải tin tức: ' . $e->getMessage());
+            Log::error('Lỗi khi tải tin tức public: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Lỗi hệ thống.'], 500);
         }
     }
 
     /**
      * API hiển thị chi tiết tin tức theo slug
-     * URL: GET /api/posts/public/detail?slug=...
      */
     public function getPostDetail(Request $request)
     {
         $slug = $request->query('slug');
-        if (!$slug) {
-            return response()->json(['message' => 'Thiếu tham số slug'], 400);
-        }
+        if (!$slug) return response()->json(['message' => 'Thiếu tham số slug'], 400);
 
         try {
-            // Lọc theo trạng thái 'published' để bảo mật
-            $post = Post::where('slug', $slug)
-                        ->where('status', 'published')
-                        ->first();
+            $query = Post::where('slug', $slug);
+            $query = $this->applyStatusFilter($query, 'published');
+            $post = $query->first();
 
-            if (!$post) {
-                return response()->json(['message' => 'Bài viết không tồn tại'], 404);
-            }
+            if (!$post) return response()->json(['message' => 'Bài viết không tồn tại'], 404);
 
-            // Khử trùng dữ liệu trước khi trả về để chống XSS
-            return response()->json([
-                'post' => [
-                    'id'          => $post->id,
-                    'title'       => htmlspecialchars($post->title ?? '', ENT_QUOTES, 'UTF-8'),
-                    'slug'        => $post->slug,
-                    'thumbnail'   => $post->thumbnail,
-                    'summary'     => htmlspecialchars($post->summary ?? '', ENT_QUOTES, 'UTF-8'),
-                    'content'     => $post->content, // Nội dung rich-text cần render trực tiếp, đảm bảo Editor đã clean script độc hại trước khi lưu vào DB
-                    'views'       => (int)($post->views ?? 0),
-                    'created_at'  => $post->created_at,
-                    'category'    => $post->category ?? 'news'
-                ]
-            ], 200);
+            $imgCol = $this->getImageColumn();
+            return response()->json(['post' => $this->formatPostOutput($post, $imgCol)], 200);
 
         } catch (\Exception $e) {
             Log::error('Lỗi khi lấy chi tiết bài viết: ' . $e->getMessage());
@@ -324,89 +417,57 @@ class PostController extends Controller
     }
 
     /**
-     * API Lấy danh sách bài viết công khai phục vụ block NewsSection ngoài Frontend
-     * URL target: GET /api/posts/public?category=thi-truong&limit=4
+     * API Lấy danh sách bài viết phục vụ block NewsSection ngoài Frontend Trang chủ
      */
     public function getNewsSection(Request $request)
     {
         try {
-            // Lấy tham số lọc lọc từ query string
-            $category = $request->query('category', 'thi-truong');
-            $limit    = (int) $request->query('limit', 4);
+            $categoryInput = $request->query('category', 'thi-truong');
+            $limit         = (int) $request->query('limit', 4);
 
-            // Truy vấn lấy dữ liệu từ bảng posts (Sắp xếp bài mới nhất lên hàng đầu)
-            // Lấy đúng tên các cột chuẩn Laravel: id, title, slug, thumbnail, summary, category, created_at
-            $posts = DB::table('posts')
-                ->select('id', 'title', 'slug', 'thumbnail', 'summary', 'category', 'created_at')
-                ->where('category', $category)
-                ->orderBy('id', 'desc') // Bài mới nhất leo lên đầu
-                ->limit($limit)
-                ->get();
+            $query = Post::query();
+            $query = $this->applyStatusFilter($query, 'published');
+            $query = $this->applyCategoryFilter($query, $categoryInput);
 
-            // Trả về mảng JSON thuần để tương thích trực tiếp với map() ngoài Astro
-            return response()->json($posts, 200);
+            $posts = $query->orderBy('id', 'desc')->limit($limit)->get();
+            $imgCol = $this->getImageColumn();
+
+            $formatted = $posts->map(function($post) use ($imgCol) {
+                return $this->formatPostOutput($post, $imgCol);
+            });
+
+            return response()->json($formatted, 200);
 
         } catch (\Exception $e) {
-            Log::error('Lỗi API bài viết: ' . $e->getMessage());
-            return response()->json([
-                'error' => 'Không thể tải danh sách tin tức.',
-                'message' => $e->getMessage()
-            ], 500);
+            Log::error('Lỗi API bài viết getNewsSection: ' . $e->getMessage());
+            return response()->json(['error' => 'Không thể tải danh sách tin tức.', 'message' => $e->getMessage()], 500);
         }
     }
 
     /**
-     * API Tăng lượt xem bài viết có chống spam F5 bằng cơ chế Cache IP người dùng
-     * URL target: POST /api/posts/public/{id}/view
+     * API Tăng lượt xem bài viết
      */
     public function incrementView(Request $request, $id): JsonResponse
     {
         try {
-            // 1. Kiểm tra bài viết có tồn tại trong hệ thống hay không
             $post = Post::find($id);
+            if (!$post) return response()->json(['success' => false, 'message' => 'Bài viết không tồn tại.'], 404);
 
-            if (!$post) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Bài viết không tồn tại.'
-                ], 404);
-            }
-
-            // 2. Lấy IP chuẩn của client (Laravel tự động xử lý tốt qua Proxy Nginx / Cloudflare)
             $clientIp = $request->ip();
-
-            // 3. Thiết lập mã định danh duy nhất (Key Cache) cho cặp IP + PostID này
             $cacheKey = 'post_view_cooldown:' . $clientIp . ':' . $id;
 
-            // 4. Kiểm tra xem IP này đã xem bài viết này trong vòng 1 tiếng qua chưa
-            if (\Illuminate\Support\Facades\Cache::has($cacheKey)) {
-                // Nếu đã tồn tại key trong Cache, trả về thành công giả lập nhưng "âm thầm" chặn lệnh update vào DB
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Lượt xem trùng lặp trong thời gian ngắn (Chặn spam F5 thành công).',
-                    'views' => (int)($post->views ?? 0)
-                ], 200);
+            if (Cache::has($cacheKey)) {
+                return response()->json(['success' => true, 'message' => 'Lượt xem trùng lặp.', 'views' => (int)($post->views ?? 0)], 200);
             }
 
-            // 5. Nếu vượt qua vòng kiểm tra IP -> Tiến hành tăng view nguyên tử (Atomic Increment) tránh nghẽn luồng DB
             $post->increment('views');
+            Cache::put($cacheKey, true, now()->addHours(1));
 
-            // 6. Ghi vết Key vào Cache hệ thống, tự động xóa vĩnh viễn sau 60 phút (1 tiếng)
-            // Ông có thể đổi thành now()->addMinutes(30) nếu muốn giảm thời gian khóa IP xuống
-            \Illuminate\Support\Facades\Cache::put($cacheKey, true, now()->addHours(1));
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Đã ghi nhận tăng lượt xem bài viết thành công.',
-                'views' => (int)$post->views
-            ], 200);
+            return response()->json(['success' => true, 'message' => 'Đã ghi nhận tăng lượt xem.', 'views' => (int)$post->views], 200);
 
         } catch (\Exception $e) {
             Log::error('Lỗi PostController@incrementView: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Lỗi máy chủ khi tăng view: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'message' => 'Lỗi máy chủ khi tăng view.'], 500);
         }
     }
 }

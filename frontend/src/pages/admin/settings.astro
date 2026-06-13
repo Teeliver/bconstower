@@ -1,6 +1,9 @@
 ---
 // src/pages/admin/settings.astro
 import AdminLayout from '../../layouts/AdminLayout.astro';
+
+// 🟢 FIX CHÍ CHÓC: Bốc biến môi trường từ phía Server trước khi đổ xuống trình duyệt
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
 ---
 
 <AdminLayout title="Cấu hình hệ thống">
@@ -71,7 +74,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
                             <label class="text-xs font-bold text-slate-500 uppercase ml-1">Link Zalo</label>
                             <input type="text" name="zaloUrl" id="zaloUrl" class="w-full px-6 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none" />
                         </div>
-                        <!-- 🔥 ĐÃ THÊM: Input Google Analytics tương thích đối xứng 100% với layout lưới Grid -->
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-500 uppercase ml-1">Google Analytics ID</label>
                             <input type="text" name="googleAnalytics" id="googleAnalytics" placeholder="Ví dụ: G-XXXXXXXXXX" class="w-full px-6 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none" />
@@ -134,9 +136,10 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     checkAdminAuth();
 </script>
 
-<script is:inline>
-    // ĐỒNG BỘ: Cổng chạy API chuẩn bảo mật của Backend Laravel độc lập
-    const BACKEND_URL = 'http://localhost:8000';
+<!-- 🟢 ĐÃ FIX SỰ CỐ SYNTAX: Truyền biến môi trường an toàn qua cơ chế định nghĩa biến của Astro -->
+<script is:inline define:vars={{ PUBLIC_API_BASE }}>
+    // ĐỒNG BỘ: Đớp thẳng giá trị an toàn từ Server đổ xuống, sạch bóng lỗi import.meta
+    const BACKEND_URL = PUBLIC_API_BASE;
 
     // 🔒 BẢO MẬT: Trích xuất và dọn sạch dấu nháy đơn/kép rác từ localStorage
     function getCleanToken() {
@@ -285,7 +288,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
             Swal.fire({
                 icon: 'error',
                 title: 'Thất bại',
-                html: err.message || 'Không thể kết nối máy chủ API Laravel cổng 8000.'
+                html: err.message || 'Không thể kết nối máy chủ API Laravel.'
             });
         } finally {
             submitBtn.disabled = false;

@@ -1,6 +1,9 @@
 ---
 // src/pages/admin/posts/edit.astro
 import AdminLayout from '../../../layouts/AdminLayout.astro';
+
+// 🟢 FIX CHÍ CHÓC: Trích xuất biến cấu hình API từ file .env tại tầng Server trước khi đóng gói file tĩnh
+const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
 ---
 
 <AdminLayout title="Chỉnh sửa bài viết">
@@ -95,19 +98,15 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
   .tox-tinymce { border: none !important; border-radius: 1.5rem !important; background-color: #f8fafc !important; overflow: hidden; }
 </style>
 
-<script is:inline>
-  // 🔥 ĐÃ SỬA: Đồng bộ môi trường linh hoạt, bốc biến cấu hình API Backend từ hệ thống
-  const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? 'http://localhost:8000' 
-    : (window.import_meta_env_PUBLIC_API_BASE || 'http://localhost:8000');
-
+<script is:inline define:vars={{ PUBLIC_API_BASE }}>
+  const BACKEND_URL = PUBLIC_API_BASE;
   const Swal = window.Swal;
 
-  // 🔥 ĐÃ SỬA: Trích xuất mã ID từ thanh điều hướng địa chỉ trình duyệt để tránh sập build tĩnh
+  // Trích xuất mã ID từ thanh điều hướng địa chỉ trình duyệt để tránh sập tiến trình build tĩnh
   const urlParams = new URLSearchParams(window.location.search);
   const postId = urlParams.get('id');
 
-  // Khóa mõm bảo mật nếu hacker cố tình truy cập trang sửa bài viết thiếu tham số ID
+  // Khóa mõm bảo mật nếu truy cập trang sửa bài viết thiếu tham số ID trái phép
   if (!postId) {
     Swal.fire({
       icon: 'error',
@@ -119,7 +118,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     });
   }
 
-  // 🔥 ĐÃ SỬA BẢO MẬT CHỮ Đ: Hàm sinh Slug tự động, bảo toàn chữ "Đẹp" thành chữ "dep" mượt mà chuẩn SEO
+  // Bảo toàn chữ "Đẹp" thành chữ "dep" mượt mà chuẩn SEO
   function convertToSlug(str) {
     if (!str) return '';
     let value = str.toLowerCase();
@@ -147,7 +146,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
   // 1. Lấy dữ liệu cũ từ API Laravel đổ vào Form khi load trang qua token an toàn
   async function fetchPostData() {
     if (!postId) return;
-    const rawToken = localStorage.getItem('admin_token');
+    const rawToken = localStorage.getItem('admin_token') || localStorage.getItem('token');
     const token = rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
 
     try {
@@ -177,7 +176,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
       if (thumbnailValue) {
         const preview = document.getElementById('previewThumb');
         if (preview) {
-          preview.src = thumbnailValue.startsWith('http') ? thumbnailValue : `${BACKEND_URL}${thumbnailValue}`;
+          preview.src = thumbnailValue.startsWith('http') ? thumbnailValue : `${BACKEND_URL}/${thumbnailValue.replace(/^\//, '')}`;
           preview.classList.remove('hidden');
         }
         document.getElementById('placeholderThumb')?.classList.add('hidden');
@@ -236,7 +235,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     
     if (submitBtn) submitBtn.disabled = true;
 
-    // 🔒 LỚP KHIÊN BẢO MẬT FILE: Quét sâu dung lượng và định dạng ảnh tránh lỗi tải lên shellcode giả mạo hình ảnh
+    // LỚP KHIÊN BẢO MẬT FILE: Quét sâu dung lượng và định dạng ảnh tránh lỗi tải lên shellcode giả mạo hình ảnh
     if (thumbInput && thumbInput.files && thumbInput.files.length > 0) {
       const file = thumbInput.files[0];
       if (file.size > 5 * 1024 * 1024) {
@@ -252,7 +251,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
       }
     }
 
-    const rawToken = localStorage.getItem('admin_token');
+    const rawToken = localStorage.getItem('admin_token') || localStorage.getItem('token');
     const token = rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
     
     const formData = new FormData(e.target);
@@ -291,7 +290,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
       }
     } catch (err) {
       console.error("Lỗi gửi Form cập nhật:", err);
-      Swal.fire('Thất bại', err.message || 'Không thể kết nối tới máy chủ API cổng 8000.', 'error');
+      Swal.fire('Thất bại', err.message || 'Không thể kết nối tới máy chủ API Laravel.', 'error');
     } finally {
       if (submitBtn) submitBtn.disabled = false;
     }

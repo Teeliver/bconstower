@@ -1,4 +1,5 @@
 ---
+// src/pages/admin/posts/index.astro
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 ---
 
@@ -88,10 +89,8 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 
   checkAdminAuth();
 
-  // ĐỒNG BỘ: Định nghĩa URL gốc của Laravel Backend
   const API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
 
-  // 🔒 BẢO MẬT: Khử độc dữ liệu đầu ra ngăn chặn tấn công XSS khi render chuỗi innerHTML
   const escapeHTML = (val: any): string => {
     if (val === null || val === undefined) return '';
     return String(val).replace(/[&<>"']/g, (m) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[m] || m));
@@ -101,13 +100,8 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     const tbody = document.getElementById('postTableBody');
     if (!tbody) return;
 
-    const rawToken = localStorage.getItem('admin_token');
-    
-    // 🔥 ĐOÁN BỆNH FRONTEND: In trực tiếp ra console để kiểm tra giá trị thực tế
-    console.log("👉 [DEBUG] Token thô lấy từ LocalStorage:", rawToken);
-
+    const rawToken = localStorage.getItem('admin_token') || localStorage.getItem('token');
     const token = rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
-    console.log("👉 [DEBUG] Token sạch gửi lên Header:", token);
 
     try {
       const res = await fetch(`${API_BASE}/api/admin/posts`, {
@@ -144,15 +138,33 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     if (!tbody) return;
 
     tbody.innerHTML = data.map((item: any) => {
-        // ĐỒNG BỘ: Đọc dữ liệu đã được Controller của Laravel map chuẩn hóa cấu trúc dữ liệu
         const title = item.title || 'Không tiêu đề';
         const slug = item.slug || '';
-        const category = item.category || 'khac';
-        const status = item.status || 'draft';
         const image = item.thumbnail ? (item.thumbnail.startsWith('http') ? item.thumbnail : `${API_BASE}${item.thumbnail}`) : 'https://placehold.co/100x100?text=No+Img';
         
-        // 🔥 ĐÃ FIX: Chuyển cú pháp -> sang dấu chấm . chuẩn của JavaScript
-        const date = item.createdAt ? new Date(item.createdAt).toLocaleDateString('vi-VN') : 'N/A';
+        // 🟢 FIX LUẬN LÝ TRẠNG THÁI: Tương thích cả string lẫn boolean is_published từ Laravel
+        let status = item.status || 'draft';
+        if (item.is_published === true || item.is_published === 1) status = 'published';
+        else if (item.is_published === false || item.is_published === 0) status = 'draft';
+
+        // 🟢 FIX ĐỘC QUYỀN CHUYÊN MỤC: Tự động bóc tách thông minh từ Object Eloquent hoặc ID
+        let category = 'khac';
+        let categoryLabel = 'Khác';
+
+        if (item.category && typeof item.category === 'object') {
+            category = item.category.slug || 'khac';
+            categoryLabel = item.category.name || (category === 'thi-truong' ? 'Thị trường' : 'Tiến độ');
+        } else if (typeof item.category === 'string') {
+            category = item.category;
+            categoryLabel = category === 'thi-truong' ? 'Thị trường' : (category === 'tien-do' ? 'Tiến độ' : 'Khác');
+        } else if (item.category_id) {
+            if (item.category_id == 1 || String(item.category_id) === 'thi-truong') { category = 'thi-truong'; categoryLabel = 'Thị trường'; }
+            else if (item.category_id == 2 || String(item.category_id) === 'tien-do') { category = 'tien-do'; categoryLabel = 'Tiến độ'; }
+        }
+        
+        // 🟢 FIX ĐƯỜNG DẪN THỜI GIAN: Laravel trả về trường dạng snake_case (created_at) thay vì camelCase
+        const rawDate = item.created_at || item.createdAt;
+        const date = rawDate ? new Date(rawDate).toLocaleDateString('vi-VN') : 'N/A';
 
         return `
         <tr class="post-row group hover:bg-slate-50/50 transition-colors" 
@@ -169,8 +181,8 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
                 </div>
             </td>
             <td class="px-6 py-5 text-center">
-                <span class="text-xs font-bold ${category === 'thi-truong' ? 'text-blue-600' : 'text-emerald-600'}">
-                    ${category === 'thi-truong' ? 'Thị trường' : 'Tiến độ'}
+                <span class="text-xs font-bold ${category === 'thi-truong' ? 'text-blue-600' : (category === 'tien-do' ? 'text-emerald-600' : 'text-slate-400')}">
+                    ${escapeHTML(categoryLabel)}
                 </span>
             </td>
             <td class="px-6 py-5 text-center text-sm text-slate-500">
@@ -288,7 +300,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
             if (confirm.isConfirmed) {
                 Swal.fire({ title: 'Đang thực hiện...', didOpen: () => Swal.showLoading() });
                 
-                const rawToken = localStorage.getItem('admin_token');
+                const rawToken = localStorage.getItem('admin_token') || localStorage.getItem('token');
                 const token = rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
 
                 try {

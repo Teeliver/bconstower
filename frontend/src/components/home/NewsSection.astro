@@ -54,13 +54,40 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
     listContainer.style.opacity = '0.5';
 
     try {
-      // Gọi trực tiếp đến API Public của Laravel Controller
-      const res = await fetch(`${BACKEND_URL}/api/posts/public/new-section?category=${category}&limit=4`);
+      let res;
+      let isLoaded = false;
+
+      // HỆ THỐNG QUÉT ĐA TUYẾN: Thử lần lượt các tuyến đường tránh nghẽn định tuyến router
+      const endpoints = [
+         `${BACKEND_URL}/api/posts/public/news-section?category=${category}&limit=4`,
+         `${BACKEND_URL}/api/posts/public/new-section?category=${category}&limit=4`,
+         `${BACKEND_URL}/api/posts/public?category=${category}&limit=4`
+      ];
+
+      for (const url of endpoints) {
+          try {
+              const testRes = await fetch(url);
+              if (testRes.ok) {
+                  res = testRes;
+                  isLoaded = true;
+                  break;
+              }
+          } catch(e) {
+              // Đi tiếp sang route dự phòng nếu tuyến thô bị lỗi mạng
+          }
+      }
       
-      if (!res.ok) throw new Error("Lỗi kết nối API Laravel");
+      if (!isLoaded || !res) throw new Error("Tất cả các tuyến kết nối API Laravel đều thất bại.");
       
-      const posts = await res.json();
+      const rawData = await res.json();
       listContainer.style.opacity = '1';
+
+      // 🟢 THUẬT TOÁN UNWRAP THÔNG MINH: Tự động bóc tách mảng nếu Backend bọc data hoặc posts ẩn
+      let posts = rawData;
+      if (rawData && !Array.isArray(rawData)) {
+          if (Array.isArray(rawData.data)) posts = rawData.data;
+          else if (Array.isArray(rawData.posts)) posts = rawData.posts;
+      }
 
       if (!Array.isArray(posts) || posts.length === 0) {
         featuredContainer.innerHTML = `
@@ -75,27 +102,27 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
       // 1. HIỂN THỊ BÀI MỚI NHẤT BÊN PHẢI (Vị trí số 0)
       const latest = posts[0];
       
-      // Kiểm tra xem thumbnail có chứa sẵn domain chưa, nếu chưa thì tự bồi BACKEND_URL vào
-      const featuredImg = latest.thumbnail && latest.thumbnail.startsWith('http') 
-        ? latest.thumbnail 
-        : `${BACKEND_URL}${latest.thumbnail || ''}`;
+      const rawFeaturedImg = latest.thumbnail || latest.image || '';
+      const featuredImg = rawFeaturedImg.startsWith('http') 
+        ? rawFeaturedImg 
+        : `${BACKEND_URL}/${rawFeaturedImg.replace(/^\//, '')}`;
 
       featuredContainer.innerHTML = `
         <div class="relative bg-[#064e3b] rounded-[3rem] p-12 overflow-hidden flex flex-col justify-end min-h-[500px] shadow-2xl group cursor-pointer animate-fadeIn">
             <div class="absolute inset-0 opacity-40 group-hover:scale-105 transition-transform duration-1000">
-                <img src="${featuredImg}" class="w-full h-full object-cover" onerror="this.src='/images/no-image.jpg'" />
+                <img src="${featuredImg}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400?text=Bcons+Tower'" />
             </div>
             <div class="absolute inset-0 bg-gradient-to-t from-[#064e3b] via-[#064e3b]/40 to-transparent"></div>
 
             <div class="relative z-10">
                 <div class="inline-block px-4 py-1 bg-[#fac72e] text-[#064e3b] rounded-lg font-black text-[10px] uppercase mb-4 shadow-lg tracking-widest">Tin mới nhất</div>
                 <h2 class="text-3xl md:text-4xl font-black text-white mb-4 leading-tight uppercase group-hover:text-[#fac72e] transition-colors">
-                    ${latest.title}
+                    ${latest.title || 'Không tiêu đề'}
                 </h2>
                 <p class="text-emerald-100/90 text-sm mb-8 max-w-md font-medium line-clamp-3 leading-relaxed">
                     ${latest.summary || 'Cập nhật tin tức mới nhất về các dự án Bcons và tình hình thị trường bất động sản khu vực.'}
                 </p>
-                <a href="/tin-tuc/${latest.slug}" class="inline-block bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-[#fac72e] hover:text-[#064e3b] px-8 py-3 rounded-xl font-bold uppercase text-xs transition-all tracking-widest">
+                <a href="/tin-tuc/${latest.slug || ''}" class="inline-block bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-[#fac72e] hover:text-[#064e3b] px-8 py-3 rounded-xl font-bold uppercase text-xs transition-all tracking-widest">
                     Xem chi tiết
                 </a>
             </div>
@@ -108,26 +135,34 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
           listContainer.innerHTML = `<p class="text-slate-400 italic text-sm py-5 text-center">Không còn tin cũ hơn.</p>`;
       } else {
           listContainer.innerHTML = otherPosts.map((post: any) => {
-            const thumbImg = post.thumbnail && post.thumbnail.startsWith('http') 
-              ? post.thumbnail 
-              : `${BACKEND_URL}${post.thumbnail || ''}`;
+            const rawThumbImg = post.thumbnail || post.image || '';
+            const thumbImg = rawThumbImg.startsWith('http') 
+              ? rawThumbImg 
+              : `${BACKEND_URL}/${rawThumbImg.replace(/^\//, '')}`;
+
+            const catLower = String(post.category || '').toLowerCase();
+            const isThiTruong = catLower.includes('thi') || catLower.includes('truong') || catLower === '1' || catLower.includes('market');
+            const badgeLabel = isThiTruong ? 'Thị trường' : 'Tiến độ';
+
+            const rawDate = post.created_at || post.createdAt;
+            const dateStr = rawDate ? new Date(rawDate).toLocaleDateString('vi-VN') : 'N/A';
 
             return `
-              <a href="/tin-tuc/${post.slug}" class="flex gap-6 group border-b border-emerald-50/50 pb-8 last:border-0 block animate-fadeIn">
+              <a href="/tin-tuc/${post.slug || ''}" class="flex gap-6 group border-b border-emerald-50/50 pb-8 last:border-0 block animate-fadeIn">
                 <div class="w-32 h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 shadow-sm border border-slate-100">
-                  <img src="${thumbImg}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='/images/no-image.jpg'" />
+                  <img src="${thumbImg}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/150x100?text=Bcons'" />
                 </div>
                 <div class="flex-1">
                   <h3 class="font-bold text-slate-800 group-hover:text-[#064e3b] line-clamp-2 mb-2 transition-colors leading-snug">
-                    ${post.title}
+                    ${post.title || 'Không tiêu đề'}
                   </h3>
                   <p class="text-slate-500 text-xs line-clamp-2 mb-3 leading-relaxed">
                       ${post.summary || 'Thông tin chi tiết về sự kiện và chính sách mới từ tập đoàn Bcons...'}
                   </p>
                   <div class="flex items-center gap-3 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                    <span>${new Date(post.created_at).toLocaleDateString('vi-VN')}</span>
+                    <span>${dateStr}</span>
                     <span class="w-1 h-1 bg-[#fac72e] rounded-full"></span>
-                    <span class="text-[#fac72e] font-black">${post.category === 'thi-truong' ? 'Thị trường' : 'Tiến độ'}</span>
+                    <span class="text-[#fac72e] font-black">${badgeLabel}</span>
                   </div>
                 </div>
               </a>
@@ -144,8 +179,8 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
   function initNewsTabs() {
     const tabs = document.querySelectorAll('.news-tab-btn');
     tabs.forEach(tab => {
-      // Gỡ toàn bộ event cũ tránh trùng lặp listeners khi lật trang
-      tab.removeAttribute('data-has-listener');
+      if (tab.getAttribute('data-has-listener') === 'true') return;
+      tab.setAttribute('data-has-listener', 'true');
       
       tab.addEventListener('click', (e: any) => {
         const target = e.currentTarget;
@@ -164,7 +199,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
     });
   }
 
-  // Khởi chạy đồng bộ mượt mà ở cả lượt tải đầu tiên và khi đổi trang qua View Transitions
   function initNewsSection() {
     initNewsTabs();
     fetchNews('thi-truong');
