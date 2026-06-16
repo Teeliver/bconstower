@@ -142,27 +142,42 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
         const slug = item.slug || '';
         const image = item.thumbnail ? (item.thumbnail.startsWith('http') ? item.thumbnail : `${API_BASE}${item.thumbnail}`) : 'https://placehold.co/100x100?text=No+Img';
         
-        // 🟢 FIX LUẬN LÝ TRẠNG THÁI: Tương thích cả string lẫn boolean is_published từ Laravel
-        let status = item.status || 'draft';
-        if (item.is_published === true || item.is_published === 1) status = 'published';
-        else if (item.is_published === false || item.is_published === 0) status = 'draft';
+        // 🟢 FIX TRIỆT ĐỂ LUẬN LÝ TRẠNG THÁI TRỰC QUAN: Quét sâu đa tầng chống hiển thị láo trạng thái xuất bản
+        let status = 'draft';
+        const rawStatus = item.status ? String(item.status).toLowerCase().trim() : '';
+        const rawPublish = item.is_published;
 
-        // 🟢 FIX ĐỘC QUYỀN CHUYÊN MỤC: Tự động bóc tách thông minh từ Object Eloquent hoặc ID
-        let category = 'khac';
-        let categoryLabel = 'Khác';
+        // Nếu bất kỳ cột nào báo là nháp, hoặc mang giá trị false/0 -> Cưỡng bức về dạng draft lập tức
+        if (rawStatus === 'draft' || rawPublish === false || rawPublish === 0 || rawPublish === '0') {
+            status = 'draft';
+        } else if (rawStatus === 'published' || rawStatus === 'active' || rawStatus === '1' || rawPublish === true || rawPublish === 1 || rawPublish === '1') {
+            status = 'published';
+        } else {
+            status = 'draft'; // Phương án an toàn mặc định
+        }
 
+        // 🟢 BẢO TOÀN BỘ QUÉT CHUYÊN MỤC ĐỒNG BỘ: Tự động bóc tách thông minh từ Object Eloquent hoặc ID số
+        let category = 'tien-do';
+        let categoryLabel = 'Tiến độ dự án';
+
+        let checkStr = '';
         if (item.category && typeof item.category === 'object') {
-            category = item.category.slug || 'khac';
-            categoryLabel = item.category.name || (category === 'thi-truong' ? 'Thị trường' : 'Tiến độ');
-        } else if (typeof item.category === 'string') {
-            category = item.category;
-            categoryLabel = category === 'thi-truong' ? 'Thị trường' : (category === 'tien-do' ? 'Tiến độ' : 'Khác');
+            checkStr = String(item.category.slug || item.category.name || item.category.id || '');
+        } else if (item.category) {
+            checkStr = String(item.category);
         } else if (item.category_id) {
-            if (item.category_id == 1 || String(item.category_id) === 'thi-truong') { category = 'thi-truong'; categoryLabel = 'Thị trường'; }
-            else if (item.category_id == 2 || String(item.category_id) === 'tien-do') { category = 'tien-do'; categoryLabel = 'Tiến độ'; }
+            checkStr = String(item.category_id);
+        }
+
+        checkStr = checkStr.toLowerCase().trim();
+        if (checkStr.includes('thi') || checkStr.includes('truong') || checkStr === '1' || checkStr === 'tin thị trường' || checkStr === '0') {
+            category = 'thi-truong';
+            categoryLabel = 'Tin thị trường';
+        } else {
+            category = 'tien-do';
+            categoryLabel = 'Tiến độ dự án';
         }
         
-        // 🟢 FIX ĐƯỜNG DẪN THỜI GIAN: Laravel trả về trường dạng snake_case (created_at) thay vì camelCase
         const rawDate = item.created_at || item.createdAt;
         const date = rawDate ? new Date(rawDate).toLocaleDateString('vi-VN') : 'N/A';
 
@@ -181,7 +196,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
                 </div>
             </td>
             <td class="px-6 py-5 text-center">
-                <span class="text-xs font-bold ${category === 'thi-truong' ? 'text-blue-600' : (category === 'tien-do' ? 'text-emerald-600' : 'text-slate-400')}">
+                <span class="text-xs font-bold ${category === 'thi-truong' ? 'text-blue-600' : 'text-emerald-600'}">
                     ${escapeHTML(categoryLabel)}
                 </span>
             </td>
@@ -204,7 +219,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                     </a>
                     <button class="delete-btn p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm" data-id="${item.id}" data-title="${escapeHTML(title)}">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                      <svg xmlns="http://www.w3.org/2000/xl" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                     </button>
                 </div>
             </td>

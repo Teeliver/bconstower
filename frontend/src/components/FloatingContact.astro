@@ -8,12 +8,12 @@ const ZALO_LINK = "https://zalo.me/0911502603";
 
 <div class="fixed bottom-6 left-6 z-[999] flex flex-col gap-y-3 font-sans select-none animate-fadeIn">
 
-
   <!-- Nút Chat Zalo -->
   <a 
     href={ZALO_LINK} 
     target="_blank" 
     rel="noopener noreferrer" 
+    onclick="typeof gtag === 'function' && gtag('event', 'click_zalo', { 'event_category': 'Contact', 'event_label': 'Nút bong bóng Chat Zalo' })"
     class="flex h-12 w-12 items-center justify-center rounded-full bg-[#0068ff] text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl font-black text-xl border border-white/20"
     title="Chat qua Zalo"
   >
@@ -23,6 +23,7 @@ const ZALO_LINK = "https://zalo.me/0911502603";
   <!-- Nút Gọi Hotline (Kèm hiệu ứng sóng xung kích nhấp nháy thu hút khách Lead) -->
   <a 
     href={`tel:${PHONE_NUMBER}`} 
+    onclick="typeof gtag === 'function' && gtag('event', 'click_hotline', { 'event_category': 'Contact', 'event_label': 'Nút bong bóng Hotline' })"
     class="relative flex h-12 w-12 items-center justify-center rounded-full bg-[#fac72e] text-black shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl group"
     title="Gọi ngay Hotline tư vấn"
   >

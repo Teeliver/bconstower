@@ -5,7 +5,8 @@ use Illuminate\Http\Request;
 use App\Models\HeroSlide;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator; // Dòng này là thứ bạn đang thiếu
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Schema;
 
 class HeroSlideController extends Controller
 {

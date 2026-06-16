@@ -1,4 +1,5 @@
 ---
+// src/pages/contact.astro
 import MainLayout from "../layouts/MainLayout.astro";
 
 const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
@@ -9,13 +10,11 @@ const seoImage = "https://placehold.co/800x450?text=Bcons+Contact";
 ---
 
 <MainLayout title={seoTitle} description={seoDescription} image={seoImage}>
-  <!-- 🚀 NẠP CỨNG THƯ VIỆN ĐẦU TRANG: Đảm bảo bản đồ luôn sẵn sàng 100% trước khi dựng hình -->
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
   <script is:inline src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 
   <div class="bg-[#F4F7F6] w-full overflow-x-hidden break-words min-h-screen pb-20 font-sans mt-20">
     
-    <!-- Hero Header: Tông vàng Bcons phối chữ đen Luxury tương phản mạnh -->
     <div class="relative max-w-[1250px] mx-2 xl:mx-auto py-14 rounded-xl bg-gradient-to-br from-[#fac72e] via-[#e2b327] to-[#d8aa21] text-white text-center shadow-xl mt-10">
       <div class="absolute inset-0 opacity-10 pointer-events-none" 
          style="background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');">
@@ -25,18 +24,19 @@ const seoImage = "https://placehold.co/800x450?text=Bcons+Contact";
           Kết Nối Trực Tiếp
         </span>
         <h1 class="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
-          Liên Hệ Phòng Kinh Doanh
+          Liên hệ Chuyên Viên Tư Vấn
         </h1>
         <p class="text-md sm:text-lg text-white font-medium max-w-xl mx-auto leading-relaxed">
-          Quý khách vui lòng để lại thông tin hoặc kết nối trực tiếp qua Hotline để được hỗ trợ thủ tục, bảng giá suất nội bộ nhanh nhất.
+          Quý khách vui lòng để lại thông tin hoặc kết nối trực tiếp qua Hotline để được hỗ trợ thủ tục pháp lý, cập nhật giỏ hàng chuyển nhượng và bảng tính dòng tiền chi tiết nhanh nhất.
+        </p>
+        <p class="text-md sm:text-lg text-white font-medium max-w-xl mx-auto leading-relaxed">
+          Chuyên viên tư vấn xin cam kết giữ bảo mật thông tin khách hàng 100% theo đúng chính sách bảo mật dữ liệu.
         </p>
       </div>
     </div>
 
-    <!-- 🔥 ĐÃ SỬA: Thay thế items-start thành lg:items-stretch để ép 2 cột bằng khít chiều dọc trên Desktop -->
     <div class="max-w-7xl mx-auto px-4 mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:items-stretch">
       
-      <!-- Cột Trái: Thông tin liên hệ công ty & Bản đồ -->
       <div class="lg:col-span-5 space-y-6 flex flex-col justify-between animate-fadeIn">
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-6 flex-1">
           <div class="flex items-center gap-3">
@@ -77,22 +77,24 @@ const seoImage = "https://placehold.co/800x450?text=Bcons+Contact";
           </ul>
         </div>
 
-        <!-- Khung bản đồ văn phòng -->
         <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 overflow-hidden -mt-2">
           <div id="contact-map" style="width: 100%; height: 320px; min-height: 320px; display: block; position: relative;" class="bg-slate-100 rounded-xl overflow-hidden"></div>
         </div>
       </div>
 
-      <!-- 🔥 ĐÃ SỬA CỘT PHẢI: Thêm flex flex-col để bốc trọn không gian dọc kéo form dài xuống bằng khít bản đồ -->
       <div class="lg:col-span-7 bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-100 text-slate-800 animate-fadeIn flex flex-col justify-between">
         <div class="flex items-center gap-3 mb-6">
           <div class="w-1.5 h-6 bg-[#e2b327] rounded-full"></div>
           <h2 class="text-md font-bold text-slate-800 uppercase tracking-tight">Gửi Yêu Cầu Cho Chúng Tôi</h2>
         </div>
 
-        <!-- Biến form thành flexbox dọc chiếm trọn diện tích -->
         <form id="page-contact-form" data-api={PUBLIC_API_BASE} class="space-y-4 flex-1 flex flex-col justify-between">
           
+          <!-- 🟢 LỚP KHIÊN BẢO MẬT HONEYPOT: Ẩn tuyệt đối 100% với người dùng, dùng để dụ Bot điền thông tin -->
+          <div class="hidden" aria-hidden="true">
+             <input type="text" id="contact-email-honey" tabindex="-1" autocomplete="off" placeholder="Confirm your corporate email address" class="opacity-0 absolute pointer-events-none w-0 h-0" />
+          </div>
+
           <div class="space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -123,16 +125,16 @@ const seoImage = "https://placehold.co/800x450?text=Bcons+Contact";
             </div>
           </div>
 
-          <!-- 🔥 ĐÃ SỬA Ô TEXTAREA: Cấu hình flex-1 và resize-none để ô nhập tự nới rộng hấp thụ khoảng trống hụt -->
           <div class="flex-1 flex flex-col min-h-[120px] pt-1">
             <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">Nội dung tin nhắn / Câu hỏi cần giải đáp</label>
             <textarea id="contact-message" class="w-full flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E1E1E] text-sm font-medium text-slate-900 bg-slate-50 shadow-sm resize-none" placeholder="Quý khách có yêu cầu gì đặc biệt, vui lòng ghi rõ tại đây..."></textarea>
           </div>
 
-          <!-- Nút Đăng ký tự động bám chặt xuống đáy bằng mt-auto -->
           <button type="submit" id="contact-submit-btn" class="w-full py-3.5 mt-2 rounded-xl bg-[#1E1E1E] text-[#fac72e] font-black text-xs uppercase tracking-widest hover:bg-black/90 transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer focus:outline-none select-none">
             Gửi Yêu Cầu Liên Hệ Ngay
           </button>
+          
+          <div class="text-gray-700">* Tuyệt đối bảo mật thông tin khách hàng 100%.</div>
         </form>
       </div>
 
@@ -149,6 +151,9 @@ const seoImage = "https://placehold.co/800x450?text=Bcons+Contact";
     document.head.appendChild(script);
   }
 
+  // Ghi nhận mốc thời gian load trang tĩnh tức thời đáp ứng bảo mật tầng 2
+  window.contactFormRenderTime = Date.now();
+
   const escapeHTML = (str) => {
     if (!str) return '';
     return str.replace(/[&<>"']/g, (match) => {
@@ -157,7 +162,6 @@ const seoImage = "https://placehold.co/800x450?text=Bcons+Contact";
     });
   };
 
-  // 2. KHỞI TẠO BẢN ĐỒ CÓ CƠ CHẾ ÉP SIZE KHÍT KHUNG VÀ TRÁNH RE-INIT LỖI WEBGL
   function initContactMap() {
     const container = document.getElementById('contact-map');
     if (!container) return;
@@ -199,7 +203,6 @@ const seoImage = "https://placehold.co/800x450?text=Bcons+Contact";
     }
   }
 
-  // 3. KHỞI TẠO LOGIC GỬI FORM LIÊN HỆ
   async function initContactForm() {
     const form = document.getElementById('page-contact-form');
     const projectSelect = document.getElementById('contact-project');
@@ -231,6 +234,33 @@ const seoImage = "https://placehold.co/800x450?text=Bcons+Contact";
       const btn = document.getElementById('contact-submit-btn');
 
       if (!Swal || !btn) return;
+
+      // BẢO MẬT LỚP 1: Kiểm tra bẫy ngầm Honeypot field
+      const honeyValue = document.getElementById('contact-email-honey') ? document.getElementById('contact-email-honey').value : '';
+      
+      // BẢO MẬT LỚP 2: Kiểm tra thời gian thao tác điền form (Nếu dưới 2.5 giây -> Bot điền tự động)
+      const timeElapsed = Date.now() - window.contactFormRenderTime;
+
+      if (honeyValue.trim() !== '' || timeElapsed < 2500) {
+          // 🚀 PHẢN HỒI GIẢ LẬP: Đánh lừa bot là gửi thành công mỹ mãn nhưng âm thầm cắt đứt kết nối lên Server!
+          btn.disabled = true;
+          btn.innerText = "ĐANG CHUYỂN HỒ SƠ...";
+          
+          setTimeout(() => {
+              Swal.fire({
+                icon: 'success',
+                title: '<span class="text-md font-bold text-slate-800 uppercase">Gửi thành công!</span>',
+                text: 'Yêu cầu của bạn đã được ghi nhận thành công vào cơ sở dữ liệu Lead.',
+                confirmButtonColor: '#1E1E1E',
+                width: '520px'
+              });
+              form.reset();
+              btn.disabled = false;
+              btn.innerText = "GỬI YÊU CẦU LIÊN HỆ NGAY";
+              window.contactFormRenderTime = Date.now(); // Reset bộ đếm thời gian
+          }, 1200);
+          return;
+      }
 
       const name = document.getElementById('contact-name').value.trim();
       const phone = document.getElementById('contact-phone').value.trim();
@@ -265,11 +295,12 @@ const seoImage = "https://placehold.co/800x450?text=Bcons+Contact";
           Swal.fire({
             icon: 'success',
             title: '<span class="text-md font-bold text-slate-800 uppercase">Gửi thành công!</span>',
-            text: 'Yêu cầu của bạn đã được ghi nhận thành công vào cơ sở dữ liệu Lead.',
+            text: 'Cảm ơn quý khách đã để lại thông tin để tư vấn.',
             confirmButtonColor: '#1E1E1E',
             width: '520px'
           });
           form.reset();
+          window.contactFormRenderTime = Date.now(); // Làm mới bộ đếm thời gian sau khi người thật gửi
         } else {
           throw new Error(result.message || "Lỗi xử lý dữ liệu từ Server.");
         }
@@ -290,6 +321,7 @@ const seoImage = "https://placehold.co/800x450?text=Bcons+Contact";
   function triggerAll() {
     initContactMap();
     initContactForm();
+    window.contactFormRenderTime = Date.now(); // Reset bộ đếm thời gian khi chuyển trang qua View Transitions
   }
 
   triggerAll();

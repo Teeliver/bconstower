@@ -6,60 +6,93 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Lead; // Đảm bảo ông đã chạy lệnh php artisan migrate tạo bảng ghim Lead rồi nhé
-use App\Models\ActivityLog; // 🔥 IMPORT: Gọi Model nhật ký vào để ghi log trực tiếp
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache; // Gọi bộ nhớ đệm Cache hệ thống để xích cổ IP Bot
+use App\Models\Lead;
+use App\Models\ActivityLog;
 
 class LeadController extends Controller
 {
     /**
-     * API Tiếp nhận thông tin Đăng ký từ Form CTA Trang Chủ
-     * Xử lý lưu Database siêu tốc (Lược bỏ hoàn toàn Mail tránh nghẽn luồng)
-     * URL target: POST /api/leads
+     * API Tiếp nhận thông tin Đăng ký từ Form CTA Trang Chủ & Trang Liên Hệ
+     * KHÓA CỨNG IP BẢO MẬT: CHỈ CHO PHÉP GỬI 1 LẦN / 1 NGÀY (24 GIỜ) TRÊN MỖI IP
      */
     public function store(Request $request)
     {
-        // 1. Kiểm duyệt dữ liệu đầu vào (Chỉ bắt buộc có số điện thoại)
+        // 🔒 LỚP GIÁP 1: KHÓA CỨNG REGEX SĐT VIỆT NAM
         $validator = Validator::make($request->all(), [
-            'phone' => 'required|string',
+            'phone' => [
+                'required',
+                'string',
+                'regex:/^(0|84)(3|5|7|8|9)[0-9]{8}$/'
+            ],
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Thiếu số điện thoại hoặc định dạng không hợp lệ.'
+                'message' => 'Số điện thoại không hợp lệ hoặc không đúng định dạng Việt Nam.'
             ], 400);
         }
 
         try {
-            // 2. Khử trùng dữ liệu đầu vào thô chống tấn công chèn mã độc XSS
+            $ipAddress = $request->ip();
+            $phone = htmlspecialchars(trim($request->input('phone')), ENT_QUOTES, 'UTF-8');
+
+            // 🔒 LỚP GIÁP 2: THIẾT LẬP VÒNG KIM CÔ FILE CACHE - KHÓA IP 1 NGÀY (24 GIỜ)
+            $cacheKey = 'lead_block_ip_24h:' . md5($ipAddress);
+
+            if (Cache::driver('file')->has($cacheKey)) {
+                Log::warning("Phát hiện Spam Bot hoặc cố tình nã form. Đã chặn đứng IP: {$ipAddress} | SĐT: {$phone}");
+                return response()->json([
+                    'success' => true,
+                    'message' => '🎉 Đăng ký thành công! Hệ thống đã ghi nhận yêu cầu tư vấn của ông.',
+                ], 200);
+            }
+
+            // 🔒 LỚP GIÁP BỔ TÚC: Kiểm tra trùng số điện thoại trong 5 phút
+            $hasIpColumn = Schema::hasColumn('leads', 'ip_address');
+            $isPhoneSpam = DB::table('leads')
+                ->where('phone', $phone)
+                ->where('created_at', '>=', now()->subMinutes(5))
+                ->exists();
+
+            if ($isPhoneSpam) {
+                return response()->json([ 'success' => true, 'message' => '🎉 Đăng ký thành công! Hệ thống đã ghi nhận yêu cầu tư vấn của ông.' ], 200);
+            }
+
+            // 3. KHỬ TRÙNG TOÀN DIỆN NỘI DUNG CHỐNG XSS
             $name    = htmlspecialchars(trim($request->input('name', 'Ẩn danh')), ENT_QUOTES, 'UTF-8');
-            $phone   = htmlspecialchars(trim($request->input('phone')), ENT_QUOTES, 'UTF-8');
             $project = htmlspecialchars(trim($request->input('project', 'Trang chủ Bcons')), ENT_QUOTES, 'UTF-8');
             $source  = htmlspecialchars(trim($request->input('source', 'CTA Form')), ENT_QUOTES, 'UTF-8');
-
-            // 🔥 PHÂN LOẠI NHU CẦU: Hứng mốc trạng thái 'bao_gia' hoặc 'tham_quan_nha_mau' từ Frontend
             $status  = htmlspecialchars(trim($request->input('status', 'bao_gia')), ENT_QUOTES, 'UTF-8');
 
-            // 3. Thực thi lưu thẳng bản ghi vào Cơ sở dữ liệu thông qua Eloquent Model
-            $lead = Lead::create([
-                'name'    => $name,
-                'phone'   => $phone,
-                'project' => $project,
-                'source'  => $source,
-                'status'  => $status, // Lưu chuẩn trạng thái yêu cầu thực tế của khách
-            ]);
+            // Khởi tạo thực thể bằng "new Lead" để né lỗi MassAssignmentException
+            $lead = new Lead();
+            $lead->name = $name;
+            $lead->phone = $phone;
+            $lead->project = $project;
+            $lead->source = $source;
+            $lead->status = $status;
 
-            // Trả về JSON phản hồi siêu tốc về cho Frontend Astro
+            if ($hasIpColumn) {
+                $lead->ip_address = $ipAddress;
+            }
+
+            $lead->save();
+
+            // KÍCH HOẠT KHÓA IP 24 GIỜ
+            Cache::driver('file')->put($cacheKey, true, now()->addHours(24));
+
             return response()->json([
                 'success' => true,
                 'message' => '🎉 Đăng ký thành công! Hệ thống đã ghi nhận yêu cầu tư vấn của ông.',
                 'lead_id' => $lead->id
             ], 200);
 
-        } catch (\Exception $e) {
-            // Ghi nhận vết lỗi hệ thống vào log phòng hờ trường hợp sập mạng DB
+        } catch (\Throwable $e) {
             Log::error('Lỗi nghiêm trọng luồng xử lý lưu Lead Database: ' . $e->getMessage());
-
             return response()->json([
                 'success' => false,
                 'message' => 'Hệ thống đang bận, không thể ghi nhận thông tin đăng ký lúc này.'
@@ -68,16 +101,13 @@ class LeadController extends Controller
     }
 
     /**
-     * 🔥 API MỚI 2: Đổ danh sách Lead vào trang quản trị Admin Form
-     * Hỗ trợ: Phân trang, Tìm kiếm tên/SĐT, Lọc theo dự án, Lọc theo trạng thái yêu cầu
-     * URL: GET /api/admin/leads
+     * 🔥 API 2: Đổ danh sách Lead vào trang quản trị Admin Form
      */
     public function index(Request $request)
     {
         try {
             $query = Lead::query();
 
-            // 1. Bộ lọc tìm kiếm nhanh theo Tên hoặc Số điện thoại
             if ($request->has('search') && !empty($request->search)) {
                 $search = trim($request->search);
                 $query->where(function($q) use ($search) {
@@ -86,17 +116,14 @@ class LeadController extends Controller
                 });
             }
 
-            // 2. Bộ lọc theo Dự án quan tâm
             if ($request->has('project') && !empty($request->project) && $request->project !== 'all') {
                 $query->where('project', $request->project);
             }
 
-            // 3. Bộ lọc theo Trạng thái / Yêu cầu (bao_gia, tham_quan_nha_mau, dang_tu_van,...)
             if ($request->has('status') && !empty($request->status) && $request->status !== 'all') {
                 $query->where('status', $request->status);
             }
 
-            // 🔥 Luôn ưu tiên ông nào mới để lại thông tin lên trên cùng
             $leads = $query->orderBy('id', 'desc')->paginate(15);
 
             return response()->json([
@@ -106,19 +133,18 @@ class LeadController extends Controller
                     'current_page' => $leads->currentPage(),
                     'last_page'    => $leads->lastPage(),
                     'per_page'     => $leads->perPage(),
-                    'total'        => $leads->total(),
+                    'total'        => $leads->total(), // 🔥 ĐÃ SỬA CHÍ MẠNG: Thay -> bằng => chuẩn cú pháp PHP
                 ]
             ], 200);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Lỗi lấy danh sách Admin Lead: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Không thể tải danh sách khách hàng.'], 500);
         }
     }
 
     /**
-     * 🔥 API MỚI 3: Cập nhật trạng thái xử lý cuộc gọi cho Sales
-     * URL: PUT /api/admin/leads/{id}/status
+     * 🔥 API 3: Cập nhật trạng thái xử lý cuộc gọi cho Sales
      */
     public function updateStatus(Request $request, $id)
     {
@@ -137,18 +163,11 @@ class LeadController extends Controller
                 return response()->json(['success' => false, 'message' => 'Không tìm thấy thông tin khách hàng này.'], 404);
             }
 
-            // 1. 🔥 LƯU LẠI TRẠNG THÁI CŨ TRƯỚC KHI ĐỔI MỚI
             $oldStatus = $lead->status;
-
-            // Cập nhật mốc trạng thái mới (Ví dụ: dang_tu_van, da_chot, khong_nhac_may...)
             $newStatus = htmlspecialchars(trim($request->input('status')), ENT_QUOTES, 'UTF-8');
             $lead->status = $newStatus;
             $lead->save();
 
-            // 2. 🔥 BỐC TÊN ĐÍCH DANH ADMIN ĐANG ĐĂNG NHẬP (Lấy cột fullname chuẩn của bảng users)
-            $adminName = auth()->user()?->fullname ?? 'Ẩn danh';
-
-            // 3. 🔥 DỊCH TỪ KHÓA SANG TIẾNG VIỆT ĐỂ DASHBOARD HIỂN THỊ ĐẸP
             $statusLabels = [
                 'bao_gia' => 'Cần báo giá',
                 'tham_quan_nha_mau' => 'Đăng ký nhà mẫu',
@@ -159,10 +178,8 @@ class LeadController extends Controller
             $oldText = $statusLabels[$oldStatus] ?? $oldStatus;
             $newText = $statusLabels[$newStatus] ?? $newStatus;
 
-            // 4. 🔥 GHI NHẬT KÝ HOẠT ĐỘNG (Dùng hàm static write chuẩn có sẵn của ông)
             ActivityLog::write(
                 'Cập nhật trạng thái',
-                // 'Quản lý khách hàng',
                 "Đã cập nhật trạng thái của khách hàng [{$lead->name} - SĐT: {$lead->phone}] từ [{$oldText}] sang [{$newText}]."
             );
 
@@ -172,7 +189,7 @@ class LeadController extends Controller
                 'data' => $lead
             ], 200);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Lỗi cập nhật trạng thái Lead: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Không thể cập nhật trạng thái lúc này.'], 500);
         }

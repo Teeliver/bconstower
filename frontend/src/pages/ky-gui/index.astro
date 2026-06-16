@@ -5,7 +5,7 @@ import MainLayout from '../../layouts/MainLayout.astro';
 const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
 ---
 
-<MainLayout title="Ký Gửi Căn Hộ Bcons - Nhận Ký Gửi Bán & Cho Thuê Chính Chủ">
+<MainLayout title="Hỗ Trợ Ký Gửi Căn Hộ Bcons - Nhận Ký Gửi Bán & Cho Thuê">
   
   <section class="relative max-w-[1260px] mx-2 xl:mx-auto py-14 rounded-xl bg-gradient-to-br from-[#fac72e] via-[#e2b327] to-[#d8aa21] text-white text-center mt-28">
     <div class="absolute inset-0 opacity-10 pointer-events-none" 
@@ -16,10 +16,10 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
         Thủ tục nhanh chóng - Bảo mật thông tin
       </span>
       <h1 class="text-[20px] md:text-4xl font-black uppercase tracking-tight leading-tight">
-        Giỏ Hàng Ký Gửi Căn Hộ Bcons
+        Hỗ Trợ Ký Gửi Căn Hộ Bcons
       </h1>
       <p class="text-sm md:text-base text-white max-w-xl mx-auto font-medium leading-relaxed">
-        Quý khách hàng có nhu cầu Ký gửi Bán hoặc Cho thuê căn hộ thuộc chuỗi dự án Tập đoàn Bcons, vui lòng để lại thông tin mã căn dưới đây. Chuyên viên sẽ liên hệ check thông tin ngay lập tức.
+        Quý khách hàng có nhu cầu ký gửi chuyển nhượng hoặc cho thuê căn hộ thuộc các dự án Bcons, vui lòng phối hợp cung cấp thông tin theo biểu mẫu dưới đây. Chuyên viên tư vấn giỏ hàng sẽ chủ động liên hệ hỗ trợ xác thực thông tin sớm nhất.
       </p>
     </div>
   </section>
@@ -39,6 +39,12 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
       
       <div class="lg:col-span-7 xl:col-span-8 bg-white rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-100">
         <form id="consignment-form" class="space-y-6">
+          
+          <!-- 🟢 LỚP KHIÊN BẢO MẬT HONEYPOT: Ẩn tuyệt đối 100% với người dùng, dùng để dụ Bot điền thông tin -->
+          <div class="hidden" aria-hidden="true">
+             <input type="text" id="owner-email-honey" tabindex="-1" autocomplete="off" placeholder="Confirm your property email registration" class="opacity-0 absolute pointer-events-none w-0 h-0" />
+          </div>
+
           <h3 class="text-base font-black text-slate-800 uppercase tracking-wide border-b border-slate-100 pb-3 flex items-center gap-2">
             <span class="w-2 h-5 bg-[#e2b327] rounded-sm"></span> 1. Thông tin liên hệ chủ nhà
           </h3>
@@ -109,15 +115,15 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
           <ol class="space-y-3.5 text-[14px] text-slate-600 font-bold text-justify">
             <li class="flex gap-3 items-start">
               <span class="w-5 h-5 bg-[#d8aa21] text-black rounded-full flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">1</span>
-              <span><b>Xác thực thông tin:</b> Chuyên viên liên hệ kiểm tra tính chuẩn xác của mã căn, hướng view và tiến độ thanh toán của sản phẩm trong vòng 15 phút.</span>
+              <span><b>Xác thực thông tin:</b> Chuyên viên tư vấn liên hệ hỗ trợ kiểm tra tính chuẩn xác của mã căn, hướng view và tiến độ thanh toán của sản phẩm trong thời gian sớm nhất.</span>
             </li>
             <li class="flex gap-3 items-start">
               <span class="w-5 h-5 bg-[#d8aa21] text-black rounded-full flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">2</span>
-              <span><b>Định giá tối ưu:</b> Phân tích dữ liệu giỏ hàng và chuyển nhượng thực tế tại dự án để tư vấn mốc giá thanh khoản nhanh nhất cho chủ nhà.</span>
+              <span><b>Tối ưu lộ trình:</b> Phân tích dữ liệu thực tế tại danh mục giỏ hàng lân cận để hỗ trợ định biên mốc giá thanh khoản phù hợp cho chủ nhà.</span>
             </li>
             <li class="flex gap-3 items-start">
               <span class="w-5 h-5 bg-[#d8aa21] text-black rounded-full flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">3</span>
-              <span><b>Phân phối siêu tốc:</b> Đưa thông tin sản phẩm tiếp cận nhanh đến 1000+ khách hàng có sẵn nhu cầu lập tức.</span>
+              <span><b>Kết nối nhu cầu:</b> Đưa thông tin sản phẩm tiếp cận nhanh chóng đến danh sách khách hàng đang có nhu cầu thực tế.</span>
             </li>
           </ol>
         </div>
@@ -125,20 +131,20 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
         <div class="bg-[#e2b327] p-6 rounded-3xl text-white shadow-lg space-y-4">
           <h4 class="text-base font-black uppercase tracking-wider text-white flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-            Cam kết dịch vụ chính chủ
+            Cam kết dịch vụ tư vấn độc lập
           </h4>
           <ul class="space-y-3 text-[14px] text-white font-medium text-justify">
             <li class="flex items-center gap-2.5 text-black">
               <span class="text-black font-black">✓</span>
-              <span><b>Tuyệt đối không kê giá:</b> Bán đúng giá chủ nhà mong muốn thu nét, minh bạch trong quá trình đàm phán mua bán.</span>
+              <span><b>Tuyệt đối không kê giá:</b> Hỗ trợ giao dịch theo đúng mức giá chủ nhà mong muốn thu nét, minh bạch trong quá trình làm việc.</span>
             </li>
             <li class="flex items-center gap-2.5 text-black">
               <span class="text-black font-black">✓</span>
-              <span><b>Bảo mật thông tin:</b> Không rò rỉ số điện thoại, danh tính chủ hộ. Tránh tình trạng bị spam cuộc gọi làm phiền.</span>
+              <span><b>Bảo mật thông tin:</b> Quản lý chặt chẽ số điện thoại, danh tính chủ hộ. Hạn chế tối đa tình trạng bị phân tán thông tin.</span>
             </li>
             <li class="flex items-center gap-2.5 text-black">
               <span class="text-black font-black">✓</span>
-              <span><b>Hỗ trợ pháp lý toàn diện:</b> Chuyên viên hỗ trợ trọn gói thủ tục sang tên, hồ sơ vay ngân hàng, thuế thu nhập cá nhân tại phòng công chứng từ A - Z.</span>
+              <span><b>Hỗ trợ thủ tục toàn diện:</b> Chuyên viên hỗ trợ trọn gói quy trình chuẩn bị hồ sơ sang tên, thuế thu nhập cá nhân tại văn phòng công chứng từ A - Z.</span>
             </li>
           </ul>
         </div>
@@ -148,6 +154,9 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
 </MainLayout>
 
 <script>
+  // Ghi nhận mốc thời gian load cấu trúc trang tĩnh ban đầu phòng hờ bot spam
+  (window as any).consignmentFormRenderTime = Date.now();
+
   async function setupConsignmentPage() {
     const root = document.getElementById('consignment-root');
     const form = document.getElementById('consignment-form') as HTMLFormElement | null;
@@ -157,11 +166,13 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
     if (form.dataset.listenerAttached === 'true') return;
     form.dataset.listenerAttached = 'true';
 
+    // Đảm bảo mốc thời gian luôn chính xác khi chuyển trang tĩnh View Transitions
+    (window as any).consignmentFormRenderTime = Date.now();
+
     const BACKEND_URL = root.getAttribute('data-api-base') || 'http://localhost:8000';
     const btn = document.getElementById('submit-btn') as HTMLButtonElement | null;
     const alertMsg = document.getElementById('alert-msg');
 
-    // 🔥 LUỒNG ĐỘNG: Kéo quỹ tên dự án từ Laravel về render vào dropdown chọn dự án ký gửi
     if (projectSelect && projectSelect.children.length <= 1) {
       try {
         const res = await fetch(`${BACKEND_URL}/api/projects-list`);
@@ -180,10 +191,34 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
       }
     }
 
-    // Lắng nghe sự kiện Submit Form
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
       if (!btn) return;
+
+      // 🔒 LỚP GIÁP 1: Kiểm duyệt bẫy ngầm Honeypot field
+      const honeyValue = (document.getElementById('owner-email-honey') as HTMLInputElement | null)?.value || '';
+      
+      // 🔒 LỚP GIÁP 2: Đo lường tốc độ điền hồ sơ (Nếu dưới 2.5 giây từ lúc mở trang -> Chắc chắn Bot bấm gửi)
+      const timeElapsed = Date.now() - (window as any).consignmentFormRenderTime;
+
+      if (honeyValue.trim() !== '' || timeElapsed < 2500) {
+          // 🚀 PHẢN HỒI GIẢ LẬP: Đóng băng bot bằng thông báo thành công fake nhưng tuyệt đối cắt kết nối lên Server!
+          btn.disabled = true;
+          btn.innerText = "HỆ THỐNG ĐANG TIẾP NHẬN HỒ SƠ...";
+          if (alertMsg) alertMsg.className = "hidden";
+
+          setTimeout(() => {
+              if (alertMsg) {
+                alertMsg.className = "mt-4 p-4 rounded-xl text-center text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 animate-fadeIn";
+                alertMsg.innerText = "🎉 Tiếp nhận thông tin thành công! Chuyên viên tư vấn giỏ hàng sẽ liên hệ phối hợp xác thực căn hộ sớm nhất.";
+              }
+              form.reset();
+              btn.disabled = false;
+              btn.innerText = "GỬI HỒ SƠ KÝ GỬI NGAY";
+              (window as any).consignmentFormRenderTime = Date.now(); // Làm mới bộ đếm
+          }, 1200);
+          return;
+      }
 
       const name = (document.getElementById('owner-name') as HTMLInputElement).value.trim();
       const phone = (document.getElementById('owner-phone') as HTMLInputElement).value.trim();
@@ -192,6 +227,14 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
       const apartment_code = (document.getElementById('apartment-code') as HTMLInputElement).value.trim();
       const price = (document.getElementById('apartment-price') as HTMLInputElement).value.trim();
       const notes = (document.getElementById('apartment-notes') as HTMLTextAreaElement).value.trim();
+
+      if (!/^(0|84)\d{9,10}$/.test(phone)) {
+          if (alertMsg) {
+            alertMsg.className = "mt-4 p-4 rounded-xl text-center text-xs font-bold bg-red-50 text-red-600 border border-red-100 animate-fadeIn";
+            alertMsg.innerText = "⚠️ Số điện thoại không hợp lệ. Vui lòng nhập đúng SĐT định dạng Việt Nam.";
+          }
+          return;
+      }
 
       btn.disabled = true;
       btn.innerText = "HỆ THỐNG ĐANG TIẾP NHẬN HỒ SƠ...";
@@ -209,9 +252,10 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
         if (res.ok && result.success) {
           if (alertMsg) {
             alertMsg.className = "mt-4 p-4 rounded-xl text-center text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 animate-fadeIn";
-            alertMsg.innerText = result.message || "🎉 Ký gửi thành công! Chuyên viên sẽ gọi điện xác thực căn hộ ngay.";
+            alertMsg.innerText = result.message || "🎉 Tiếp nhận thông tin thành công! Chuyên viên tư vấn giỏ hàng sẽ liên hệ phối hợp xác thực căn hộ sớm nhất.";
           }
           form.reset();
+          (window as any).consignmentFormRenderTime = Date.now();
         } else {
           throw new Error(result.message || "Không thể thực hiện ký gửi lúc này.");
         }
@@ -228,7 +272,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
     });
   }
 
-  // Khởi chạy đồng bộ mượt mà ở cả lượt tải đầu tiên và khi đổi trang qua View Transitions
   setupConsignmentPage();
   document.addEventListener('astro:page-load', setupConsignmentPage);
 </script>

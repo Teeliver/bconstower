@@ -21,7 +21,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
         Nhận Bảng Giá & Giỏ Hàng Giá Tốt
       </h3>
       <p class="text-[14px] md:text-[18px] text-white font-medium leading-relaxed">
-        Hệ thống tự động gửi file PDF chi tiết tiến độ thanh toán, giá bán gốc và chính sách vay ưu đãi mới nhất qua Zalo của quý khách sau 3 phút.
+        Bộ phận hỗ trợ tư vấn sẽ gửi file PDF chi tiết tiến độ thanh toán và chính sách vay ưu đãi mới nhất qua Zalo của quý khách sau 3 phút.
       </p>
     </div>
 
@@ -41,7 +41,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
             <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Yêu cầu của quý khách</label>
-            <select id="lead-status" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#005043] text-sm font-bold text-slate-900 bg-slate-50 cursor-pointer">
+            <select id="lead-status" aria-label="Yêu cầu của quý khách" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#005043] text-sm font-bold text-slate-900 bg-slate-50 cursor-pointer">
               <option value="bao_gia">Nhận báo giá & giỏ hàng</option>
               <option value="tham_quan_nha_mau">Đăng ký tham quan nhà mẫu</option>
             </select>
@@ -49,7 +49,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
 
           <div>
             <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Dự án quan tâm</label>
-            <select id="lead-project" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#005043] text-sm font-bold text-slate-900 bg-slate-50 cursor-pointer">
+            <select id="lead-project" aria-label="Yêu cầu của quý khách" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#005043] text-sm font-bold text-slate-900 bg-slate-50 cursor-pointer">
               <option value="Trang chủ Bcons">Tất cả dự án Bcons</option>
             </select>
           </div>
@@ -136,6 +136,15 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
         const result = await res.json();
 
         if (res.ok && result.success) {
+          // 🟢 CHÈN BẮN SỰ KIỆN CHUYỂN ĐỔI CHUẨN XÁC VÀO ĐÂY:
+          if (typeof (window as any).gtag === 'function') {
+            (window as any).gtag('event', 'submit_form_tu_van', {
+              'event_category': 'Conversion',
+              'event_label': 'Khách điền form nhận báo giá CTA Trang Chủ',
+              'value': 1.0
+            });
+          }
+
           if (alertMsg) {
             alertMsg.className = "mt-3 p-3 rounded-xl text-center text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 animate-fadeIn";
             alertMsg.innerText = result.message || "🎉 Đăng ký thành công! Thông tin đã ghi nhận.";

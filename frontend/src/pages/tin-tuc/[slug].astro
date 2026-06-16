@@ -44,7 +44,7 @@ try {
 
 // Cấu hình các biến Meta phục vụ cho Facebook & Zalo Crawler bốc tách link
 const ogTitle = seoPost?.title || "Chi tiết tin tức bất động sản Bcons mới nhất";
-const ogDescription = seoPost?.summary || seoPost?.description?.substring(0, 160) || "Cập nhật thông tin tiến độ, thị trường dự án căn hộ Bcons nhanh chóng và chính xác nhất.";
+const ogDescription = seoPost?.summary || seoPost?.description?.substring(0, 160) || seoPost?.content?.substring(0, 160) || "Cập nhật thông tin tiến độ, thị trường dự án căn hộ Bcons nhanh chóng và chính xác nhất.";
 const ogImage = seoPost?.thumbnail ? `${PUBLIC_API_BASE}${seoPost.thumbnail}` : `${PUBLIC_API_BASE}/images/no-photo.jpg`;
 const ogUrl = Astro.url.href;
 
@@ -114,6 +114,7 @@ const schemaData = {
     id="magazine-page-root" 
     data-backend={PUBLIC_API_BASE}
     data-post-id={seoPost?.id || ''}
+    data-slug={slug}
     class="bg-white w-full overflow-x-hidden break-words min-h-screen pb-24 font-sans text-slate-800 mt-9"
   >
     
@@ -207,7 +208,7 @@ const schemaData = {
                 </div>
               )}
 
-              <div id="post-detail-body" class="rich-text-content RICH-TEXT-CONTENT text-slate-700 text-justify leading-relaxed text-base space-y-4" set:html={seoPost.content || '<p class="text-slate-400 RICH-TEXT-BODY">Nội dung bài viết đang được cập nhật...</p>'}></div>
+              <div id="post-detail-body" class="rich-text-content RICH-TEXT-CONTENT text-slate-700 text-justify leading-relaxed text-base space-y-4" set:html={seoPost.content || seoPost.description || '<p class="text-slate-400 RICH-TEXT-BODY">Nội dung bài viết đang được cập nhật...</p>'}></div>
 
             </article>
           ) : (
@@ -299,44 +300,62 @@ const schemaData = {
 <script is:inline>
   var pageRoot = document.getElementById('magazine-page-root');
   var BACKEND_URL = pageRoot ? pageRoot.getAttribute('data-backend') : 'http://localhost:3000';
-  var postId = pageRoot ? pageRoot.getAttribute('data-post-id') : '';
+  var currentSlug = pageRoot ? pageRoot.getAttribute('data-slug') : '';
 
-  // 🔥 LUỒNG TỰ ĐỘNG TĂNG LƯỢT XEM CÓ CHỐNG SPAM F5 (sessionStorage + 5s delay)
-  if (postId && postId !== '') {
-    // 1. Tạo một khóa phiên làm việc (Session Key) duy nhất cho bài viết này
-    var sessionKey = 'bcons_viewed_' + postId;
-    
-    // 2. Kiểm tra xem trình duyệt trong phiên này đã gửi yêu cầu tăng view chưa
-    if (!sessionStorage.getItem(sessionKey)) {
-      
-      // 3. Đặt thời gian trì hoãn 5 giây (Xác thực người dùng thực sự đọc bài, không phải click nhầm hoặc bot lướt qua)
-      setTimeout(function() {
-        // Kiểm tra phòng thủ hai lớp đề phòng trường hợp User tải lại trang cứng trong khoảng 5s đó
-        if (!sessionStorage.getItem(sessionKey)) {
-          
-          fetch(BACKEND_URL + '/api/posts/public/' + postId + '/view', {
-            method: 'POST',
-            headers: { 
-              'Accept': 'application/json',
-              'Content-Type': 'application/json' 
-            }
-          })
-          .then(function(res) {
-            if (res.ok) {
-              // Lưu vết vào bộ nhớ phiên của trình duyệt để chặn toàn bộ request F5 sau đó
-              sessionStorage.setItem(sessionKey, 'true');
-            }
-          })
-          .catch(function(err) {
-            console.error('Lỗi hệ thống ghi nhận tăng lượt xem:', err);
-          });
-          
+  if (currentSlug && currentSlug !== '') {
+    fetch(BACKEND_URL + '/api/posts/public/detail?slug=' + currentSlug)
+      .then(function(res) { if (res.ok) return res.json(); throw new Error('API Error'); })
+      .then(function(data) {
+        var livePost = data.post || data.data || data;
+        if (livePost) {
+          var bodyDiv = document.getElementById('post-detail-body');
+          var liveContent = livePost.content || livePost.description;
+          if (bodyDiv && liveContent && liveContent.trim() !== '') bodyDiv.innerHTML = liveContent;
+
+          var titleH1 = document.getElementById('post-detail-title');
+          if (titleH1 && livePost.title) titleH1.innerText = livePost.title;
+
+          var breadcrumbTitle = document.getElementById('breadcrumb-active-title');
+          if (breadcrumbTitle && livePost.title) breadcrumbTitle.innerText = livePost.title;
+
+          var summaryP = document.getElementById('post-detail-summary');
+          if (summaryP && livePost.summary) summaryP.innerText = livePost.summary;
+
+          var authorSpan = document.getElementById('post-detail-author');
+          if (authorSpan && livePost.authorName) authorSpan.innerText = livePost.authorName;
+
+          // Hiển thị mốc view tĩnh ban đầu từ DB trả về
+          var viewsSpan = document.getElementById('post-detail-views');
+          if (viewsSpan && livePost.views !== undefined) viewsSpan.innerText = livePost.views.toLocaleString() + ' lượt xem';
+
+          // 🟢 KÍCH HOẠT ĐƯỜNG TRUYỀN: Gửi lệnh check tăng view lên hệ thống bảo mật IP Backend
+          if (livePost.id) {
+            triggerLiveViewCounter(livePost.id);
+          }
         }
-      }, 5000); // 5000ms = 5 giây đọc bài thực tế
-    }
+      })
+      .catch(function(err) { console.error('Lỗi Hydration:', err); });
   }
 
-  // --- Giữ nguyên vẹn các tính năng UX copy link và chia sẻ mạng xã hội ---
+  function triggerLiveViewCounter(realPostId) {
+    setTimeout(function() {
+        fetch(BACKEND_URL + '/api/posts/public/increment-view/' + realPostId, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+          body: JSON.stringify({}) // 🔥 BỔ SUNG: Truyền payload rỗng để thỏa mãn mọi bộ lọc Firewall/Nginx VPS
+        })
+        .then(function(res) { if (res.ok) return res.json(); })
+        .then(function(resData) {
+            var viewsSpan = document.getElementById('post-detail-views');
+            if (viewsSpan && resData && resData.views !== undefined) {
+              viewsSpan.innerText = resData.views.toLocaleString() + ' lượt xem';
+            }
+        })
+        .catch(function(err) { console.error('Lỗi tăng lượt xem:', err); });
+    }, 2000); // Ở lại đọc bài đủ 2 giây kích hoạt đếm view
+  }
+
+  // Giữ nguyên các tính năng chia sẻ mạng xã hội
   var metadataAction = document.getElementById('view-metadata-action');
   if (metadataAction) {
     metadataAction.onclick = function() {

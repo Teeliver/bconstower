@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Http\Request;
 use App\Models\Apartment;
 use App\Models\ActivityLog; // 🔥 ĐỒNG BỘ: Gọi Model nhật ký hệ thống xử lý ghi vết trực tiếp
@@ -15,6 +17,42 @@ use Illuminate\Http\JsonResponse;
 
 class ApartmentController extends Controller
 {
+  	/**
+     * 🔥 HÀM GỬI YÊU CẦU LÊN GOOGLE INDEXING API (Dán vào cuối cả 3 Controller)
+     */
+    private function sendUrlToGoogleIndexing($url, $action = 'URL_UPDATED')
+    {
+        try {
+            $keyPath = base_path(env('GOOGLE_INDEXING_KEY_PATH', 'storage/app/google-indexing-key.json'));
+            if (!file_exists($keyPath)) {
+                \Illuminate\Support\Facades\Log::error("Không tìm thấy file JSON Google Indexing tại: {$keyPath}");
+                return false;
+            }
+
+            $client = new \Google\Client();
+            $client->setAuthConfig($keyPath);
+            $client->addScope('https://www.googleapis.com/auth/indexing');
+
+            $httpClient = $client->authorize();
+            $endpoint = 'https://indexing.googleapis.com/v3/urlNotifications:publish';
+
+            $content = json_encode(['url' => $url, 'type' => $action]);
+            $response = $httpClient->post($endpoint, [
+                'headers' => ['Content-Type' => 'application/json'],
+                'body'    => $content
+            ]);
+
+            if ($response->getStatusCode() === 200) {
+                \Illuminate\Support\Facades\Log::info("🎉 Ép Google Index thành công cho URL: {$url} [Action: {$action}]");
+                return true;
+            }
+            return false;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Lỗi Google Indexing API: " . $e->getMessage());
+            return false;
+        }
+    }
+
     /**
      * Hàm phụ trợ phân rã chuỗi Token bảo mật lấy ID người dùng
      */
@@ -192,6 +230,10 @@ class ApartmentController extends Controller
         $apartment->image = !empty($imagesData) ? json_encode($imagesData) : null;
         $apartment->save();
 
+        if (($apartment->status ?? 'active') === 'active' || ($apartment->is_showing ?? 1) == 1) {
+      		$this->sendUrlToGoogleIndexing("https://www.bconstower.vn/can-ho/{$apartment->slug}", 'URL_UPDATED');
+  		}
+
         $creatorName = $authUser->fullname ?? $authUser->name ?? 'Hệ thống';
         ActivityLog::write(
             'Thêm mới ➕',
@@ -307,6 +349,9 @@ class ApartmentController extends Controller
         }
 
         $apartment->save();
+        if (($apartment->status ?? 'active') === 'active' || ($apartment->is_showing ?? 1) == 1) {
+          $this->sendUrlToGoogleIndexing("https://www.bconstower.vn/can-ho/{$apartment->slug}", 'URL_UPDATED');
+      	}
 
         // Xác định danh tính nhân sự thực hiện hành động
         $authUser = $request->user();
@@ -423,7 +468,16 @@ class ApartmentController extends Controller
             @unlink(public_path($apartment->image));
         }
 
+      	if (!empty($apartment->slug)) {
+          $this->sendUrlToGoogleIndexing("https://www.bconstower.vn/can-ho/{$apartment->slug}", 'URL_DELETED');
+        }
+
         $apartment->delete();
+
+      	// TRƯỜNG HỢP 2: NẾU LÀ HÀM ĐỔI TRẠNG THÁI THÀNH ĐÃ BÁN HOẶC ẨN BÀI VIẾT (UPDATE/SOLDOUT)
+        $apartment->status = 'sold'; // hoặc ẩn bài
+        $apartment->save();
+        $this->sendUrlToGoogleIndexing("https://www.bconstower.vn/can-ho/{$apartment->slug}", 'URL_DELETED');
 
         $authUser = $request->user();
         $staffName = $authUser->fullname ?? $authUser->name ?? 'Hệ thống';
@@ -560,8 +614,7 @@ class ApartmentController extends Controller
                     'apartments.*',
                     'projects.title as project_name',
                     'projects.slug as project_slug',
-                    'projects.address as project_address',
-                    'projects.location as project_location'
+                    'projects.address as project_address'
                 );
 
             // 🛡️ BẢO TOÀN LỚP PHÒNG THỦ QUÉT USER ĐĂNG TIN GIỐNG HÀM INDEX CỦA TRUNG TÍN
@@ -644,8 +697,7 @@ class ApartmentController extends Controller
                     'apartments.*',
                     'projects.title as project_name',
                     'projects.slug as project_slug',
-                    'projects.address as project_address',
-                    'projects.location as project_location'
+                    'projects.address as project_address'
                 ]);
 
             // 🛡️ BẢO TOÀN LỚP PHÒNG THỦ QUÉT USER ĐĂNG TIN ĐỒNG BỘ THEO DỰ ÁN CỦA TRUNG TÍN

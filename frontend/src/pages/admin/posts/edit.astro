@@ -102,11 +102,12 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:800
   const BACKEND_URL = PUBLIC_API_BASE;
   const Swal = window.Swal;
 
-  // Trích xuất mã ID từ thanh điều hướng địa chỉ trình duyệt để tránh sập tiến trình build tĩnh
+  // Cờ hiệu toàn cục nhận diện thông minh cấu trúc cột chuyên mục của Backend Laravel
+  window.backendExpectsInteger = false;
+
   const urlParams = new URLSearchParams(window.location.search);
   const postId = urlParams.get('id');
 
-  // Khóa mõm bảo mật nếu truy cập trang sửa bài viết thiếu tham số ID trái phép
   if (!postId) {
     Swal.fire({
       icon: 'error',
@@ -118,23 +119,18 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:800
     });
   }
 
-  // Bảo toàn chữ "Đẹp" thành chữ "dep" mượt mà chuẩn SEO
   function convertToSlug(str) {
     if (!str) return '';
     let value = str.toLowerCase();
-    
-    // Ép chuyển hóa đích danh ký tự đ/Đ thành d trước khi lọc dấu tránh bị nuốt mất chữ
     value = value.replace(/đ/g, 'd');
-    
     return value.normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Khử sạch các dấu mũ lẻ tiếng Việt
-      .replace(/[^\w\s-]/g, '')        // Chỉ cho phép giữ lại chữ cái la-tinh, số và khoảng trắng
-      .replace(/\s+/g, '-')            // Thay khoảng trắng thành gạch ngang
-      .replace(/-+/g, '-')             // Gom các dấu gạch ngang liên tiếp thành 1
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
       .trim();
   }
 
-  // Lắng nghe hành vi gõ tiêu đề để sinh Slug thời gian thực sạch sẽ
   document.getElementById('title')?.addEventListener('input', function(e) {
     const titleValue = e.target.value;
     const slugInput = document.getElementById('slug');
@@ -162,13 +158,40 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:800
       
       const post = await res.json();
 
-      const categoryValue = post.category || post.category_id || 'thi-truong';
+      // 🟢 KÍCH HOẠT THUẬT TOÁN ĐOÁN ĐỊNH DẠNG DB BẮT BÀI CỘT CATEGORY
+      if (post.category_id !== undefined && post.category_id !== null) {
+          window.backendExpectsInteger = true;
+      }
+
+      // 🟢 PARSER THÔNG MINH: Đồng bộ mọi thể loại dữ liệu Chuyên mục về đúng value của Option HTML
+      let categoryValue = 'thi-truong';
+      let rawCat = post.category;
+      let rawCatId = post.category_id;
+      let checkStr = '';
+
+      if (rawCat && typeof rawCat === 'object') {
+          checkStr = String(rawCat.slug || rawCat.name || rawCat.id || '');
+      } else if (rawCat) {
+          checkStr = String(rawCat);
+      } else if (rawCatId) {
+          checkStr = String(rawCatId);
+      }
+
+      checkStr = checkStr.toLowerCase().trim();
+      if (checkStr.includes('tien') || checkStr.includes('do') || checkStr === '2') {
+          categoryValue = 'tien-do';
+      } else {
+          categoryValue = 'thi-truong';
+      }
+
       const statusValue = post.status || (post.is_published === false || post.is_published === 0 ? 'draft' : 'published');
       const thumbnailValue = post.thumbnail || post.image_url || '';
 
       document.getElementById('title').value = post.title || '';
       document.getElementById('slug').value = post.slug || '';
       document.getElementById('summary').value = post.summary || '';
+      
+      // Khớp chuẩn xác dữ liệu chuyên mục lên giao diện select option lúc tải trang
       document.getElementById('category').value = categoryValue;
       document.getElementById('status').value = statusValue;
       document.getElementById('currentThumbnail').value = thumbnailValue;
@@ -235,7 +258,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:800
     
     if (submitBtn) submitBtn.disabled = true;
 
-    // LỚP KHIÊN BẢO MẬT FILE: Quét sâu dung lượng và định dạng ảnh tránh lỗi tải lên shellcode giả mạo hình ảnh
     if (thumbInput && thumbInput.files && thumbInput.files.length > 0) {
       const file = thumbInput.files[0];
       if (file.size > 5 * 1024 * 1024) {
@@ -255,6 +277,19 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || 'http://localhost:800
     const token = rawToken ? rawToken.replace(/['"]+/g, '').trim() : '';
     
     const formData = new FormData(e.target);
+
+    // 🟢 ADAPTER CHỐT HẠ: Ép kiểu dữ liệu payload đẩy lên đúng chuẩn trường mong muốn của Backend
+    const selectedCategory = document.getElementById('category').value;
+    const numericCategory = selectedCategory === 'thi-truong' ? 1 : 2;
+
+    if (window.backendExpectsInteger) {
+        formData.set('category', numericCategory);
+        formData.set('category_id', numericCategory);
+    } else {
+        formData.set('category', selectedCategory);
+        formData.set('category_id', numericCategory);
+    }
+
     // Method Spoofing vượt lỗi bóc tách file Multipart của Laravel PUT Method
     formData.append('_method', 'PUT');
 

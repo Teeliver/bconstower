@@ -4,8 +4,8 @@
 const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:8000";
 ---
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-<script is:inline src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" media="print" onload="this.media='all'" />
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
 
 <section class="max-w-[1440px] mx-auto mt-16 md:mt-24 px-4 py-2 block" id="hero-slider-section" data-api={PUBLIC_API_BASE}>
   
@@ -100,8 +100,8 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
           html += `  </div>`;
           html += `  <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-12 md:px-16 pb-16 sm:pb-20 md:pb-28 text-left space-y-4 md:space-y-5 mt-50 md:mt-100 md:-ml-4">`;
           html += `    <div class="space-y-2 md:space-y-3">`;
-          html += `      <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight text-white leading-none drop-shadow-sm">${title}</h1>`;
-          html += `      <p class="text-slate-300/100 text-xs sm:text-sm md:text-base font-medium max-w-xl md:max-w-2xl leading-relaxed line-clamp-2">${description}</p>`;
+          html += `      <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-3xl font-black uppercase tracking-tight text-white leading-none drop-shadow-sm">${title}</h1>`;
+          html += `      <p class="text-slate-300/100 text-xs sm:text-sm md:text-base font-medium max-w-xl md:max-w-2xl leading-relaxed line-clamp-2">${subtitle}</p>`;
           html += `    </div>`;
           html += `    <div class="pt-2">`;
           html += `      <a href="${targetLink}" class="bg-[#fac72e] text-[#1E1E1E] px-6 py-3 md:px-10 md:py-4 rounded-xl font-black uppercase tracking-wider text-[11px] md:text-xs hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg shadow-black/10 select-none">${btnText}</a>`;

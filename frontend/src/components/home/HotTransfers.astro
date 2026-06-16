@@ -21,10 +21,12 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
         <button type="button" data-status="hasbook" class="hot-tab-btn w-full text-center px-1 sm:px-3 py-2 rounded-full border border-[#064e3b]/20 bg-[#064e3b]/5 text-[#064e3b] cursor-pointer focus:outline-none transition-all whitespace-nowrap">
           Đã có sổ
         </button>
-        <button type="button" data-status="handedover" class="hot-tab-btn w-full text-center px-1 sm:px-3 py-2 rounded-full border border-slate-200 bg-slate-50 text-slate-400 cursor-pointer focus:outline-none transition-all whitespace-nowrap">
+
+        <button type="button" data-status="handedover" class="hot-tab-btn w-full text-center px-1 sm:px-3 py-2 rounded-full border border-slate-200 bg-slate-50 text-slate-500 cursor-pointer focus:outline-none transition-all whitespace-nowrap">
           Đã bàn giao
         </button>
-        <button type="button" data-status="construction" class="hot-tab-btn w-full flex items-center justify-center gap-1 px-1 sm:px-3 py-2 rounded-full border border-slate-200 bg-slate-50 text-slate-400 cursor-pointer focus:outline-none transition-all whitespace-nowrap">
+
+        <button type="button" data-status="construction" class="hot-tab-btn w-full flex items-center justify-center gap-1 px-1 sm:px-3 py-2 rounded-full border border-slate-200 bg-slate-50 text-slate-500 cursor-pointer focus:outline-none transition-all whitespace-nowrap">
           <span class="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0 hidden" id="construction-dot"></span> Đang xây dựng
         </button>
       </div>
@@ -244,7 +246,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
                 <span class="text-xs text-neutral-600">${timeAgo(currentCreatedAt)}</span>
               </div>
               <section class="pt-1">
-                <h6 class="text-base font-bold text-neutral-900 line-clamp-1" title="${safeName}">${safeName}</h6>
+                <h3 class="text-base font-bold text-neutral-900 line-clamp-1" title="${safeName}">${safeName}</h3>
                 <p class="pt-0.5 text-sm text-neutral-600">${rawAddress}</p>
               </section>
             </div>

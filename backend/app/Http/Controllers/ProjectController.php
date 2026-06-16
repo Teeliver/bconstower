@@ -13,6 +13,43 @@ use Illuminate\Support\Facades\Cache; // ⚡ Kích hoạt hệ thống tăng t�
 
 class ProjectController extends Controller
 {
+
+  	/**
+     * 🔥 HÀM GỬI YÊU CẦU LÊN GOOGLE INDEXING API (Dán vào cuối cả 3 Controller)
+     */
+    private function sendUrlToGoogleIndexing($url, $action = 'URL_UPDATED')
+    {
+        try {
+            $keyPath = base_path(env('GOOGLE_INDEXING_KEY_PATH', 'storage/app/google-indexing-key.json'));
+            if (!file_exists($keyPath)) {
+                \Illuminate\Support\Facades\Log::error("Không tìm thấy file JSON Google Indexing tại: {$keyPath}");
+                return false;
+            }
+
+            $client = new \Google\Client();
+            $client->setAuthConfig($keyPath);
+            $client->addScope('https://www.googleapis.com/auth/indexing');
+
+            $httpClient = $client->authorize();
+            $endpoint = 'https://indexing.googleapis.com/v3/urlNotifications:publish';
+
+            $content = json_encode(['url' => $url, 'type' => $action]);
+            $response = $httpClient->post($endpoint, [
+                'headers' => ['Content-Type' => 'application/json'],
+                'body'    => $content
+            ]);
+
+            if ($response->getStatusCode() === 200) {
+                \Illuminate\Support\Facades\Log::info("🎉 Ép Google Index thành công cho URL: {$url} [Action: {$action}]");
+                return true;
+            }
+            return false;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Lỗi Google Indexing API: " . $e->getMessage());
+            return false;
+        }
+    }
+
     /**
      * 1. LẤY DANH SÁCH DỰ ÁN (Bảng điều khiển Admin)
      */
@@ -148,6 +185,7 @@ class ProjectController extends Controller
         $project->lng = $request->input('lng');
         $project->address = $request->input('address');
         $project->landing_data = $landingStructure;
+      	$this->sendUrlToGoogleIndexing("https://www.bconstower.vn/du-an/{$project->slug}", 'URL_UPDATED');
 
         // 7. Thực thi lưu trữ
         if ($project->save()) {
@@ -282,6 +320,8 @@ class ProjectController extends Controller
             return response()->json(['success' => true, 'message' => 'Cập nhật thành công!']);
         }
 
+      	$this->sendUrlToGoogleIndexing("https://www.bconstower.vn/du-an/{$project->slug}", 'URL_UPDATED');
+
         return response()->json(['success' => false, 'message' => 'Lỗi lưu database.'], 500);
     }
 
@@ -299,6 +339,10 @@ class ProjectController extends Controller
         if (file_exists($projectPath)) {
             self::deleteDirectoryRecursive($projectPath);
         }
+
+        if (!empty($project->slug)) {
+      		$this->sendUrlToGoogleIndexing("https://www.bconstower.vn/du-an/{$project->slug}", 'URL_DELETED');
+  		}
 
         $project->delete();
 
