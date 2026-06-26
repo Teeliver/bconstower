@@ -45,7 +45,7 @@ export class DashboardService {
       .groupBy(projects.title)
       .orderBy(desc(count(apartmentsTable.id)));
 
-    // 3. CHIẾN THẦN NHÂN VIÊN: Xếp hạng doanh số của phòng kinh doanh Bcons
+    // 3. CHIẾN THẦN NHÂN VIÊN: Xếp hạng doanh số của chuyên viên tư vấn Bcons
     const topSellers = await db
       .select({
         staffName: users.fullname,

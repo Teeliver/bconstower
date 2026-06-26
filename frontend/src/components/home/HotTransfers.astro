@@ -8,25 +8,29 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
     
     <div class="w-full flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
       <div class="space-y-2">
-        <span class="text-[10px] font-black uppercase tracking-widest text-red-600 bg-red-50 px-3 py-1 rounded-md">
+        <span class="text-[10px] font-black uppercase tracking-widest text-red-700 bg-red-50 px-3 py-1 rounded-md">
           Cập nhật phút trước
         </span>
-        <h3 class="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight mt-4">
+        <!-- 🟢 ĐÃ SỬA: Đổi từ h3 sang h2 để tối ưu cấu trúc SEO & Google Ads, tránh nhảy cóc thẻ -->
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight mt-4">
           Sang Nhượng HOT
-        </h3>
+        </h2>
         <div class="w-12 h-1 bg-red-500 rounded-full mt-2"></div>
       </div>
       
+      <!-- 🟢 TỐI ƯU THEO IMAGE_4D4E41.PNG: Đồng bộ nút bấm dạng Pill bo tròn, có đổ bóng nhẹ -->
       <div class="grid grid-cols-3 md:flex md:flex-row md:items-center gap-2 w-full md:w-auto text-[10px] sm:text-[11px] font-black uppercase tracking-tight sm:tracking-wider select-none" id="hot-tabs-buttons-group">
-        <button type="button" data-status="hasbook" class="hot-tab-btn w-full text-center px-1 sm:px-3 py-2 rounded-full border border-[#064e3b]/20 bg-[#064e3b]/5 text-[#064e3b] cursor-pointer focus:outline-none transition-all whitespace-nowrap">
+        <!-- Nút mặc định đang active (hasbook): Nền xanh đậm fill, chữ trắng, shadow-md -->
+        <button type="button" data-status="hasbook" class="hot-tab-btn w-full text-center px-1 sm:px-3 py-2.5 rounded-full border border-[#064e3b] bg-[#064e3b] text-white shadow-md cursor-pointer focus:outline-none transition-all whitespace-nowrap">
           Đã có sổ
         </button>
 
-        <button type="button" data-status="handedover" class="hot-tab-btn w-full text-center px-1 sm:px-3 py-2 rounded-full border border-slate-200 bg-slate-50 text-slate-500 cursor-pointer focus:outline-none transition-all whitespace-nowrap">
+        <!-- Các nút chưa active: Nền trắng, chữ text-slate-600 tương phản cao, shadow-sm -->
+        <button type="button" data-status="handedover" class="hot-tab-btn w-full text-center px-1 sm:px-3 py-2.5 rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm cursor-pointer focus:outline-none transition-all whitespace-nowrap">
           Đã bàn giao
         </button>
 
-        <button type="button" data-status="construction" class="hot-tab-btn w-full flex items-center justify-center gap-1 px-1 sm:px-3 py-2 rounded-full border border-slate-200 bg-slate-50 text-slate-500 cursor-pointer focus:outline-none transition-all whitespace-nowrap">
+        <button type="button" data-status="construction" class="hot-tab-btn w-full flex items-center justify-center gap-1 px-1 sm:px-3 py-2.5 rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm cursor-pointer focus:outline-none transition-all whitespace-nowrap">
           <span class="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0 hidden" id="construction-dot"></span> Đang xây dựng
         </button>
       </div>
@@ -52,7 +56,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
     const root = document.getElementById('hot-transfers-root');
     if (!root) return;
     
-    // 🔥 ĐỒNG BỘ MẠNG LOCALHOST: Kết nối trực diện an toàn
     const BACKEND_URL = root.getAttribute('data-api-base') || 'http://localhost:8000';
     const grid = document.getElementById('hot-transfers-grid');
     const skeleton = document.getElementById('hot-transfer-skeleton');
@@ -62,7 +65,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
     let PROJECT_LOOKUP_MAP = {}; 
     let currentTab = 'hasbook'; 
 
-    // 🔒 LỚP BẢO MẬT XSS: Khử trùng chuỗi dữ liệu public trang chủ
     const escapeHTML = (str) => {
       if (!str) return '';
       return str.replace(/[&<>"']/g, (match) => {
@@ -71,7 +73,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
       });
     };
 
-    // Tìm dữ liệu bảng projects liên kết từ project_id của căn hộ
     function getProjectData(apt) {
       if (apt.project && typeof apt.project === 'object') {
         return apt.project;
@@ -83,7 +84,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
       return null;
     }
 
-    // 🔥 LOGIC MA TRẬN PHÂN LOẠI TAB THEO KHAI BÁO NGHIỆP VỤ CỦA TRUNG TÍN
     function checkStatusAndLegal(apt) {
       const proj = getProjectData(apt);
       if (!proj) return 'unknown';
@@ -91,21 +91,15 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
       const status = String(proj.status || '').trim().toLowerCase();
       const legal = String(proj.legal || '').trim().toLowerCase();
 
-      // Dạng 1: Đã có sổ -> Đẩy thẳng vào Tab Có Sổ (Pháp lý lưu enum chuẩn 'so_hong')
       if (legal === 'so_hong') {
         return 'hasbook';
       }
-      
-      // Dạng 2: Đã bàn giao nhưng chưa có sổ (ký HĐMB) -> Đẩy vào Tab Đã Bàn Giao
-      if (status === 'da_ban_giao' && legal === 'hdmb' || legal === 'so_hong') {
+      if (status === 'da_ban_giao' && (legal === 'hdmb' || legal === 'so_hong')) {
         return 'handedover';
       }
-      
-      // Dạng 3: Đang xây dựng -> Đẩy vào Tab Đang Xây Dựng (Tình trạng lưu enum chuẩn 'dang_xay_dung')
-      if (status === 'dang_xay_dung' && legal === 'hdmb' || legal === 'booking') {
+      if (status === 'dang_xay_dung' && (legal === 'hdmb' || legal === 'booking')) {
         return 'construction';
       }
-      
       return 'unknown';
     }
 
@@ -126,35 +120,26 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
         return `Đăng ${past.toLocaleDateString('vi-VN')}`;
     }
 
-    // ⚡ BẢO TOÀN UI/UX GỐC 100%: Chỉ hoán đổi mác màu sắc, giữ nguyên cấu trúc layout nút bấm gốc
+    // ⚡ XỬ LÝ ĐỔI CLASS DỰA TRÊN STYLE MẪU IMAGE_4D4E41.PNG KHÔNG LÀM LỆCH LAYOUT GỐC
     function updateTabUI(activeTab) {
       const buttonsContainer = document.getElementById('hot-tabs-buttons-group');
       if (!buttonsContainer) return;
       const buttons = buttonsContainer.querySelectorAll('.hot-tab-btn');
       const dotEl = document.getElementById('construction-dot');
 
+      // Reset toàn bộ dàn nút về trạng thái ẩn: Nền trắng, viền mảnh, chữ xám đậm tương phản tốt
       buttons.forEach(b => {
-        const status = b.getAttribute('data-status');
-        if (status === 'hasbook') {
-          b.className = "hot-tab-btn w-full text-center px-1 sm:px-3 py-2 rounded-full border border-slate-200 bg-slate-50 text-slate-400 cursor-pointer focus:outline-none transition-all whitespace-nowrap";
-        } else if (status === 'handedover') {
-          b.className = "hot-tab-btn w-full text-center px-1 sm:px-3 py-2 rounded-full border border-slate-200 bg-slate-50 text-slate-400 cursor-pointer focus:outline-none transition-all whitespace-nowrap";
-        } else if (status === 'construction') {
-          b.className = "hot-tab-btn w-full flex items-center justify-center gap-1 px-1 sm:px-3 py-2 rounded-full border border-slate-200 bg-slate-50 text-slate-400 cursor-pointer focus:outline-none transition-all whitespace-nowrap";
-        }
+        b.className = "hot-tab-btn w-full text-center px-1 sm:px-3 py-2.5 rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm cursor-pointer focus:outline-none transition-all whitespace-nowrap";
       });
       
       if (dotEl) dotEl.classList.add('hidden');
 
+      // Kích hoạt nút được click: Đổ full màu xanh đậm, chữ trắng tinh, tăng độ bóng đổ shadow
       const activeBtn = buttonsContainer.querySelector(`[data-status="${activeTab}"]`);
       if (activeBtn) {
-        if (activeTab === 'hasbook') {
-          activeBtn.className = "hot-tab-btn w-full text-center px-1 sm:px-3 py-2 rounded-full border border-[#064e3b]/20 bg-[#064e3b]/5 text-[#064e3b] cursor-pointer focus:outline-none transition-all whitespace-nowrap";
-        } else if (activeTab === 'handedover') {
-          activeBtn.className = "hot-tab-btn w-full text-center px-1 sm:px-3 py-2 rounded-full border border-orange-200 bg-orange-50 text-orange-600 cursor-pointer focus:outline-none transition-all whitespace-nowrap";
-        } else if (activeTab === 'construction') {
-          activeBtn.className = "hot-tab-btn w-full flex items-center justify-center gap-1 px-1 sm:px-3 py-2 rounded-full border border-red-200 bg-red-50 text-red-600 cursor-pointer focus:outline-none transition-all whitespace-nowrap";
-          if (dotEl) dotEl.classList.remove('hidden');
+        activeBtn.className = "hot-tab-btn w-full text-center px-1 sm:px-3 py-2.5 rounded-full border border-[#064e3b] bg-[#064e3b] text-white shadow-md cursor-pointer focus:outline-none transition-all whitespace-nowrap";
+        if (activeTab === 'construction' && dotEl) {
+          dotEl.classList.remove('hidden');
         }
       }
     }
@@ -170,7 +155,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
       if (MASTER_APARTMENTS.length === 0) return;
 
       let filtered = getFilteredItems(currentTab);
-      // Sắp xếp tăng dần theo giá bán và cắt tối đa lấy 6 sản phẩm khớp hàng lưới ô Grid thiết kế trang chủ
       const hotItems = filtered.sort((a, b) => Number(a.price) - Number(b.price)).slice(0, 6);
 
       if (hotItems.length === 0) {
@@ -204,7 +188,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
         const currentProjectSlug = proj && proj.slug ? proj.slug : (apt.project_slug || apt.projectSlug || 'bcons');
         const currentCreatedAt = apt.created_at || apt.createdAt;
 
-        // Định dạng nhãn Badge đè ảnh đồng bộ chính xác theo ma trận nghiệp vụ mới
         const itemType = checkStatusAndLegal(apt);
         let labelText = 'Đang cập nhật';
         let labelClass = 'bg-slate-600/90 text-white';
@@ -246,6 +229,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
                 <span class="text-xs text-neutral-600">${timeAgo(currentCreatedAt)}</span>
               </div>
               <section class="pt-1">
+                <!-- 🟢 ĐÃ ĐỒNG BỘ: Giữ chuẩn thẻ h3 cho tên sản phẩm con theo nấc thang SEO 1 -> 2 -> 3 chuẩn chỉ -->
                 <h3 class="text-base font-bold text-neutral-900 line-clamp-1" title="${safeName}">${safeName}</h3>
                 <p class="pt-0.5 text-sm text-neutral-600">${rawAddress}</p>
               </section>
@@ -261,7 +245,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
               <div class="flex flex-row items-center">
                 <div class="mx-3 h-3 w-px bg-black/10"></div>
                 <div class="flex flex-row items-center gap-x-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-5 w-5 text-neutral-500"><path d="M240,104v40a48,48,0,0,1-48,48H64a48,48,0,0,1-48-48V104H136v40h64V104Z" opacity="0.2"></path><path d="M240,96H208a8,8,0,0,0-8-8H136a8,8,0,0,0-8,8H64V52A12,12,0,0,1,76,40a12.44,12.44,0,0,1,12.16,9.59,8,8,0,0,0,15.68-3.18A28.32,28.32,0,0,0,76,24,28,28,0,0,0,48,52V96H16a8,8,0,0,0-8,8v40a56.06,56.06,0,0,0,56,56v16a8,8,0,0,0,16,0V200h96v16a8,8,0,0,0,16,0V200a56.06,56.06,0,0,0,56-56V104A8,8,0,0,0,240,96Zm-48,8v32H144V104Zm40,40a40,40,0,0,1-40,40H64a40,40,0,0,1-40-40V112H128v32a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V112h24Z"></path></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="h-5 w-5 text-neutral-500"><path d="M240,104v40a48,48,0,0,1-48,48H64a48,48,0,0,1-48-48V104H136v40h64V104Z" opacity="0.2"></path><path d="M240,96H208a8,8,0,0,0-8-8H136a8,8,0,0,0-8,8H64V52A12,12,0,0,1,76,40a12.44,12.44,0,0,1,12.16,9.59,8,8,0,0,0,15.68-3.18A28.32,28.32,0,0,0,76,24,28,28,0,0,0,48,52V96H16a8,8,0,0,0-8,8v40a56.06,56.06,0,0,0,56,56v16a8,8,0,0,0,16,0V200h96v16a8,8,0,0,0,16,0V200a56.06,56.06,0,0,0,56-56V104A8,8,0,0,0,240,96Zm-48,8v32H144V104Zm40,40a40,40,0,0,1-40,40H64a40,40,0,0,1-40-40V112H128v32a8,8,0,0,0,16,0V200h96v16a8,8,0,0,0,16,0V200a56.06,56.06,0,0,0,56-56V104A8,8,0,0,0,240,96Zm-48,8v32H144V104Zm40,40a40,40,0,0,1-40,40H64a40,40,0,0,1-40-40V112H128v32a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V112h24Z"></path></svg>
                   <span class="whitespace-nowrap text-sm text-neutral-600">${apt.bathrooms || 0} WC</span>
                 </div>
               </div>
@@ -298,7 +282,6 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:300
         }
       });
 
-      // Đảo Tab thông minh: Nếu tab Có sổ mặc định trống hàng, tự lật sang tab có hàng thật để màn hình không bị trống
       if (getFilteredItems('hasbook').length === 0) {
         if (getFilteredItems('handedover').length > 0) { currentTab = 'handedover'; }
         else if (getFilteredItems('construction').length > 0) { currentTab = 'construction'; }

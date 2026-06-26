@@ -311,6 +311,8 @@ try {
                     ${escapeHTML(hero.btn_text || 'Gửi yêu cầu ngay')}
                   </button>
 
+                  <p class="text-[14px] text-black">* Cam kết bảo mật thông tin cá nhân khách hàng 100%.</p>
+
                   <div id="hero-form-msg" class="text-xs font-bold mt-3 text-center p-3 rounded-xl hidden transition-all duration-300"></div>
                 </form>
                 
@@ -380,7 +382,7 @@ try {
             
             if (msgEl) {
               if (response.ok && resData.success) {
-                msgEl.textContent = 'Cảm ơn quý khách đã đăng ký nhận thông tin tư vấn thành công! Phòng kinh doanh sẽ liên hệ hỗ trợ sớm nhất.';
+                msgEl.textContent = 'Cảm ơn quý khách đã đăng ký nhận thông tin tư vấn thành công! Chuyên viên tư vấn sẽ liên hệ hỗ trợ sớm nhất.';
                 msgEl.className = "text-xs font-bold mt-3 text-center p-3 rounded-xl bg-white text-[#005745] border border-white block animate-fade-in";
                 
                 if (nameInput) nameInput.value = '';
@@ -1156,7 +1158,7 @@ try {
 
           const resData = await response.json();
           if (response.ok || resData.success) {
-            triggerNotification('🎉 Cảm ơn quý khách đã đăng ký nhận thông tin tư vấn thành công! Phòng kinh doanh sẽ liên hệ hỗ trợ bạn sớm nhất.', true);
+            triggerNotification('🎉 Cảm ơn quý khách đã đăng ký nhận thông tin tư vấn thành công! Chuyên viên tư vấn sẽ liên hệ hỗ trợ bạn sớm nhất.', true);
             nameInput.value = '';
             phoneInput.value = '';
             emailInput.value = '';

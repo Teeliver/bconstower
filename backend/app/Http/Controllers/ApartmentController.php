@@ -781,10 +781,10 @@ class ApartmentController extends Controller
             }
 
             // 🛡️ LỚP PHÒNG THỦ: Cấu hình thông tin hồ sơ môi giới mặc định an toàn hệ thống
-            $creatorName = 'Trung Tín';
+            $creatorName = 'Lê Bá Trung Tín';
             $creatorPhone = '0911 502 603';
             $creatorAvatar = '/images/default-avatar.jpg';
-            $companyName = 'Phòng Kinh Doanh Bcons';
+            $companyName = 'Chuyên viên tư vấn Bcons';
             $areaFocus = 'Bình Dương - TP. Hồ Chí Minh';
             $licenseNumber = 'BCO-' . $apartment->id;
             $experienceYears = 5;

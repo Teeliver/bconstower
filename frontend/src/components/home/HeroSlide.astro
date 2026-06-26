@@ -20,8 +20,8 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
 
     </div>
 
-    <div class="swiper-button-next !text-white/70 !w-12 !h-12 bg-white/5 backdrop-blur-md rounded-full after:!text-[10px] opacity-0 group-hover:opacity-100 transition-all duration-500 right-6 hidden md:flex items-center justify-center border border-white/10 hover:bg-[#fac72e] hover:!text-[#1E1E1E] hover:border-[#fac72e]"></div>
-    <div class="swiper-button-prev !text-white/70 !w-12 !h-12 bg-white/5 backdrop-blur-md rounded-full after:!text-[10px] opacity-0 group-hover:opacity-100 transition-all duration-500 left-6 hidden md:flex items-center justify-center border border-white/10 hover:bg-[#fac72e] hover:!text-[#1E1E1E] hover:border-[#fac72e]"></div>
+    <div aria-label="Slide trước" class="swiper-button-next !text-white/70 !w-12 !h-12 bg-white/5 backdrop-blur-md rounded-full after:!text-[10px] opacity-0 group-hover:opacity-100 transition-all duration-500 right-6 hidden md:flex items-center justify-center border border-white/10 hover:bg-[#fac72e] hover:!text-[#1E1E1E] hover:border-[#fac72e]"></div>
+    <div aria-label="Slide sau" class="swiper-button-prev !text-white/70 !w-12 !h-12 bg-white/5 backdrop-blur-md rounded-full after:!text-[10px] opacity-0 group-hover:opacity-100 transition-all duration-500 left-6 hidden md:flex items-center justify-center border border-white/10 hover:bg-[#fac72e] hover:!text-[#1E1E1E] hover:border-[#fac72e]"></div>
     
     <div class="swiper-pagination !text-right !px-8 md:!px-16 !pb-6 md:!pb-10"></div>
   </div>
@@ -87,7 +87,7 @@ const PUBLIC_API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:800
           
           const title = escapeHTML(slide.title || 'Dự án Bcons');
           const subtitle = escapeHTML(slide.subtitle || 'Bcons Group • Đón đầu an cư');
-          const description = escapeHTML(slide.description || 'Cập nhật bảng giá rổ hàng ký gửi sang nhượng vị trí đẹp trực tiếp từ phòng kinh doanh.');
+          const description = escapeHTML(slide.description || 'Cập nhật bảng giá rổ hàng ký gửi sang nhượng vị trí đẹp trực tiếp từ chuyên viên tư vấn.');
           const targetLink = escapeHTML(slide.link_url || '#cta-register-root');
           const btnText = escapeHTML(slide.button_text || 'Xem chi tiết ngay');
 
