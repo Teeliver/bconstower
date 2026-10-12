@@ -1,0 +1,28 @@
+{
+  "name": "mu-web-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail -n gateway,web -c yellow,cyan \"node --watch server/index.mjs\" \"vite --host 127.0.0.1\"",
+    "build": "vite build",
+    "start": "node server/index.mjs",
+    "test": "node --test server/*.test.mjs src/scene/*.test.mjs",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "dependencies": {
+    "@babylonjs/core": "8.56.2",
+    "@mu-online-js/mu-packet-manager": "0.0.15",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "ws": "8.18.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.5.2",
+    "concurrently": "9.2.1",
+    "vite": "6.4.1"
+  }
+}
